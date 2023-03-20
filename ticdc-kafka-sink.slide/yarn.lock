@@ -438,6 +438,14 @@
   dependencies:
     "@iconify/types" "*"
 
+"@iconify/json@^2.1.129":
+  version "2.2.36"
+  resolved "https://registry.yarnpkg.com/@iconify/json/-/json-2.2.36.tgz#5c5993a59ecbfb08d7cfe68c73f28d654bdda03b"
+  integrity sha512-M3NzzLjmE5udIO24EgT9MV1LfU5FQDw9nfAfgrV3NySiLMtZFoOvFEdURJihH2SJWCoFhIpRRkgSZKN8qWIhuQ==
+  dependencies:
+    "@iconify/types" "*"
+    pathe "^1.0.0"
+
 "@iconify/types@*", "@iconify/types@^2.0.0":
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/@iconify/types/-/types-2.0.0.tgz#ab0e9ea681d6c8a1214f30cd741fe3a20cc57f57"
@@ -2877,7 +2885,7 @@ path-type@^4.0.0:
   resolved "https://registry.yarnpkg.com/path-type/-/path-type-4.0.0.tgz#84ed01c0a7ba380afe09d90a8c180dcd9d03043b"
   integrity sha512-gDKb8aZMDeD/tZWs9P6+q0J9Mwkdl6xMV8TjnGP3qJVJ06bdMgkbBlLU8IdfOsIsFz2BW1rNVT3XuNEl8zPAvw==
 
-pathe@^1.1.0:
+pathe@^1.0.0, pathe@^1.1.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/pathe/-/pathe-1.1.0.tgz#e2e13f6c62b31a3289af4ba19886c230f295ec03"
   integrity sha512-ODbEPR0KKHqECXW1GoxdDb+AZvULmXjVPy4rt+pGo2+TnjJTIPJQSVS6N63n8T2Ip+syHhbn52OewKicV0373w==
