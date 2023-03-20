@@ -25,7 +25,7 @@ A Deep Dive
 </div>
 
 ---
-transition: fade-out
+transition: slide-up
 ---
 
 # Rustin Liu
@@ -67,8 +67,7 @@ layout: center
 
   - Sink Module Design
   - MQ Sink Deep Dive
-  - Avro Protocol
-  - Canal-JSON Protocol
+  - Recommended Protocols
   - Q&A
 
   </div>
@@ -81,7 +80,7 @@ h1 {
 </style>
 
 ---
-transition: fade-out
+transition: slide-up
 ---
 
 # Sink Module Abstract
@@ -116,7 +115,7 @@ DDLS <|.. DDLCSS : implement
 ```
 
 ---
-transition: fade-out
+transition: slide-up
 layout: two-cols
 ---
 
@@ -243,11 +242,21 @@ dispatchers = [
 </div>
 <br/>
 <br/>
-<div class="grid grid-cols-2 gap-4 items-center h-100">
+<div class="grid grid-cols-3 gap-4 items-center h-100">
   <div class="object-contain h-full of-hidden">
-      <h2>Topic</h2>
+      <h1>Matcher</h1>
       <br/>
-      <span>- matcher</span>
+      <span>- *</span>
+      <br/>
+      <span>- ?</span>
+      <br/>
+      <span>- [a-z]</span>
+      <br/>
+      <span>- [!a-z]</span>
+      <br/>
+  </div>
+  <div class="object-contain h-full of-hidden">
+      <h1>Topic</h1>
       <br/>
       <span>- {schema}</span>
       <br/>
@@ -255,7 +264,7 @@ dispatchers = [
       <br/>
   </div>
   <div class="object-contain h-full of-hidden">
-      <h2>Partition</h2>
+      <h1>Partition</h1>
       <br/>
       <span>- default</span>
       <br/>
@@ -297,10 +306,143 @@ func (w *worker) run(ctx context.Context) (retErr error) {
 ```
 
 ---
+transition: slide-up
+---
+
+# MQ Sink Producer
+
+```go
+// DMLProducer is the interface for message producer.
+type DMLProducer interface {
+	// AsyncSendMessage sends a message asynchronously.
+	AsyncSendMessage(
+		ctx context.Context, topic string, partition int32, message *common.Message,
+	) error
+
+	// Close closes the producer and client(s).
+	Close()
+}
+```
+<br/>
+
+# Go Client
+We use:
+
+[shopify/sarama](https://github.com/Shopify/sarama/wiki) (ticdc v6.5)
+
+[segmentio/kafka-go](https://github.com/segmentio/kafka-go) (ticdc master)
+
+---
+transition: slide-up
+---
+# Encoder
+
+```go
+type EventBatchEncoder interface {
+	// EncodeCheckpointEvent appends a checkpoint event into the batch.
+	// This event will be broadcast to all partitions to signal a global checkpoint.
+	EncodeCheckpointEvent(ts uint64) (*common.Message, error)
+	// AppendRowChangedEvent appends the calling context, a row changed event and the dispatch
+	// topic into the batch
+	AppendRowChangedEvent(context.Context, string, *model.RowChangedEvent, func()) error
+	// EncodeDDLEvent appends a DDL event into the batch
+	EncodeDDLEvent(e *model.DDLEvent) (*common.Message, error)
+	// Build builds the batch and returns the bytes of key and value.
+	// Should be called after `AppendRowChangedEvent`
+	Build() []*common.Message
+}
+```
+
+# Recommended Protocol
+We recommend and officially support:
+
+[Canal-JSON Protocol](https://docs.pingcap.com/tidb/dev/ticdc-canal-json)
+
+[Avro Protocol](https://docs.pingcap.com/tidb/dev/ticdc-avro-protocol/)
+
+---
+transition: slide-up
+---
+# Canal-JSON
+
+SQL to Canal-JSON
+
+<div class="grid grid-cols-2 gap-4 items-center h-100">
+  <div class="object-contain">
+
+```sql {0|all|0}
+/*
+Because there are only Columns,
+it is an Insert statement.
+*/
+INSERT INTO TEST (NAME,AGE)
+VALUES ('Jack',20);
+```
+
+```go{0|all|0}
+type RowChangedEvent struct {
+	StartTs  uint64
+	CommitTs uint64
+	RowID int64
+	Table    *TableName
+	ColInfos []rowcodec.ColInfo
+	TableInfoVersion uint64
+	ReplicaID    uint64
+	Columns      []*Column
+	PreColumns   []*Column
+	IndexColumns [][]int
+	ApproximateDataSize int64
+}
+```
+  </div>
+  <div class="object-contain w-full">
+
+```json {0|all}
+{
+    "id": 0,
+    "database": "test",
+    "table": "TEST",
+    "pkNames": [
+        "NAME"
+    ],
+    "isDdl": false,
+    "type": "INSERT",
+    ...
+    "ts": 2,
+    ...
+    "data": [
+        {
+            "NAME": "Jack",
+            "AGE": "25"
+        }
+    ],
+    "old": null
+}
+```
+
+  </div>
+</div>
+
+---
+transition: slide-up
+---
+# Avro
+
+Working in progress...
+
+---
+layout: center
+---
+
+# Q&A
+
+## Do you have any questions?
+
+---
 layout: center
 class: text-center
 ---
 
 # Learn More
 
-[Documentations](https://sli.dev) · [GitHub](https://github.com/slidevjs/slidev) · [Showcases](https://sli.dev/showcases.html)
+[Documentations](https://docs.pingcap.com/tidb/dev/ticdc-overview) · [GitHub](https://github.com/pingcap/tiflow)
