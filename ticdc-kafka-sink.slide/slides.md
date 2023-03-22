@@ -212,7 +212,7 @@ transition: slide-up
 # MQ Event Router
 <br/>
 
-```go
+```go{0|6|7|all}
 // EventRouter is a router, it determines which topic and which partition
 // an event should be dispatched to.
 type EventRouter struct {
@@ -428,7 +428,53 @@ transition: slide-up
 ---
 # Avro
 
-Working in progress...
+Schema Registry
+
+```json {0|all|0}
+{
+    "name":"{{ColumnName}}",
+    "type":{
+        "connect.parameters":{
+            "tidb_type":"{{TIDB_TYPE}}"
+        },
+        "type":"{{AVRO_TYPE}}"
+    }
+}
+```
+
+<div class="grid grid-cols-2 gap-4 items-center h-50">
+  <div class="object-contain">
+<h2>Key: </h2>
+
+```json{0|all|0}
+{
+    "name":"{{TableName}}",
+    "namespace":"{{Namespace}}",
+    "type":"record",
+    "fields":[
+        {{ColumnValueBlock}},
+        {{ColumnValueBlock}},
+    ]
+}
+```
+  </div>
+  <div class="object-contain w-full">
+<h2>Value: </h2>
+
+```json {0|all}
+{
+    "name":"{{TableName}}",
+    "namespace":"{{Namespace}}",
+    "type":"record",
+    "fields":[
+        {{ColumnValueBlock}},
+        {{ColumnValueBlock}},
+    ]
+}
+```
+
+  </div>
+</div>
 
 ---
 layout: center
