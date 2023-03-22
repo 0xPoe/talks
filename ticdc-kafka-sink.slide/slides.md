@@ -478,14 +478,6 @@ Schema Registry
 
 ---
 layout: center
----
-
-# Q&A
-
-## Do you have any questions?
-
----
-layout: center
 class: text-center
 ---
 
