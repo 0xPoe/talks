@@ -339,7 +339,7 @@ dispatchers = [
 transition: slide-up
 ---
 
-# Why so many dispensers?
+# Why so many dispatchers?
 What is row level order?
 
 ```sql
@@ -362,7 +362,7 @@ Update a = 3 where a = 2
 transition: slide-up
 ---
 
-# Why so many dispensers?
+# Why so many dispatchers?
 We guarantee the order of the row level.
 
 ```sql
@@ -389,7 +389,7 @@ Update a = 3 where a = 2
 transition: slide-up
 ---
 
-# Why so many dispensers?
+# Why so many dispatchers?
 We **can not** guarantee the order of the row level when the old value is enabled if the primary key is not clustered.
 
 ```sql
