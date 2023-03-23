@@ -94,6 +94,27 @@ transition: slide-up
 
 ---
 transition: slide-up
+layout: two-cols
+---
+
+# Code Structure
+
+::right::
+
+<img src="https://user-images.githubusercontent.com/29879298/227178552-e14df710-811b-4738-a01c-1d10afee3f93.png" class="m-8 w-90 h-100 rounded shadow" />
+
+<style>
+h1 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  text-align: center;
+}
+</style>
+
+---
+transition: slide-up
 ---
 
 # Sink Module Abstract
@@ -214,9 +235,8 @@ transition: slide-up
 
 # MQ Event Sink
 <br/>
-<br/>
 
-```go{all|9|11|all}
+```go{all|10|11|all}
 // dmlSink is the mq sink.
 // It will send the events to the MQ system.
 type dmlSink struct {
@@ -225,14 +245,19 @@ type dmlSink struct {
 	// protocol indicates the protocol used by this sink.
 	protocol config.Protocol
 
-	worker *worker
 	// eventRouter used to route events to the right topic and partition.
 	eventRouter *dispatcher.EventRouter
+	worker *worker
 	// topicManager used to manage topics.
 	// It is also responsible for creating topics.
 	topicManager manager.TopicManager
 }
 ```
+
+[eventRouter](https://github.com/pingcap/tiflow/blob/v6.5.1/cdc/sink/mq/dispatcher/event_router.go)
+
+[worker](https://github.com/pingcap/tiflow/blob/v6.5.1/cdc/sinkv2/eventsink/mq/worker.go)
+
 ---
 transition: slide-up
 ---
@@ -253,12 +278,16 @@ type EventRouter struct {
 }
 ```
 
+[topicDispatcher](https://github.com/pingcap/tiflow/blob/v6.5.1/cdc/sink/mq/dispatcher/topic/dispatcher.go)
+
+[partitionDispatcher](https://github.com/pingcap/tiflow/tree/v6.5.1/cdc/sink/mq/dispatcher/partition)
+
 ---
 transition: slide-up
 ---
 
 # MQ Topic And Partition Dispatcher
-<br/>
+Send data to multiple topics and partitions based on the table name.
 <div>
 
 ```toml
@@ -305,6 +334,58 @@ dispatchers = [
 
   </div>
 </div>
+
+---
+transition: slide-up
+---
+
+# How to choose a partition dispatcher?
+We guarantee the order of the row level.
+
+```sql
+CREATE TABLE `t` (`b` VARCHAR(255)
+PRIMARY KEY /*T![clustered_index] NONCLUSTERED */);
+Insert a = 2
+Update a = 1 where a = 2
+Insert a = 2
+Update a = 3 where a = 2
+```
+
+
+<h4>Disable Old Value: </h4>
+
+| partition-1  | partition-2  | partition-3  |
+| ------------ | ------------ | ------------ |
+| Insert a = 2 | Insert a = 1 | Insert a = 3 |
+| Delete a =2  |              |              |
+| Insert a = 2 |              |              |
+| Delete a =2  |              |              |
+
+
+---
+transition: slide-up
+---
+
+# How to choose a partition dispatcher?
+We **can not** guarantee the order of the row level.
+
+```sql
+CREATE TABLE `t` (`b` VARCHAR(255)
+PRIMARY KEY /*T![clustered_index] NONCLUSTERED */);
+Insert a = 2
+Update a = 1 where a = 2
+Insert a = 2
+Update a = 3 where a = 2
+```
+
+<h4>Enable Old Value: </h4>
+
+| partition-1  | partition-2              | partition-3              |
+| ------------ | ------------------------ | ------------------------ |
+| Insert a = 2 | Update a = 1 where a = 2 | Update a = 3 where a = 2 |
+| Insert a = 2 |                          |                          |
+|              |                          |                          |
+|              |                          |                          |
 
 ---
 transition: slide-up
@@ -395,15 +476,14 @@ transition: slide-up
 ---
 # Canal-JSON
 
-SQL to Canal-JSON
+[SQL to Canal-JSON](https://github.com/pingcap/tiflow/tree/v6.5.1/cdc/sink/codec/canal)
 
 <div class="grid grid-cols-2 gap-4 items-center h-100">
   <div class="object-contain">
 
 ```sql {0|all|0}
 /*
-Because there are only Columns,
-it is an Insert statement.
+Insert a row into table TEST.
 */
 INSERT INTO TEST (NAME,AGE)
 VALUES ('Jack',20);
@@ -458,7 +538,7 @@ transition: slide-up
 ---
 # Avro
 
-Schema Registry
+[Schema Registry](https://github.com/pingcap/tiflow/tree/v6.5.1/cdc/sink/codec/avro)
 
 <div class="grid grid-cols-2 gap-4 items-center">
   <div class="object-contain">
@@ -513,4 +593,4 @@ class: text-center
 
 # Learn More
 
-[Documentations](https://docs.pingcap.com/tidb/dev/ticdc-overview) · [GitHub](https://github.com/pingcap/tiflow)
+[Documentations](https://docs.pingcap.com/tidb/dev/ticdc-overview) · [GitHub](https://github.com/pingcap/tiflow)  · [How to write an new sink](https://hi-rustin.rs/TiCDC-Sink-%E5%BC%80%E5%8F%91%E6%8C%87%E5%8D%97/)
