@@ -340,6 +340,29 @@ transition: slide-up
 ---
 
 # How to choose a partition dispatcher?
+What is row level order?
+
+```sql
+CREATE TABLE `t` (`a` VARCHAR(255)
+PRIMARY KEY);
+Insert a = 2
+Update a = 1 where a = 2
+Insert a = 2
+Update a = 3 where a = 2
+```
+
+| partition-1  | partition-2  | partition-3  |
+| ------------ | ------------ | ------------ |
+| Insert a = 2 | Insert a = 1 | Insert a = 3 |
+| Delete a =2  |              |              |
+| Insert a = 2 |              |              |
+| Delete a =2  |              |              |
+
+---
+transition: slide-up
+---
+
+# How to choose a partition dispatcher?
 We guarantee the order of the row level.
 
 ```sql
