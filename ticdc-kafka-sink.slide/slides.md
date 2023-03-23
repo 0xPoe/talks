@@ -18,6 +18,8 @@ css: unocss
 
 A Deep Dive
 
+Based on TiCDC [v6.5.1](https://github.com/pingcap/tiflow/tree/v6.5.1)
+
 <div class="pt-12">
   <span @click="$slidev.nav.next" class="px-2 py-1 rounded cursor-pointer" hover="bg-white bg-opacity-10">
     Begin <carbon:arrow-right class="inline"/>
@@ -83,6 +85,17 @@ h1 {
 transition: slide-up
 ---
 
+# Architecture Review
+
+<br/>
+<br/>
+
+![Architecture Review](https://user-images.githubusercontent.com/29879298/227139328-15d89601-66d8-4eec-8915-f337ab889968.png)
+
+---
+transition: slide-up
+---
+
 # Sink Module Abstract
 
 <br/>
@@ -114,6 +127,11 @@ DDLS <|.. DDLCSS : implement
 @enduml
 ```
 
+<br/>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Table Sink](https://github.com/pingcap/tiflow/tree/v6.5.1/cdc/sinkv2/tablesink)
+· [Event Sink](https://github.com/pingcap/tiflow/blob/v6.5.1/cdc/sinkv2/eventsink/event_sink.go) · [DDL Sink](https://github.com/pingcap/tiflow/tree/v6.5.1/cdc/sinkv2/ddlsink) · [MQ Event Sink](https://github.com/pingcap/tiflow/tree/v6.5.1/cdc/sinkv2/eventsink/mq) · [Transaction Event Sink](https://github.com/pingcap/tiflow/tree/v6.5.1/cdc/sinkv2/eventsink/txn) · [Cloud Storage Event Sink](https://github.com/pingcap/tiflow/tree/v6.5.1/cdc/sinkv2/eventsink/cloudstorage)
+
 ---
 transition: slide-up
 layout: two-cols
@@ -140,6 +158,14 @@ MQES --> TS1: call Callback
 MQES --> TS2: call Callback
 @enduml
 ```
+&nbsp;&nbsp;&nbsp;&nbsp;[call WriteEvents](https://github.com/pingcap/tiflow/blob/7f561614a572a87ce8ac714e64dfb2668c20e20f/cdc/sinkv2/tablesink/table_sink_impl.go#L116)
+
+&nbsp;&nbsp;&nbsp;&nbsp;[Produce](https://github.com/pingcap/tiflow/blob/7f561614a572a87ce8ac714e64dfb2668c20e20f/cdc/sinkv2/eventsink/mq/dmlproducer/kafka_dml_producer.go#L172)
+
+&nbsp;&nbsp;&nbsp;&nbsp;[ACK](https://github.com/pingcap/tiflow/blob/7f561614a572a87ce8ac714e64dfb2668c20e20f/cdc/sinkv2/eventsink/mq/dmlproducer/kafka_dml_producer.go#L259)
+
+&nbsp;&nbsp;&nbsp;&nbsp;[call Callback](https://github.com/pingcap/tiflow/blob/7f561614a572a87ce8ac714e64dfb2668c20e20f/cdc/sinkv2/eventsink/mq/dmlproducer/kafka_dml_producer.go#L261)
+
 </template>
 
 <template v-slot:right>
@@ -157,7 +183,9 @@ MQDDLS -> K: call Synchronized Produce
 K --> MQDDLS: ok
 @enduml
 ```
+&nbsp;&nbsp;&nbsp;&nbsp;[call Synchronized Produce](https://github.com/pingcap/tiflow/blob/7f561614a572a87ce8ac714e64dfb2668c20e20f/cdc/sinkv2/ddlsink/mq/mq_ddl_sink.go#L85)
 </template>
+
 
 ---
 transition: slide-up
@@ -432,19 +460,7 @@ transition: slide-up
 
 Schema Registry
 
-```json {0|all|0}
-{
-    "name":"{{ColumnName}}",
-    "type":{
-        "connect.parameters":{
-            "tidb_type":"{{TIDB_TYPE}}"
-        },
-        "type":"{{AVRO_TYPE}}"
-    }
-}
-```
-
-<div class="grid grid-cols-2 gap-4 items-center h-50">
+<div class="grid grid-cols-2 gap-4 items-center">
   <div class="object-contain">
 <h2>Key: </h2>
 
@@ -477,6 +493,18 @@ Schema Registry
 
   </div>
 </div>
+
+```json {0|all|0}
+{
+    "name":"{{ColumnName}}",
+    "type":{
+        "connect.parameters":{
+            "tidb_type":"{{TIDB_TYPE}}"
+        },
+        "type":"{{AVRO_TYPE}}"
+    }
+}
+```
 
 ---
 layout: center
