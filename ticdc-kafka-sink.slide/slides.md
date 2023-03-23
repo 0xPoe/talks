@@ -343,7 +343,7 @@ transition: slide-up
 We guarantee the order of the row level.
 
 ```sql
-CREATE TABLE `t` (`b` VARCHAR(255)
+CREATE TABLE `t` (`a` VARCHAR(255)
 PRIMARY KEY /*T![clustered_index] NONCLUSTERED */);
 Insert a = 2
 Update a = 1 where a = 2
