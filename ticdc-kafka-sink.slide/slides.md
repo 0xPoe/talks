@@ -339,7 +339,7 @@ dispatchers = [
 transition: slide-up
 ---
 
-# How to choose a partition dispatcher?
+# Why so many dispensers?
 What is row level order?
 
 ```sql
@@ -362,7 +362,7 @@ Update a = 3 where a = 2
 transition: slide-up
 ---
 
-# How to choose a partition dispatcher?
+# Why so many dispensers?
 We guarantee the order of the row level.
 
 ```sql
@@ -389,8 +389,8 @@ Update a = 3 where a = 2
 transition: slide-up
 ---
 
-# How to choose a partition dispatcher?
-We **can not** guarantee the order of the row level.
+# Why so many dispensers?
+We **can not** guarantee the order of the row level when the old value is enabled if the primary key is not clustered.
 
 ```sql
 CREATE TABLE `t` (`b` VARCHAR(255)
