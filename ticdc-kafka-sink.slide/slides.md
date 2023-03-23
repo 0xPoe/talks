@@ -218,8 +218,8 @@ transition: slide-up
 type EventRouter struct {
 	defaultTopic string
 	rules        []struct {
-		partitionDispatcher partition.Dispatcher
 		topicDispatcher     topic.Dispatcher
+		partitionDispatcher partition.Dispatcher
 		...
 	}
 }
@@ -260,7 +260,7 @@ dispatchers = [
       <br/>
       <span>- {schema}</span>
       <br/>
-      <span>- {partition}</span>
+      <span>- {table}</span>
       <br/>
   </div>
   <div class="object-contain h-full of-hidden">
@@ -286,18 +286,23 @@ transition: slide-up
 
 ```go
 func (w *worker) run(ctx context.Context) (retErr error) {
-	....
+	...
 
+  // Spawn goroutines to encode events.
 	g, ctx := errgroup.WithContext(ctx)
 	g.Go(func() error {
 		return w.encoderGroup.Run(ctx)
 	})
+
+  // Try to receive row events from the table sink.
 	g.Go(func() error {
 		if w.protocol.IsBatchEncode() {
 			return w.batchEncodeRun(ctx)
 		}
 		return w.nonBatchEncodeRun(ctx)
 	})
+
+  // Try to send messages to the MQ system.
 	g.Go(func() error {
 		return w.sendMessages(ctx)
 	})
@@ -339,14 +344,11 @@ transition: slide-up
 
 ```go
 type EventBatchEncoder interface {
-	// EncodeCheckpointEvent appends a checkpoint event into the batch.
-	// This event will be broadcast to all partitions to signal a global checkpoint.
-	EncodeCheckpointEvent(ts uint64) (*common.Message, error)
+  ...
 	// AppendRowChangedEvent appends the calling context, a row changed event and the dispatch
 	// topic into the batch
 	AppendRowChangedEvent(context.Context, string, *model.RowChangedEvent, func()) error
-	// EncodeDDLEvent appends a DDL event into the batch
-	EncodeDDLEvent(e *model.DDLEvent) (*common.Message, error)
+  ...
 	// Build builds the batch and returns the bytes of key and value.
 	// Should be called after `AppendRowChangedEvent`
 	Build() []*common.Message
