@@ -66,10 +66,10 @@ layout: center
   <div class="border-l border-gray-400 border-opacity-25 !all:leading-12 !all:list-none my-auto">
 
   - Architecture
-  - Old Table Sink Module Design
-  - New Table Sink Module Design
+  - Old Sink Module Design
+  - New Sink Module Design
+  - Table Sink Deep Dive
   - MySQL Sink Deep Dive
-  - New Sink Metrics
   - Q&A
 
   </div>
@@ -316,7 +316,7 @@ h1 {
 
 ---
 
-# Old Data Sequence
+# Old Data Sequence (Sync)
 
 ## Row Change Data Sequence
 
@@ -498,7 +498,7 @@ DDLS <|.. DDLCSS : implement
 transition: slide-up
 ---
 
-# New Data Sequence
+# New Data Sequence (Async)
 
 ## Row Change Data Sequence
 
