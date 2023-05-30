@@ -104,7 +104,7 @@ layout: center
 
 ```plantuml {scale: 0.8}
 @startuml
-
+!theme plain
 package "TiKV" {
   gRPC - [TiKV CDC]
 }
@@ -230,7 +230,7 @@ layout: center
 
 ```plantuml {scale: 1}
 @startuml
-
+!theme plain
 package "TiKV" {
   gRPC - [TiKV CDC]
 }
@@ -322,6 +322,7 @@ h1 {
 
 ```plantuml {scale: 0.9}
 @startuml
+!theme plain
 SinkNode <- SinkNode: added to buffer
 SinkNode -> TableSink: buffer is full and SinkNode calls EmitRowChangedEvents
 SinkNode <-- TableSink: added to buffer
@@ -361,7 +362,7 @@ layout: center
 
 ```plantuml {scale: 1}
 @startuml
-
+!theme plain
 package "TiKV" {
   gRPC - [TiKV CDC]
 }
@@ -379,7 +380,7 @@ node "Processor" {
       [Sorter2]
       [TableSink2] #Yellow
     }
-    package "DML Sink" {
+    package "Event Sink" {
       [Worker1] #FF6655
       [Worker2] #FF6655
     }
@@ -388,7 +389,7 @@ node "Processor" {
 
 database "MySQL"
 
-note right of [DML Sink]
+note right of [Event Sink]
   It can be either
   MySQL Sink、MQ Sink、Cloud Storage Sink or BlackHoleSink.
 end note
@@ -397,8 +398,8 @@ end note
 [Worker2] --> [MySQL]
 [Sorter1] ..> [ProcessorMounter] : use
 [Sorter2] ..> [ProcessorMounter] : use
-[TableSink1] ..> [DML Sink] : use
-[TableSink2] ..> [DML Sink] : use
+[TableSink1] ..> [Event Sink] : use
+[TableSink2] ..> [Event Sink] : use
 [Puller1] --> [Sorter1]
 [Sorter1] --> [TableSink1]
 [Puller2] --> [Sorter2]
@@ -441,3 +442,41 @@ h1 {
 </style>
 
 ---
+transition: slide-up
+---
+
+# Sink Module Abstract
+
+<br/>
+<br/>
+
+```plantuml
+@startuml
+!theme plain
+class TS as "Table Sink"
+class ES as "Event Sink"
+class MQS as "MQ Event Sink"
+class TXNS as "Transaction Event Sink"
+class CSS as "Cloud Storage Event Sink"
+
+TS *-- ES : use
+
+ES <|.. MQS : implement
+ES <|.. TXNS : implement
+ES <|.. CSS : implement
+
+class DDLS as "DDL Sink"
+class DDLMQS as "MQ DDL Sink"
+class DDLTXNS as "Transaction DDL Sink"
+class DDLCSS as "Cloud Storage DDL Sink"
+
+DDLS <|.. DDLMQS : implement
+DDLS <|.. DDLTXNS : implement
+DDLS <|.. DDLCSS : implement
+@enduml
+```
+
+<br/>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Table Sink](https://github.com/pingcap/tiflow/tree/v6.5.1/cdc/sinkv2/tablesink)
+· [Event Sink](https://github.com/pingcap/tiflow/blob/v6.5.1/cdc/sinkv2/eventsink/event_sink.go) · [DDL Sink](https://github.com/pingcap/tiflow/tree/v6.5.1/cdc/sinkv2/ddlsink) · [MQ Event Sink](https://github.com/pingcap/tiflow/tree/v6.5.1/cdc/sinkv2/eventsink/mq) · [Transaction Event Sink](https://github.com/pingcap/tiflow/tree/v6.5.1/cdc/sinkv2/eventsink/txn) · [Cloud Storage Event Sink](https://github.com/pingcap/tiflow/tree/v6.5.1/cdc/sinkv2/eventsink/cloudstorage)
