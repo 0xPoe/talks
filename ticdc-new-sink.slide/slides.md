@@ -122,7 +122,7 @@ node "Owner" {
 
 node "Processor" {
   [ProcessorMounter]
-  [ProcessorSink]
+  [ProcessorSink] #FF6655
   package "DDL" as DDL2 {
     [ProcessorSchemaStorage]
     [ProcessorDDLPuller] --> [gRPC]
@@ -131,12 +131,12 @@ node "Processor" {
     package "Table1 Pipeline" {
       [Puller1] --> [gRPC]
       [Sorter1]
-      [TableSink1]
+      [TableSink1] #Yellow
     }
     package "Table2 Pipeline" {
       [Puller2] --> [gRPC]
       [Sorter2]
-      [TableSink2]
+      [TableSink2] #Yellow
     }
   }
 }
@@ -325,12 +325,12 @@ h1 {
 ```plantuml {scale: 0.9}
 @startuml
 !theme plain
-SinkNode <- SinkNode: added to buffer
+SinkNode <[bold,#FF6655]- SinkNode: added to buffer
 SinkNode -> TableSink: buffer is full and SinkNode calls EmitRowChangedEvents
-SinkNode <-- TableSink: added to buffer
+SinkNode <-[bold,#FF6655]- TableSink: added to buffer
 SinkNode -> TableSink: calls FlushRowChangedEvents
 TableSink -> ProcessorSink: calls EmitRowChangedEvents
-TableSink <-- ProcessorSink: added to buffer
+TableSink <-[bold,#FF6655]- ProcessorSink: added to buffer
 loop BufferSink
   ProcessorSink -> ProcessorSink: BufferSink buffer is full
   ProcessorSink -> Producer: calls EmitRowChangedEvents of MQSink
@@ -338,8 +338,17 @@ end
 Producer -> LeaderBroker: Async send
 Producer <-- LeaderBroker: ACK
 
-note over of ProcessorSink
-  It is a combination of BufferSink and MQSink.
+
+note left of SinkNode #FF6655
+  Buffer One.
+end note
+
+note left of TableSink #FF6655
+  Buffer Two.
+end note
+
+note left of ProcessorSink #FF6655
+  Buffer Three.
 end note
 @enduml
 ```
@@ -455,8 +464,8 @@ transition: slide-up
 ```plantuml
 @startuml
 !theme plain
-class TS as "Table Sink"
-class ES as "Event Sink"
+class TS as "Table Sink" #Yellow
+class ES as "Event Sink" #FF6655
 class MQS as "MQ Event Sink"
 class TXNS as "Transaction Event Sink"
 class CSS as "Cloud Storage Event Sink"
