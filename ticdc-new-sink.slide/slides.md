@@ -320,8 +320,6 @@ h1 {
 
 ## Row Change Data Sequence
 
-<br/>
-
 ```plantuml {scale: 0.9}
 @startuml
 !theme plain
@@ -349,6 +347,10 @@ end note
 
 note left of ProcessorSink #FF6655
   Buffer Three.
+end note
+
+note left of Producer #FF6655
+  Buffer Four.
 end note
 @enduml
 ```
@@ -401,7 +403,7 @@ node "Processor" {
 database "MySQL"
 
 note right of [Event Sink]
-  It can be either
+  It can be
   MySQL Sink、MQ Sink、Cloud Storage Sink or BlackHoleSink.
 end note
 
@@ -491,3 +493,41 @@ DDLS <|.. DDLCSS : implement
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Table Sink](https://github.com/pingcap/tiflow/tree/v6.5.1/cdc/sinkv2/tablesink)
 · [Event Sink](https://github.com/pingcap/tiflow/blob/v6.5.1/cdc/sinkv2/eventsink/event_sink.go) · [DDL Sink](https://github.com/pingcap/tiflow/tree/v6.5.1/cdc/sinkv2/ddlsink) · [MQ Event Sink](https://github.com/pingcap/tiflow/tree/v6.5.1/cdc/sinkv2/eventsink/mq) · [Transaction Event Sink](https://github.com/pingcap/tiflow/tree/v6.5.1/cdc/sinkv2/eventsink/txn) · [Cloud Storage Event Sink](https://github.com/pingcap/tiflow/tree/v6.5.1/cdc/sinkv2/eventsink/cloudstorage)
+
+---
+transition: slide-up
+---
+
+# New Data Sequence
+
+## Row Change Data Sequence
+
+<br/>
+
+```plantuml
+@startuml
+!theme plain
+participant TS1 as "Table Sink1"
+participant TS2 as "Table Sink2"
+participant TXNS as "Transaction Event Sink"
+participant MW as "MySQL Worker"
+participant M as "MySQL Server"
+
+TS1 -> TXNS: call WriteEvents
+TS2 -> TXNS: call WriteEvents
+TXNS -[bold,#FF6655]> MW: Dispatch Txn Events(Conflict detection)
+MW -> M: Execute SQL
+M --> MW: Execute SQL Result
+MW --> TS1: call Callback
+MW --> TS2: call Callback
+
+note left of TS1 #FF6655
+  Buffer One.
+end note
+
+note left of MW #FF6655
+  Buffer Two.
+end note
+
+@enduml
+```
