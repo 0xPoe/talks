@@ -14,7 +14,9 @@ css: unocss
 
 # TiCDC Sink Component
 
-Focus on Table Sink and MySQL Sink.
+A Deep Dive
+
+Based on TiCDC [v6.5.1](https://github.com/pingcap/tiflow/tree/v6.5.1)
 
 <div class="pt-12">
   <span @click="$slidev.nav.next" class="px-2 py-1 rounded cursor-pointer" hover="bg-white bg-opacity-10">
