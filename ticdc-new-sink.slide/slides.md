@@ -393,11 +393,11 @@ SinkNode <[bold,#FF6655]- SinkNode: added to buffer
 SinkNode -> TableSink: buffer is full and SinkNode calls EmitRowChangedEvents
 SinkNode <-[bold,#FF6655]- TableSink: added to buffer
 SinkNode -> TableSink: calls FlushRowChangedEvents
-TableSink -> ProcessorSink: calls EmitRowChangedEvents
-TableSink <-[bold,#FF6655]- ProcessorSink: added to buffer
+TableSink -> "ProcessorSink(SinkManager)": calls EmitRowChangedEvents
+TableSink <-[bold,#FF6655]- "ProcessorSink(SinkManager)": added to buffer
 loop BufferSink
-  ProcessorSink -> ProcessorSink: BufferSink buffer is full
-  ProcessorSink -> Producer: calls EmitRowChangedEvents of MQSink
+  "ProcessorSink(SinkManager)" -> "ProcessorSink(SinkManager)": BufferSink buffer is full
+  "ProcessorSink(SinkManager)" -> Producer: calls EmitRowChangedEvents of MQSink
 end
 Producer -> LeaderBroker: Async send
 Producer <-- LeaderBroker: ACK
@@ -411,7 +411,7 @@ note left of TableSink #FF6655
   Buffer Two.
 end note
 
-note left of ProcessorSink #FF6655
+note left of "ProcessorSink(SinkManager)" #FF6655
   Buffer Three.
 end note
 
