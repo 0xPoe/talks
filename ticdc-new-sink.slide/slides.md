@@ -315,6 +315,72 @@ h1 {
 </style>
 
 ---
+transition: slide-up
+---
+
+<div class="arch">
+<div>
+
+# Old Sink Module Abstract
+
+</div>
+
+<div>
+  <br/>
+  <br/>
+  <br/>
+
+```plantuml
+@startuml
+!theme plain
+folder "Sink Manager" as SM {
+  class BS as "Buffer Sink" #FF6655
+  folder "MQ Sink" as MQS {
+    class DML as "DML Sink" #FF6655
+    class DDL as "DDL Sink" #FF6655
+  }
+}
+class SN as "Sink Node" #Yellow
+class TS as "Table Sink" #Yellow
+
+SN *-- TS : use
+SM *-- TS : manage
+TS *-- SM : use
+
+note left of TS
+  Table Sink Managed by Sink Manager
+  and Table Sink also use Sink Manager.
+  This is a circular dependency.
+end note
+@enduml
+```
+
+</div>
+</div>
+
+<style>
+.arch {
+  display: flex;
+}
+
+.arch img {
+  margin-top: -80px;
+}
+
+h1 {
+  background-color: #2B90B6;
+  background-image: linear-gradient(45deg, #4EC5D4 10%, #146b8c 20%);
+  background-size: 50%;
+  -webkit-background-clip: text;
+  -moz-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  -moz-text-fill-color: transparent;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+}
+</style>
+
+---
 
 # Old Data Sequence (Sync)
 
@@ -458,7 +524,7 @@ h1 {
 transition: slide-up
 ---
 
-# Sink Module Abstract
+# New Sink Module Abstract
 
 <br/>
 <br/>
