@@ -522,11 +522,7 @@ MW --> TS1: call Callback
 MW --> TS2: call Callback
 
 note left of TS1 #FF6655
-  Buffer One.
-end note
-
-note left of MW #FF6655
-  Buffer Two.
+  Only one buffer.
 end note
 
 @enduml
