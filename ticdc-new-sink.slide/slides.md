@@ -593,3 +593,59 @@ end note
 
 @enduml
 ```
+---
+transition: slide-up
+---
+
+# Table Sink
+
+## Abstract
+
+```go{all|7|11|15}
+// TableSink is the interface for table sink.
+// It is used to sink data in table units.
+type TableSink interface {
+	// AppendRowChangedEvents appends row changed events to the table sink.
+	// Usually, it is used to cache the row changed events into table sink.
+	// This is a not thread-safe method. Please do not call it concurrently.
+	AppendRowChangedEvents(rows ...*model.RowChangedEvent)
+	// UpdateResolvedTs writes the buffered row changed events to the eventTableSink.
+	// Note: This is an asynchronous and not thread-safe method.
+	// Please do not call it concurrently.
+	UpdateResolvedTs(resolvedTs model.ResolvedTs) error
+	// GetCheckpointTs returns the current checkpoint ts of table sink.
+	// For example, calculating the current progress from the statistics of the table sink.
+	// This is a thread-safe method.
+	GetCheckpointTs() model.ResolvedTs
+	// Close closes the table sink.
+	// We should make sure this method is cancellable.
+	Close(ctx context.Context)
+}
+```
+
+---
+transition: slide-up
+---
+
+# Table Sink
+
+## Implementation
+
+
+```go{all|2|11|5|6|7}
+// EventTableSink is a table sink that can write events.
+type EventTableSink[E eventsink.TableEvent] struct {
+	...
+
+	maxResolvedTs   model.ResolvedTs
+	backendSink     eventsink.EventSink[E]
+	progressTracker *progressTracker
+	...
+
+	// NOTICE: It is ordered by commitTs.
+	eventBuffer []E
+	state       state.TableSinkState
+
+  ...
+}
+```
