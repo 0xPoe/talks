@@ -649,3 +649,62 @@ type EventTableSink[E eventsink.TableEvent] struct {
   ...
 }
 ```
+
+---
+transition: slide-up
+---
+
+# Table Sink
+
+## Implementation
+
+```go{all|3}
+// AppendRowChangedEvents appends row changed or txn events to the table sink.
+func (e *EventTableSink[E]) AppendRowChangedEvents(rows ...*model.RowChangedEvent) {
+	e.eventBuffer = e.eventAppender.Append(e.eventBuffer, rows...)
+}
+```
+<br/>
+
+```go{all|3}
+// GetCheckpointTs returns the checkpoint ts of the table sink.
+func (e *EventTableSink[E]) GetCheckpointTs() model.ResolvedTs {
+	return e.progressTracker.advance()
+}
+```
+
+---
+transition: slide-up
+---
+
+# Table Sink
+
+## Implementation
+
+```go {all|7|17|23} {maxHeight:'80%'}
+// UpdateResolvedTs advances the resolved ts of the table sink.
+func (e *EventTableSink[E]) UpdateResolvedTs(resolvedTs model.ResolvedTs) error {
+	...
+	e.maxResolvedTs = resolvedTs
+
+	i := sort.Search(len(e.eventBuffer), func(i int) bool {
+		return e.eventBuffer[i].GetCommitTs() > resolvedTs.Ts
+	})
+	...
+	resolvedEvents := e.eventBuffer[:i]
+	...
+	e.eventBuffer = append(make([]E, 0, len(e.eventBuffer[i:])), e.eventBuffer[i:]...)
+	resolvedCallbackableEvents := make([]*eventsink.CallbackableEvent[E], 0, len(resolvedEvents))
+	for _, ev := range resolvedEvents {
+		ce := &eventsink.CallbackableEvent[E]{
+			Event:     ev,
+			Callback:  e.progressTracker.addEvent(),
+			SinkState: &e.state,
+		}
+		resolvedCallbackableEvents = append(resolvedCallbackableEvents, ce)
+	}
+	// Do not forget to add the resolvedTs to progressTracker.
+	e.progressTracker.addResolvedTs(resolvedTs)
+	return e.backendSink.WriteEvents(resolvedCallbackableEvents...)
+}
+```
