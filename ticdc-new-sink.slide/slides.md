@@ -854,7 +854,6 @@ func (r *progressTracker) addResolvedTs(resolvedTs model.ResolvedTs) {
 }
 ```
 
-
 ---
 transition: slide-up
 ---
@@ -924,4 +923,68 @@ func (r *progressTracker) advance() model.ResolvedTs {
 	}
 	return r.lastMinResolvedTs
 }
+```
+---
+transition: slide-up
+layout: center
+---
+
+# MySQL Sink
+
+---
+transition: slide-up
+---
+
+# MySQL Sink Data Sequence (Async)
+
+## Row Change Data Sequence
+
+<br/>
+
+```plantuml
+@startuml
+!theme plain
+participant TS1 as "Table Sink1"
+participant TS2 as "Table Sink2"
+participant TXNS as "Transaction Event Sink"
+participant MW as "MySQL Worker"
+participant M as "MySQL Server"
+
+TS1 -> TXNS: call WriteEvents
+TS2 -> TXNS: call WriteEvents
+TXNS -[bold,#FF6655]> MW: Dispatch Txn Events(Conflict detection)
+MW -> M: Execute SQL
+M --> MW: Execute SQL Result
+MW --> TS1: call Callback
+MW --> TS2: call Callback
+
+note left of TS1 #FF6655
+  Only one buffer.
+end note
+
+@enduml
+```
+
+---
+transition: slide-up
+layout: two-cols
+---
+
+# MySQL Sink
+
+## Conflict Detection - Union Set
+
+<br/>
+
+```sql
+DML1: INSERT INTO t VALUES (1, 2);
+DML2: INSERT INTO t VALUES (2, 3);
+DML3: UPDATE t SET pk = 4, uk = 3 WHERE pk = 2;
+DML4: DELETE FROM t WHERE pk = 1;
+DML5: REPLACE INTO t VALUES (1, 3);
+```
+
+::right::
+
+```plantuml
 ```
