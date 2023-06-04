@@ -708,3 +708,220 @@ func (e *EventTableSink[E]) UpdateResolvedTs(resolvedTs model.ResolvedTs) error 
 	return e.backendSink.WriteEvents(resolvedCallbackableEvents...)
 }
 ```
+
+---
+transition: slide-up
+---
+
+# Table Sink
+
+## Progress Tracker
+
+<br/>
+
+<v-click>
+
+### Can we use a simple counter to track the progress?
+
+</v-click>
+<br/>
+
+<v-click>
+
+### What about the performance?
+
+</v-click>
+<br/>
+
+<v-click>
+
+### How can we make it faster?
+
+</v-click>
+
+<br/>
+<v-click>
+
+##### BitMap
+
+```go{all|1|2}
+// 0000000000000000000000000000000000000000000000000000000000000000 ->
+// 0000000000000000000000000000000000000000000000000000000000001000
+```
+
+</v-click>
+
+---
+transition: slide-up
+---
+
+# Table Sink
+
+## Progress Tracker
+
+<br/>
+
+```go{all|6|7-10|11-14}
+type progressTracker struct {
+	// Following fields are protected by `mu`.
+	mu sync.Mutex
+	...
+	// Used to generate the next eventID.
+	nextEventID uint64
+	// Every received event is a bit in `pendingEvents`.
+	pendingEvents [][]uint64
+	// When old events are flushed the buffer should be released.
+	nextToReleasePos uint64
+	// The resolvedTs of the table sink.
+	resolvedTsCache []pendingResolvedTs
+	// The position that the next event which should be check in `advance`.
+	nextToResolvePos uint64
+	lastMinResolvedTs model.ResolvedTs
+}
+```
+
+---
+transition: slide-up
+---
+
+# Table Sink
+
+## Progress Tracker
+
+
+```go {all|3-5|7-13|14-18|21-26} {maxHeight:'80%'}
+func (r *progressTracker) addEvent() (postEventFlush func()) {
+	...
+	eventID := r.nextEventID
+	bit := eventID % 64
+	r.nextEventID += 1
+
+	bufferCount := len(r.pendingEvents)
+	if bufferCount == 0 || (uint64(len(r.pendingEvents[bufferCount-1])) == r.bufferSize && bit == 0) {
+		// If there is no buffer or the last one is full, we need to allocate a new one.
+		buffer := make([]uint64, 0, r.bufferSize)
+		r.pendingEvents = append(r.pendingEvents, buffer)
+		bufferCount += 1
+	}
+
+	if bit == 0 {
+		// If bit is 0 it means we need to append a new uint64 word for the event.
+		r.pendingEvents[bufferCount-1] = append(r.pendingEvents[bufferCount-1], 0)
+	}
+	lastBuffer := r.pendingEvents[bufferCount-1]
+
+	// Set the corresponding bit to 1.
+	// For example, if the eventID is 3, the bit is 3 % 64 = 3.
+	// 0000000000000000000000000000000000000000000000000000000000000000 ->
+	// 0000000000000000000000000000000000000000000000000000000000001000
+	// When we advance the progress, we can try to find the first 0 bit to indicate the progress.
+	postEventFlush = func() { atomic.AddUint64(&lastBuffer[len(lastBuffer)-1], 1<<bit) }
+	return
+```
+
+---
+transition: slide-up
+---
+
+# Table Sink
+
+## Progress Tracker
+
+```go {all} {maxHeight:'80%'}
+func (r *progressTracker) addResolvedTs(resolvedTs model.ResolvedTs) {
+	...
+	// If there is no event or all events are flushed, we can update the resolved ts directly.
+	if r.nextEventID == 0 || r.nextToResolvePos >= r.nextEventID {
+		// Update the checkpoint ts.
+		r.lastMinResolvedTs = resolvedTs
+		return
+	}
+	// Sometimes, if there are no events for a long time and a lot of resolved ts are received,
+	// we can update the last resolved ts directly.
+	tsCacheLen := len(r.resolvedTsCache)
+	if tsCacheLen > 0 {
+		// The offset of the last resolved ts is the last event ID.
+		// It means no event is adding. We can update the resolved ts directly.
+		if r.resolvedTsCache[tsCacheLen-1].offset+1 == r.nextEventID {
+			r.resolvedTsCache[tsCacheLen-1].resolvedTs = resolvedTs
+			return
+		}
+	}
+	r.resolvedTsCache = append(r.resolvedTsCache, pendingResolvedTs{
+		offset:     r.nextEventID - 1,
+		resolvedTs: resolvedTs,
+	})
+}
+```
+
+
+---
+transition: slide-up
+---
+
+# Table Sink
+
+## Progress Tracker
+
+```go {all|2-10|13-32|34-48|49-59} {maxHeight:'80%'}
+func (r *progressTracker) advance() model.ResolvedTs {
+	// `pendingEvents` is like a 3-dimo bit array. To access a given bit in the array,
+	// use `pendingEvents[idx1][idx2][idx3]`.
+	// The first index is used to access the buffer.
+	// The second index is used to access the uint64 in the buffer.
+	// The third index is used to access the bit in the uint64.
+	offset := r.nextToResolvePos - r.nextToReleasePos
+	idx1 := offset / (r.bufferSize * 64)
+	idx2 := offset % (r.bufferSize * 64) / 64
+	idx3 := offset % (r.bufferSize * 64) % 64
+	for {
+		...
+		currBitMap := atomic.LoadUint64(&r.pendingEvents[idx1][idx2])
+		if currBitMap == math.MaxUint64 {
+			// Move to the next uint64 word (maybe in the next buffer).
+			idx2 += 1
+			if idx2 >= r.bufferSize {
+				idx2 = 0
+				idx1 += 1
+			}
+			r.nextToResolvePos += 64 - idx3
+			idx3 = 0
+		} else {
+			// Try to find the first 0 bit in the word.
+			for i := idx3; i < 64; i++ {
+				if currBitMap&uint64(1<<i) == 0 {
+					r.nextToResolvePos += i - idx3
+					break
+				}
+			}
+			break
+		}
+	}
+	// Try to advance resolved timestamp based on `nextToResolvePos`.
+	if r.nextToResolvePos > 0 {
+		for len(r.resolvedTsCache) > 0 {
+			cached := r.resolvedTsCache[0]
+			if cached.offset <= r.nextToResolvePos-1 {
+				...
+				r.resolvedTsCache = r.resolvedTsCache[1:]
+				if len(r.resolvedTsCache) == 0 {
+					r.resolvedTsCache = nil
+				}
+			} else {
+				break
+			}
+		}
+	}
+	// If a buffer is finished, release it.
+	for r.nextToResolvePos-r.nextToReleasePos >= r.bufferSize*64 {
+		r.nextToReleasePos += r.bufferSize * 64
+		// Use zero value to release the memory.
+		r.pendingEvents[0] = nil
+		r.pendingEvents = r.pendingEvents[1:]
+		if len(r.pendingEvents) == 0 {
+			r.pendingEvents = nil
+		}
+	}
+	return r.lastMinResolvedTs
+}
+```
