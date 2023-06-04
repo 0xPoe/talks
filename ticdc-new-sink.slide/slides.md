@@ -967,24 +967,145 @@ end note
 
 ---
 transition: slide-up
-layout: two-cols
 ---
 
 # MySQL Sink
 
 ## Conflict Detection - Union Set
 
-<br/>
-
-```sql
+```sql{all|1|2|3|4|5|6}
 DML1: INSERT INTO t VALUES (1, 2);
 DML2: INSERT INTO t VALUES (2, 3);
 DML3: UPDATE t SET pk = 4, uk = 3 WHERE pk = 2;
 DML4: DELETE FROM t WHERE pk = 1;
 DML5: REPLACE INTO t VALUES (1, 3);
+DML6: INSERT INTO t VALUES (5, 6);
 ```
 
-::right::
+```plantuml
+@startuml
+!theme plain
+
+node "PK:1" as PK1 #pink
+node "UK:2" as UK1 #pink
+node "Group 1" as G1 #736060
+node "PK:1" as PK4 #d4b4b4
+node "UK:2" as UK4 #d4b4b4
+
+PK1 --> G1
+UK1 --> G1
+PK4 -up-> G1
+UK4 -up-> G1
+
+node "PK:2" as PK2 #yellow
+node "UK:3" as UK2 #yellow
+node "PK:2(Old)" as PK32 #lightyellow
+node "UK:3(Old)" as UK32 #lightyellow
+node "PK:4(New)" as PK31 #lightyellow
+node "UK:3(New)" as UK31 #lightyellow
+node "Group 2" as G2 #736060
+PK2 --> G2
+UK2 --> G2
+PK31 -up-> G2
+UK31 -up-> G2
+PK32 -up-> G2
+UK32 -up-> G2
+
+node "PK:1" as PK5 #red
+node "UK:3" as UK5 #red
+
+PK5 -right-> G1
+UK5 -left-> G2
+
+node "PK:5" as PK6 #green
+node "UK:6" as UK6 #green
+node "Group 3" as G3 #736060
+PK6 --> G3
+UK6 --> G3
+@enduml
+```
+
+---
+transition: slide-up
+---
+
+# MySQL Sink
+
+## Conflict Detection - Union Set
+
+```go {all|9-11|12-24} {maxHeight:'80%'}
+// It will have several scenarios:
+// 1) no conflict, return (false, noConflicting)
+// 2) conflict with the same worker, return (true, workerIndex)
+// 3) conflict with multiple workers, return (true, multipleConflicting)
+func (c *causality) detectConflict(keys [][]byte) (bool, int) {
+	...
+	conflictingWorkerIndex := noConflicting
+	for _, key := range keys {
+		if workerIndex, ok := c.relations[string(key)]; ok {
+			if conflictingWorkerIndex == noConflicting {
+				conflictingWorkerIndex = workerIndex
+			} else
+			// A second conflict occurs, and it is with another worker.
+			// For example:
+			// txn0[a,b,c] --> worker0
+			// txn1[t,f] --> worker1
+			// txn2[a,f] --> ?
+			// In this case, if we distribute the transaction,
+			// there is no guarantee that it will be executed
+			// in the order it was sent to the worker,
+			// so we have to wait for the previous transaction to finish writing.
+			if conflictingWorkerIndex != workerIndex {
+				return true, multipleConflicting
+			}
+		}
+	}
+
+	// 1) no conflict
+	// 2) conflict with the same worker
+	return conflictingWorkerIndex != noConflicting, conflictingWorkerIndex
+}
+```
+
+---
+transition: slide-up
+---
+
+# MySQL Sink
+
+## Conflict Detection - DAG
+
+- Node: Transaction received by Conflict Detector, that has not been executed.
+- Edge: T2 -> T1, T1 exists one edge to T2, only if T1 modifies the same key as T2.
+<br/>
+
+> We can ignore T2 -> T1, if there exists one path T2 -> Ta -> Tb ... -> Tx -> T1.
+
+
+```sql{all|1|2|3|4|5|6}
+DML1: INSERT INTO t VALUES (1, 2);
+DML2: INSERT INTO t VALUES (2, 3);
+DML3: UPDATE t SET pk = 4, uk = 3 WHERE pk = 2;
+DML4: DELETE FROM t WHERE pk = 1;
+DML5: REPLACE INTO t VALUES (1, 3);
+DML6: INSERT INTO t VALUES (5, 6);
+```
 
 ```plantuml
+@startuml
+!theme plain
+
+node "T1(PK:1, UK:2)" as T1 #pink
+node "T2(PK:2, UK:3)" as T2 #yellow
+node "T3(old: PK:2, UK:3, new: PK:4, UK:3)" as T3 #lightyellow
+node "T4(PK:1, UK:2)" as T4 #d4b4b4
+node "T5(PK:1, UK:3)" as T5 #red
+
+T3 -right-> T2
+T4 -right-> T1
+T5 -right-> T4
+T5 --> T3
+
+node "T6(PK:5, UK:6)" #green
+@enduml
 ```
