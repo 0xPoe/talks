@@ -69,6 +69,7 @@ layout: center
   - Old & New Sink Module Design
   - Table Sink Deep Dive
   - MySQL Sink Deep Dive
+  - Outcomes
   - Q&A
 
   </div>
@@ -863,9 +864,52 @@ transition: slide-up
 
 ## Progress Tracker
 
-<br/>
+Example: txn1, txn2, resolvedTs2, txn3-1, txn3-2, resolvedTs3, resolvedTs4, resolvedTs5
 
-### Can we use a simple counter to track the progress?
+### How to track the progress?
+
+<v-click>
+```plantuml {scale: 0.9}
+@startjson
+#highlight "records" / "0" / "value"
+#highlight "records" / "1" / "value"
+{
+  "records": [
+    {
+      "key": "event1",
+      "value": "nil"
+    },
+    {
+      "key": "event2",
+      "value": "resolvedTs1"
+    },
+    {
+      "key": "event3",
+      "value": "nil"
+    },
+    {
+      "key": "event4",
+      "value": "nil"
+    },
+    {
+      "key": "event5",
+      "value": "resolvedTs2"
+    }
+  ]
+}
+@endjson
+```
+
+</v-click>
+
+
+---
+transition: slide-up
+---
+
+# Table Sink
+
+## Progress Tracker
 
 <br/>
 
@@ -874,7 +918,12 @@ transition: slide-up
 ### What about the performance?
 
 </v-click>
-<br/>
+
+<v-click>
+
+It is not good enough. Because we need get lock to update the progress.
+
+</v-click>
 
 <v-click>
 
@@ -888,8 +937,12 @@ transition: slide-up
 ##### BitMap
 
 ```go{all|1|2}
+// Set the corresponding bit to 1.
+// For example, if the eventID is 3, the bit is 3 % 64 = 3.
 // 0000000000000000000000000000000000000000000000000000000000000000 ->
 // 0000000000000000000000000000000000000000000000000000000000001000
+// When we advance the progress, we can try to find the first 0 bit to indicate the progress.
+postEventFlush = func() { atomic.AddUint64(&lastBuffer[len(lastBuffer)-1], 1<<bit) }
 ```
 
 </v-click>
@@ -1037,6 +1090,17 @@ T5 --> T3
 node "T6(PK:5, UK:6)" #green
 @enduml
 ```
+
+---
+
+# Outcomes
+
+- Better Performance: Union Set -> DAG. (With pull-based-sink: 63.3k/s -> 103k/s)
+- Get rid of some buffers.
+- Better Abstraction and data sequence: Table Sink -> Transaction Event Sink -> MySQL.
+- Better testability.
+- Better maintainability: all functions are thread-safe and async.
+- Easy to add new sinks.
 
 ---
 layout: center
