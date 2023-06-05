@@ -6,9 +6,9 @@ lineNumbers: false
 info: |
   TiCDC Sink Component.
 
-  Learn more at [TiFlow](https://github.com/pingcap/tiflow/tree/master/cdc/sink)
+  Learn more at [TiFlow](https://github.com/pingcap/tiflow/tree/v6.5.1/cdc/sinkv2)
 drawings:
-  persist: false
+  presenterOnly: true
 css: unocss
 ---
 
@@ -81,6 +81,9 @@ layout: center
 
 # Architecture
 
+---
+transition: slide-up
+layout: center
 ---
 
 <div class="arch">
@@ -251,27 +254,27 @@ node "Processor" {
     }
     package "Sink Manager" {
       folder "Combination" as Combination {
-        [MQSink] #FF6655
+        [MySQLSink] #FF6655
         [BufferSink] #FF6655
       }
     }
   }
 }
 
-database "Kafka" {
-  [Broker]
-}
+database "MySQL"
 
-note right of [MQSink]
+note right of [MySQLSink]
   It can be either
-  MySQL Sink or BlackHoleSink.
+  MQ Sink or BlackHoleSink.
 end note
 
-Combination --> [Broker]
+[MySQLSink] --> [MySQL]
 [Sorter1] ..> [ProcessorMounter] : use
 [Sorter2] ..> [ProcessorMounter] : use
 [TableSink1] ..> Combination : use
 [TableSink2] ..> Combination : use
+Combination .[#FF6655].> [TableSink1] : use
+Combination .[#FF6655].> [TableSink2] : use
 [Puller1] --> [Sorter1]
 [Sorter1] --> [TableSink1]
 [Puller2] --> [Sorter2]
@@ -334,7 +337,7 @@ transition: slide-up
 !theme plain
 folder "Sink Manager" as SM {
   class BS as "Buffer Sink" #FF6655
-  folder "MQ Sink" as MQS {
+  folder "MySQL Sink" as MS {
     class DML as "DML Sink" #FF6655
     class DDL as "DDL Sink" #FF6655
   }
@@ -343,13 +346,19 @@ class SN as "Sink Node" #Yellow
 class TS as "Table Sink" #Yellow
 
 SN *-- TS : use
-SM *-- TS : manage
-TS *-- SM : use
+SM *-[#FF6655]- TS : manage
+TS *-[#FF6655]- SM : use
 
 note left of TS
   Table Sink Managed by Sink Manager
   and Table Sink also use Sink Manager.
-  This is a circular dependency.
+  ⚠️This is a circular dependency.
+end note
+
+note right of MS
+  MySQL Sink is a combination of
+  DML Sink and DDL Sink.
+  ⚠️However, only one of these is used per module.
 end note
 @enduml
 ```
@@ -388,18 +397,18 @@ h1 {
 ```plantuml {scale: 0.9}
 @startuml
 !theme plain
-SinkNode <[bold,#FF6655]- SinkNode: added to buffer
+SinkNode <[bold,#FF6655]- SinkNode: ⚠️added to buffer
 SinkNode -> TableSink: buffer is full and SinkNode calls EmitRowChangedEvents
-SinkNode <-[bold,#FF6655]- TableSink: added to buffer
+SinkNode <-[bold,#FF6655]- TableSink: ⚠️added to buffer
 SinkNode -> TableSink: calls FlushRowChangedEvents
 TableSink -> "ProcessorSink(SinkManager)": calls EmitRowChangedEvents
-TableSink <-[bold,#FF6655]- "ProcessorSink(SinkManager)": added to buffer
+TableSink <-[bold,#FF6655]- "ProcessorSink(SinkManager)": ⚠️added to buffer
 loop BufferSink
   "ProcessorSink(SinkManager)" -> "ProcessorSink(SinkManager)": BufferSink buffer is full
-  "ProcessorSink(SinkManager)" -> Producer: calls EmitRowChangedEvents of MQSink
+  "ProcessorSink(SinkManager)" -> Worker: calls EmitRowChangedEvents of MySQLSink
 end
-Producer -> LeaderBroker: Async send
-Producer <-- LeaderBroker: ACK
+Worker -> MySQL: Execute SQL
+Worker <- MySQL: SQL Result
 
 
 note left of SinkNode #FF6655
@@ -414,9 +423,6 @@ note left of "ProcessorSink(SinkManager)" #FF6655
   Buffer Three.
 end note
 
-note left of Producer #FF6655
-  Buffer Four.
-end note
 @enduml
 ```
 
