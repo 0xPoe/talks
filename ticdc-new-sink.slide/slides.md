@@ -66,8 +66,7 @@ layout: center
   <div class="border-l border-gray-400 border-opacity-25 !all:leading-12 !all:list-none my-auto">
 
   - Architecture
-  - Old Sink Module Design
-  - New Sink Module Design
+  - Old & New Sink Module Design
   - Table Sink Deep Dive
   - MySQL Sink Deep Dive
   - Q&A
