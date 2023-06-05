@@ -1109,3 +1109,23 @@ T5 --> T3
 node "T6(PK:5, UK:6)" #green
 @enduml
 ```
+
+---
+layout: center
+---
+
+# Q&A
+
+<br/>
+<br/>
+
+## Do you have any questions?
+
+---
+layout: center
+class: text-center
+---
+
+# Learn More
+
+[Documentations](https://docs.pingcap.com/tidb/dev/ticdc-overview) · [GitHub](https://github.com/pingcap/tiflow)  · [How to write a new sink](https://hi-rustin.rs/TiCDC-Sink-%E5%BC%80%E5%8F%91%E6%8C%87%E5%8D%97/)
