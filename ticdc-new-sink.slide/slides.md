@@ -26,6 +26,16 @@ RUSTIN LIU
   </span>
 </div>
 
+<!--
+Alright folks, let's kick off the presentation! I'm assuming most of you are here, so let's dive right in.
+
+
+Today, I'm gonna talk about the new sink component in TiCDC.
+This is gonna be a deep dive, so I'm assuming you already have a basic understanding of TiCDC.
+
+Just a heads up, this talk is based on TiCDC v6.5.1. So if you wanna take a look at the code, make sure to check out the v6.5.1 tag.
+-->
+
 ---
 transition: slide-up
 ---
@@ -53,6 +63,56 @@ Rustup Maintainer.<br/>
 <div flex="~ gap2">
 </div>
 
+<!--
+Before we start, let me introduce myself.
+
+I'm Rustin Liu, a PingCAPer working on the Data Replication Team.
+
+I'm also a Cargo Contributor and a Rustup Maintainer.
+
+You can find me on GitHub, Twitter, and my personal website.
+
+Alright, let's get started!
+-->
+
+---
+transition: slide-up
+layout: center
+---
+
+<div text-6xl fw100>
+  Sink Refactoring
+</div>
+
+<br>
+
+<div class="grid grid-cols-[3fr_2fr] gap-4">
+  <div class="border-l border-gray-400 border-opacity-25 !all:leading-12 !all:list-none my-auto">
+
+  - Phase 1: Introduce a new sink and a new conflict detector.
+  - Phase 2: Change it from push model to pull model.
+
+  </div>
+</div>
+
+<br/>
+
+Thanks to [Qu Peng](https://github.com/hicqu)、[Shawn](https://github.com/nongfushanquan)、[Yang Fei](https://github.com/amyangfei) and [Liu Zixiong](https://github.com/liuzix).
+
+<!--
+In the past year, we've been refactoring the sink component in TiCDC.
+
+The refactoring is divided into two phases.
+
+In the first phase, we introduced a new sink and a new conflict detector.
+
+In the second phase, we changed the sink from push model to pull model.
+
+Today, I'm gonna talk about the first phase. I believe the second phase needs a separate talk.
+
+I'd like to thank Qu Peng, Shawn, Yang Fei and Liu Zixiong for their contributions to this refactoring.
+-->
+
 ---
 transition: slide-up
 layout: center
@@ -76,6 +136,20 @@ layout: center
 
   </div>
 </div>
+
+<!--
+Alright, let me give you a rundown of what we're gonna cover today.
+
+First, I'm gonna talk about the architecture of TiCDC.
+
+Then, I'm gonna talk about the old and new sink module design.
+
+After that, I'm gonna talk about the table sink and MySQL sink in detail.
+
+Finally, I'm gonna talk about the outcomes of this refactoring.
+
+And of course, we'll have a Q&A session at the end. If you have any questions during the talk, feel free to ask them in the chat.
+-->
 
 ---
 transition: slide-up
@@ -202,6 +276,28 @@ h1 {
 }
 </style>
 
+<!--
+Alright, let me break down the TiCDC architecture for you.
+
+So, TiCDC is a distributed cluster, and we refer to each instance as a capture. Each capture can have multiple roles to process the data.
+
+You can imagine this whole picture as a capture.
+
+We can see there are two types of roles. One is the owner. The other one is the processor.
+But keep in mind, this is just a logical concept, not a physical one.
+
+In a TiCDC cluster, you can only have one owner, but you can have multiple processors.
+
+The owner is responsible for scheduling tables and executing DDL operations. DDL is a special operation that can't be executed multiple times, so we need to make sure it's only executed once. That's why we need the owner to handle it.
+
+The processor is responsible for replicating data for a changefeed. And each processor can only handle one changefeed at a time.
+
+So, what exactly is a changefeed? Think of it as a configuration file for a set of tables. Users can write a configuration file to describe the changefeed, specifying which tables to replicate and how to replicate them.
+
+Let's take a closer look at the pipelines within a processor.
+-->
+
+
 ---
 
 # Table Pipeline
@@ -216,6 +312,20 @@ Each changefeed creates a processor, and each processor maintains multiple table
 flowchart LR
     puller((PullerNode)) --> sorter((SorterNode)) --> mounter((Mounter)) --> sink((SinkNode))
 ```
+
+<!--
+Each pipeline is responsible for replicating data for a single table, and it consists of four components.
+
+First up, we have the puller. The puller is responsible for pulling data from TiKV.
+
+Next, we have the sorter. The sorter is responsible for sorting the data based on commit ts. This ensures that the data is replicated in the correct order.
+
+Then, we have the mounter. The mounter is responsible for decoding the data from its raw format into a structured format that can be easily processed.
+
+Finally, we have the sink. The sink is responsible for sending the data downstream to the target system.
+
+So, this is the basic structure of a table pipeline. Let's focus on the sink for now.
+-->
 
 ---
 transition: slide-up
@@ -319,6 +429,28 @@ h1 {
 }
 </style>
 
+<!--
+
+The sink is responsible for sending the data downstream to the target system.
+
+In the old design, we have different types of sinks.
+
+The first one is the table sink. The table sink more like a buffer to organize the data in table level.
+It's not responsible for sending the data to the target system. Instead, it sends the data to the sink manager.
+
+The second one is buffer sink. The buffer sink is responsible for buffering the data in memory. You can think of it as a cache.
+
+The last one is the MySQL sink. The MySQL sink is responsible for sending the data to MySQL. It can be either MQ Sink or BlackHoleSink.
+
+You might have noticed that the table sink and buffer sink are quite similar in their function of buffering data in memory. So, why did we have two separate sinks? To be honest, I'm not sure. That's why we decided to remove the buffer sink in the new design.
+
+Now, let's talk about the sink manager. The sink manager is responsible for managing the table sinks. However, there's a circular dependency between the table sink and the sink manager. The sink manager creates and destroys table sinks, while the table sinks use the sink manager to send data to the target system.
+
+To make things worse, the sink manager also combines the buffer sink and the MySQL sink. So, in the sink manager, we have three different types of sinks in one place. This makes the code very complicated and hard to maintain.
+
+Now, let's take a closer look at the MySQL sink.
+-->
+
 ---
 transition: slide-up
 ---
@@ -391,44 +523,15 @@ h1 {
 }
 </style>
 
----
+<!--
 
-# Old Data Sequence (Sync)
+When we zoom in MySQL sink, we can see that it's a combination of DML sink and DDL sink. However, only one of these is used per module.
 
-```plantuml {scale: 0.8}
-@startuml
-!theme plain
-SinkNode <[bold,#FF6655]- SinkNode: ⚠️added to buffer
-SinkNode -> TableSink: buffer is full and SinkNode calls EmitRowChangedEvents
-SinkNode <-[bold,#FF6655]- TableSink: ⚠️added to buffer
-SinkNode -> TableSink: calls FlushRowChangedEvents
-TableSink -> "ProcessorSink(SinkManager)": calls EmitRowChangedEvents
-TableSink <-[bold,#FF6655]- "ProcessorSink(SinkManager)": ⚠️added to buffer
-TableSink -> "ProcessorSink(SinkManager)": calls FlushRowChangedEvents
-TableSink <-[bold,#FF6655]- "ProcessorSink(SinkManager)": ⚠️added to ResolvedTs Buffer
-SinkNode <-- TableSink: added to buffer sink
-loop BufferSink
-  "ProcessorSink(SinkManager)" -> "ProcessorSink(SinkManager)": BufferSink buffer is full
-  "ProcessorSink(SinkManager)" -> MySQLSink: calls EmitRowChangedEvents \nand FlushRowChangedEvents of MySQLSink
-end
-MySQLSink -> MySQL: Execute SQL
-MySQLSink <-- MySQL: SQL Result
+For instance, for the owner module, we only send DDL to MySQL. For the processor module, we only send DML to MySQL.
 
+Then, every time you wanna change something in the MySQL sink, you have to change both DML part and DDL part. This makes the code very hard to maintain.
 
-note left of SinkNode #FF6655
-  Buffer One.
-end note
-
-note left of TableSink #FF6655
-  Buffer Two.
-end note
-
-note left of "ProcessorSink(SinkManager)" #FF6655
-  Buffer Three and Four.
-end note
-
-@enduml
-```
+-->
 
 ---
 transition: slide-up
@@ -486,6 +589,78 @@ S <|.. BS : implement
 @enduml
 ```
 
+<!--
+Let's take a look at the sink interface.
+
+All sinks must implement this interface, which can be quite complex. It contains numerous methods, some of which are thread-safe, while others are not. Additionally, some methods are blocking, while others are not.
+
+This makes it very hard to implement a new sink. Especially we combine the buffer sink and the MySQL sink in the sink manager and combine the DML sink and the DDL sink in the MySQL sink.
+
+It's a bit crazy, and it can be tough to maintain. If you don't have GoLand, reading the code can be a real challenge. It's easy to get lost in the code.
+-->
+
+
+---
+
+# Old Data Sequence (Sync)
+
+```plantuml {scale: 0.8}
+@startuml
+!theme plain
+SinkNode <[bold,#FF6655]- SinkNode: ⚠️added to buffer
+SinkNode -> TableSink: buffer is full and SinkNode calls EmitRowChangedEvents
+SinkNode <-[bold,#FF6655]- TableSink: ⚠️added to buffer
+SinkNode -> TableSink: calls FlushRowChangedEvents
+TableSink -> "ProcessorSink(SinkManager)": calls EmitRowChangedEvents
+TableSink <-[bold,#FF6655]- "ProcessorSink(SinkManager)": ⚠️added to buffer
+TableSink -> "ProcessorSink(SinkManager)": calls FlushRowChangedEvents
+TableSink <-[bold,#FF6655]- "ProcessorSink(SinkManager)": ⚠️added to ResolvedTs Buffer
+SinkNode <-- TableSink: added to buffer sink
+loop BufferSink
+  "ProcessorSink(SinkManager)" -> "ProcessorSink(SinkManager)": BufferSink buffer is full
+  "ProcessorSink(SinkManager)" -> MySQLSink: calls EmitRowChangedEvents \nand FlushRowChangedEvents of MySQLSink
+end
+MySQLSink -> MySQL: Execute SQL
+MySQLSink <-- MySQL: SQL Result
+
+
+note left of SinkNode #FF6655
+  Buffer One.
+end note
+
+note left of TableSink #FF6655
+  Buffer Two.
+end note
+
+note left of "ProcessorSink(SinkManager)" #FF6655
+  Buffer Three and Four.
+end note
+
+@enduml
+```
+
+<!--
+
+Let's take a look at the data sequence. This will help you understand how the code works.
+
+The process starts with the sink node. Whenever the sink node receives a row changed event, it adds it to a buffer. Once the buffer is full, it calls the table sink to emit the row changed events.
+
+The table sink then adds the row changed events to its own buffer and waits for a flush signal.
+
+Once the sink node receives a signal from the previous node, it calls the table sink to flush the row changed events.
+
+The table sink then calls the processor sink to emit the row changed events and flush the row changed events.
+
+The processor sink also has two buffers. One is for row changed events, and the other is for resolvedTs. Once the buffer for row changed events is full, the processor sink calls the MySQL sink to emit the row changed events and flush the row changed events.
+
+Finally, the MySQL sink converts the row changed events to SQL and sends them to MySQL.
+
+As you can see, this process is quite complex, and there are several buffers involved. The sink node, table sink, and processor sink all have their own buffers. Additionally, if we use a Kafka producer, there is another buffer in the Kafka producer.
+
+Overall, this process requires a lot of coordination and careful management of buffers to ensure that data is processed correctly and efficiently.
+
+-->
+
 ---
 transition: slide-up
 ---
@@ -498,6 +673,25 @@ transition: slide-up
 - Call stack is too deep and all calls are synchronous
 - Abstraction is very complicated and there are too many functions in the interface
 - Some implementations are not thread-safe, but they should be
+
+<!--
+To summarize the issues with the old sink, there are several problems that need to be addressed.
+
+Firstly, there is a circular dependency between the sink manager and the table sink, which makes it difficult to understand and maintain the code.
+
+Secondly, there are too many buffers, which makes it hard to manage and can lead to memory issues.
+
+Thirdly, the sink leaks table information everywhere, making it difficult to maintain and add new features.
+
+Fourthly, the call stack is too deep, and all calls are synchronous, making it hard to debug the code.
+
+Fifthly, the abstraction is too complicated, and there are too many functions in the interface, which makes it hard to add new features.
+
+Finally, some implementations are not thread-safe. It's important to be careful when making changes to ensure thread safety.
+
+Let me show you how we solved these problems.
+
+-->
 
 ---
 transition: slide-up
@@ -598,6 +792,22 @@ h1 {
 }
 </style>
 
+<!--
+
+As you can see, it's much simpler than the old design.
+
+Basically, we got rid of the sink manager and the buffer sink. Now, we only have two types of sinks: table sinks and event sinks.
+
+The table sink is just a simple buffer that stores row changed events. On the other hand, the event sink is responsible for writing those row changed events to the target system.
+
+We made the table sink more focused by limiting its scope to just being a buffer. It doesn't have any knowledge of the target system anymore.
+
+As for the event sinks, we don't have any table information there. We just have some workers that handle writing the row changed events to the target system.
+
+Let's check out the code to see how we implemented this design.
+
+-->
+
 ---
 transition: slide-up
 ---
@@ -638,39 +848,18 @@ DDLS <|.. DDLCSS : implement
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Table Sink](https://github.com/pingcap/tiflow/tree/v6.5.1/cdc/sinkv2/tablesink)
 · [Event Sink](https://github.com/pingcap/tiflow/blob/v6.5.1/cdc/sinkv2/eventsink/event_sink.go) · [DDL Sink](https://github.com/pingcap/tiflow/tree/v6.5.1/cdc/sinkv2/ddlsink) · [MQ Event Sink](https://github.com/pingcap/tiflow/tree/v6.5.1/cdc/sinkv2/eventsink/mq) · [Transaction Event Sink](https://github.com/pingcap/tiflow/tree/v6.5.1/cdc/sinkv2/eventsink/txn) · [Cloud Storage Event Sink](https://github.com/pingcap/tiflow/tree/v6.5.1/cdc/sinkv2/eventsink/cloudstorage)
 
----
-transition: slide-up
----
+<!--
 
-# New Data Sequence (Async)
+First, the table sink uses the event sink to write row changed events to the target system.
 
-## Row Change Data Sequence
+Second, the event sink is an interface that has multiple implementations. We have the MQ event sink, the transaction event sink, and the cloud storage event sink.
 
-<br/>
+At the same time, we separated the DDL sink and the event sink. Trust me, it's a good idea.
 
-```plantuml
-@startuml
-!theme plain
-participant TS1 as "Table Sink1"
-participant TS2 as "Table Sink2"
-participant TXNS as "Transaction Event Sink"
-participant MW as "MySQL Worker"
-participant M as "MySQL Server"
+For instance, in Kafka, we use a async producer to write row changed events to Kafka. However, we use a sync producer to write DDL events to Kafka. Right now, we don't need to worry about the error handling of the async producer. We can just use the sync producer to write DDL events to Kafka. It's much simpler.
 
-TS1 -> TXNS: call WriteEvents
-TS2 -> TXNS: call WriteEvents
-TXNS -[bold,#FF6655]> MW: Dispatch Txn Events (Conflict detection)
-MW -> M: Execute SQL
-M --> MW: Execute SQL Result
-MW --> TS1: call Callback
-MW --> TS2: call Callback
+-->
 
-note left of TS1 #FF6655
-  Only one buffer.
-end note
-
-@enduml
-```
 ---
 transition: slide-up
 ---
@@ -698,6 +887,21 @@ type TableSink interface {
 	Close(ctx context.Context)
 }
 ```
+
+<!--
+
+The table sink interface is super easy to use! There are just four methods you need to know.
+
+First up, we've got the AppendRowChangedEvents method. This one is used to store any row changed in the table sink.
+
+Next, we've got the UpdateResolvedTs method. This method writes all of the cached row changed events to the event sink.
+
+The third method is called GetCheckpointTs. This one is used to get the current checkpoint ts of the table sink.
+
+And finally, we've got the Close method.
+
+So as you can see, the table sink is just a simple buffer that stores row changed events. It doesn't have any knowledge of the target system.
+-->
 
 ---
 transition: slide-up
@@ -731,6 +935,16 @@ type EventSink[E TableEvent] interface {
 	Close() error
 }
 ```
+
+<!--
+The implementation of the table sink is really easy to understand. Basically, we have a generic struct that can write any type of events. Depending on the system, we may want to write the changed events row by row or transaction by transaction. The generic struct supports both of these options.
+
+To store the events, we use a buffer slice, and we use the max resolved ts as a signal to know when to write the events to the event sink. We also have a progress tracker to keep track of the progress of the table sink. When you call the get checkpoint ts method, it calculates the progress from the progress tracker.
+
+Finally, we have a backend sink that writes the events to the target system, which is the event sink. The event sink interface is simple, with a write events method and a close method. However, you may notice that the events parameter is a slice of callbackable events. This is because we coupled a callback with the event, so we can know when the event is written to the target system.
+
+To help you understand the table sink and the event sink better, let me show you the data flow.
+-->
 
 ---
 transition: slide-up
