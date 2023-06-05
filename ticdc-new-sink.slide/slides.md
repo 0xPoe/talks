@@ -428,6 +428,75 @@ end note
 
 ---
 transition: slide-up
+layout: two-cols
+---
+
+# Old Sink Module Abstract
+
+```go
+type Sink interface {
+	// FIXME: some sink implementation is not thread-safety, but they should be.
+	EmitRowChangedEvents(ctx context.Context, rows ...*model.RowChangedEvent) error
+
+	// TryEmitRowChangedEvents is thread-safety and non-blocking.
+	TryEmitRowChangedEvents(ctx context.Context, rows ...*model.RowChangedEvent) (bool, error)
+
+	// FIXME: some sink implementation is not thread-safety, but they should be.
+	EmitDDLEvent(ctx context.Context, ddl *model.DDLEvent) error
+
+	// FlushRowChangedEvents flushes each row which of commitTs less than or
+	// equal to `resolvedTs` into downstream.
+	// FIXME: some sink implementation is not thread-safety, but they should be.
+	FlushRowChangedEvents(ctx context.Context, tableID model.TableID, resolvedTs uint64) (uint64, error)
+
+	// FIXME: some sink implementation is not thread-safety, but they should be.
+	EmitCheckpointTs(ctx context.Context, ts uint64, tables []model.TableName) error
+	...
+}
+```
+
+::right::
+
+<br/>
+<br/>
+
+```plantuml
+@startuml
+!theme plain
+interface S as "Sink"
+class SM as "Sink Manager"
+class TS as "Table Sink" #Yellow
+package "Combination" #DDDDDD {
+  class BS as "Buffer Sink"
+  class MQS as "MQ Sink" #FF6655
+  class MS as "MySQL Sink" #FF6655
+}
+SM *-- TS : manage
+TS *-- SM  : use
+SM *-- BS : use
+S <|.. TS : implement
+S <|.. MQS : implement
+S <|.. MS : implement
+S <|.. BS : implement
+
+@enduml
+```
+
+---
+transition: slide-up
+---
+
+# Old Sink Problems
+
+- Circular dependency
+- Too many buffers
+- Leak table information everywhere
+- Call stack is too deep and all calls are synchronous
+- Abstraction is very complicated and too many functions in the interface
+- Some implementations are not thread-safe, but they should be
+
+---
+transition: slide-up
 layout: center
 ---
 
