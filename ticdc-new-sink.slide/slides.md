@@ -706,21 +706,28 @@ transition: slide-up
 ## Implementation
 
 
-```go{all|2|11|5|6|7}
+```go{all|2|9|4|6|5}
 // EventTableSink is a table sink that can write events.
 type EventTableSink[E eventsink.TableEvent] struct {
 	...
-
 	maxResolvedTs   model.ResolvedTs
 	backendSink     eventsink.EventSink[E]
 	progressTracker *progressTracker
 	...
-
 	// NOTICE: It is ordered by commitTs.
 	eventBuffer []E
 	state       state.TableSinkState
+	...
+}
+```
 
-  ...
+```go{0|all}
+type EventSink[E TableEvent] interface {
+	// WriteEvents writes events to the sink.
+	// This is an asynchronously and thread-safe method.
+	WriteEvents(events ...*CallbackableEvent[E]) error
+	// Close closes the sink.
+	Close() error
 }
 ```
 
@@ -728,24 +735,89 @@ type EventTableSink[E eventsink.TableEvent] struct {
 transition: slide-up
 ---
 
-# Table Sink
+<div class="arch">
+<div>
 
-## Implementation
+# Row Change Data Sequence
 
-```go{all|3}
-// AppendRowChangedEvents appends row changed or txn events to the table sink.
-func (e *EventTableSink[E]) AppendRowChangedEvents(rows ...*model.RowChangedEvent) {
-	e.eventBuffer = e.eventAppender.Append(e.eventBuffer, rows...)
-}
-```
+</div>
+
+<div>
+<br/>
 <br/>
 
-```go{all|3}
-// GetCheckpointTs returns the checkpoint ts of the table sink.
-func (e *EventTableSink[E]) GetCheckpointTs() model.ResolvedTs {
-	return e.progressTracker.advance()
-}
+```plantuml {scale: 0.9}
+@startuml
+!theme plain
+participant SN as "Sink Node"
+participant TS as "Table Sink"
+participant PT as "Progress Tracker"
+participant TXNS as "Transaction Event Sink"
+participant MW as "MySQL Worker"
+participant M as "MySQL Server"
+
+group #lightblue Add Event
+SN -> TS: call AppendRowChangedEvents
+SN <- TS: added to buffer
+end
+
+group #lightyellow Update ResolvedTs
+SN -> TS: call UpdateResolvedTs
+TS -> PT: call AddEvent
+TS <- PT: return a callback
+TS -> PT: call AddResolvedTs
+TS <- PT: added to records
+TS -> TXNS: call WriteEvents with callback
+TS <- TXNS: added to Conflicts Detector
+SN <- TS: updated resolvedTs
+end
+group #lightgreen Async Write Events
+TXNS -> MW: Dispatch Txn Events(Conflict detection)
+MW -> M: Execute SQL
+M -> MW: Execute SQL Result
+MW --> PT: call Callback
+end
+
+group #pink Get CheckpointTs
+SN -> TS: call GetCheckpointTs
+TS -> PT: call advance
+TS <- PT: return checkpointTs
+end
+@enduml
 ```
+
+</div>
+</div>
+
+<style>
+.arch {
+  display: flex;
+}
+
+.arch img {
+  margin-top: -80px;
+}
+
+.relation {
+  position: absolute;
+  z-index: 1;
+  left: 120px;
+  top: 60px;
+  font-size: 12px;
+}
+
+h1 {
+  background-color: #2B90B6;
+  background-image: linear-gradient(45deg, #4EC5D4 10%, #146b8c 20%);
+  background-size: 50%;
+  -webkit-background-clip: text;
+  -moz-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  -moz-text-fill-color: transparent;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+}
+</style>
 
 ---
 transition: slide-up
@@ -755,7 +827,7 @@ transition: slide-up
 
 ## Implementation
 
-```go {all|7|17|23} {maxHeight:'80%'}
+```go {all|7|17|23|24} {maxHeight:'80%'}
 // UpdateResolvedTs advances the resolved ts of the table sink.
 func (e *EventTableSink[E]) UpdateResolvedTs(resolvedTs model.ResolvedTs) error {
 	...
@@ -793,11 +865,8 @@ transition: slide-up
 
 <br/>
 
-<v-click>
-
 ### Can we use a simple counter to track the progress?
 
-</v-click>
 <br/>
 
 <v-click>
@@ -1097,48 +1166,6 @@ node "Group 3" as G3 #736060
 PK6 --> G3
 UK6 --> G3
 @enduml
-```
-
----
-transition: slide-up
----
-
-# MySQL Sink
-
-## Conflict Detection - Union Set
-
-```go {all|9-11|12-24} {maxHeight:'80%'}
-// It will have several scenarios:
-// 1) no conflict, return (false, noConflicting)
-// 2) conflict with the same worker, return (true, workerIndex)
-// 3) conflict with multiple workers, return (true, multipleConflicting)
-func (c *causality) detectConflict(keys [][]byte) (bool, int) {
-	...
-	conflictingWorkerIndex := noConflicting
-	for _, key := range keys {
-		if workerIndex, ok := c.relations[string(key)]; ok {
-			if conflictingWorkerIndex == noConflicting {
-				conflictingWorkerIndex = workerIndex
-			} else
-			// A second conflict occurs, and it is with another worker.
-			// For example:
-			// txn0[a,b,c] --> worker0
-			// txn1[t,f] --> worker1
-			// txn2[a,f] --> ?
-			// In this case, if we distribute the transaction,
-			// there is no guarantee that it will be executed
-			// in the order it was sent to the worker,
-			// so we have to wait for the previous transaction to finish writing.
-			if conflictingWorkerIndex != workerIndex {
-				return true, multipleConflicting
-			}
-		}
-	}
-
-	// 1) no conflict
-	// 2) conflict with the same worker
-	return conflictingWorkerIndex != noConflicting, conflictingWorkerIndex
-}
 ```
 
 ---
