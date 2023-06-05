@@ -18,6 +18,8 @@ A Deep Dive
 
 Based on TiCDC [v6.5.1](https://github.com/pingcap/tiflow/tree/v6.5.1)
 
+RUSTIN LIU
+
 <div class="pt-12">
   <span @click="$slidev.nav.next" class="px-2 py-1 rounded cursor-pointer" hover="bg-white bg-opacity-10">
     Begin <carbon:arrow-right class="inline"/>
@@ -393,9 +395,7 @@ h1 {
 
 # Old Data Sequence (Sync)
 
-## Row Change Data Sequence
-
-```plantuml {scale: 0.9}
+```plantuml {scale: 0.8}
 @startuml
 !theme plain
 SinkNode <[bold,#FF6655]- SinkNode: ⚠️added to buffer
@@ -404,12 +404,15 @@ SinkNode <-[bold,#FF6655]- TableSink: ⚠️added to buffer
 SinkNode -> TableSink: calls FlushRowChangedEvents
 TableSink -> "ProcessorSink(SinkManager)": calls EmitRowChangedEvents
 TableSink <-[bold,#FF6655]- "ProcessorSink(SinkManager)": ⚠️added to buffer
+TableSink -> "ProcessorSink(SinkManager)": calls FlushRowChangedEvents
+TableSink <-[bold,#FF6655]- "ProcessorSink(SinkManager)": ⚠️added to ResolvedTs Buffer
+SinkNode <-- TableSink: added to buffer sink
 loop BufferSink
   "ProcessorSink(SinkManager)" -> "ProcessorSink(SinkManager)": BufferSink buffer is full
-  "ProcessorSink(SinkManager)" -> Worker: calls EmitRowChangedEvents of MySQLSink
+  "ProcessorSink(SinkManager)" -> MySQLSink: calls EmitRowChangedEvents \nand FlushRowChangedEvents of MySQLSink
 end
-Worker -> MySQL: Execute SQL
-Worker <- MySQL: SQL Result
+MySQLSink -> MySQL: Execute SQL
+MySQLSink <-- MySQL: SQL Result
 
 
 note left of SinkNode #FF6655
@@ -421,7 +424,7 @@ note left of TableSink #FF6655
 end note
 
 note left of "ProcessorSink(SinkManager)" #FF6655
-  Buffer Three.
+  Buffer Three and Four.
 end note
 
 @enduml
@@ -491,9 +494,9 @@ transition: slide-up
 
 - Circular dependency
 - Too many buffers
-- Leak table information everywhere
+- Leaks table information everywhere
 - Call stack is too deep and all calls are synchronous
-- Abstraction is very complicated and too many functions in the interface
+- Abstraction is very complicated and there are too many functions in the interface
 - Some implementations are not thread-safe, but they should be
 
 ---
@@ -608,7 +611,7 @@ transition: slide-up
 @startuml
 !theme plain
 class TS as "Table Sink" #Yellow
-class ES as "Event Sink" #FF6655
+interface ES as "Event Sink" #FF6655
 class MQS as "MQ Event Sink"
 class TXNS as "Transaction Event Sink"
 class CSS as "Cloud Storage Event Sink"
@@ -619,7 +622,7 @@ ES <|.. MQS : implement
 ES <|.. TXNS : implement
 ES <|.. CSS : implement
 
-class DDLS as "DDL Sink"
+interface DDLS as "DDL Sink"
 class DDLMQS as "MQ DDL Sink"
 class DDLTXNS as "Transaction DDL Sink"
 class DDLCSS as "Cloud Storage DDL Sink"
@@ -656,7 +659,7 @@ participant M as "MySQL Server"
 
 TS1 -> TXNS: call WriteEvents
 TS2 -> TXNS: call WriteEvents
-TXNS -[bold,#FF6655]> MW: Dispatch Txn Events(Conflict detection)
+TXNS -[bold,#FF6655]> MW: Dispatch Txn Events (Conflict detection)
 MW -> M: Execute SQL
 M --> MW: Execute SQL Result
 MW --> TS1: call Callback
@@ -676,8 +679,7 @@ transition: slide-up
 
 ## Abstract
 
-```go{all|7|11|15}
-// TableSink is the interface for table sink.
+```go{all|6|10|14}
 // It is used to sink data in table units.
 type TableSink interface {
 	// AppendRowChangedEvents appends row changed events to the table sink.
@@ -692,7 +694,6 @@ type TableSink interface {
 	// For example, calculating the current progress from the statistics of the table sink.
 	// This is a thread-safe method.
 	GetCheckpointTs() model.ResolvedTs
-	// Close closes the table sink.
 	// We should make sure this method is cancellable.
 	Close(ctx context.Context)
 }
@@ -707,7 +708,7 @@ transition: slide-up
 ## Implementation
 
 
-```go{all|2|9|4|6|5}
+```go{all|2|8-9|4|6|5}
 // EventTableSink is a table sink that can write events.
 type EventTableSink[E eventsink.TableEvent] struct {
 	...
@@ -727,7 +728,6 @@ type EventSink[E TableEvent] interface {
 	// WriteEvents writes events to the sink.
 	// This is an asynchronously and thread-safe method.
 	WriteEvents(events ...*CallbackableEvent[E]) error
-	// Close closes the sink.
 	Close() error
 }
 ```
@@ -773,7 +773,7 @@ TS <- TXNS: added to Conflicts Detector
 SN <- TS: updated resolvedTs
 end
 group #lightgreen Async Write Events
-TXNS -> MW: Dispatch Txn Events(Conflict detection)
+TXNS -> MW: Dispatch Txn Events (Conflict detection)
 MW -> M: Execute SQL
 M -> MW: Execute SQL Result
 MW --> PT: call Callback
@@ -828,7 +828,7 @@ transition: slide-up
 
 ## Implementation
 
-```go {all|7|17|23|24} {maxHeight:'80%'}
+```go {all|6-8|15-19|23|24} {maxHeight:'80%'}
 // UpdateResolvedTs advances the resolved ts of the table sink.
 func (e *EventTableSink[E]) UpdateResolvedTs(resolvedTs model.ResolvedTs) error {
 	...
@@ -921,7 +921,7 @@ transition: slide-up
 
 <v-click>
 
-It is not good enough. Because we need get lock to update the progress.
+It is not good enough because we need get `lock()` to update the progress.
 
 </v-click>
 
@@ -936,7 +936,7 @@ It is not good enough. Because we need get lock to update the progress.
 
 ##### BitMap
 
-```go{all|1|2}
+```go{all|6}
 // Set the corresponding bit to 1.
 // For example, if the eventID is 3, the bit is 3 % 64 = 3.
 // 0000000000000000000000000000000000000000000000000000000000000000 ->
@@ -1095,11 +1095,11 @@ node "T6(PK:5, UK:6)" #green
 
 # Outcomes
 
-- Better Performance: Union Set -> DAG. (With pull-based-sink: 63.3k/s -> 103k/s)
-- Get rid of some buffers.
-- Better Abstraction and data sequence: Table Sink -> Transaction Event Sink -> MySQL.
+- Better performance: Union Set -> DAG. (With pull-based-sink: 63.3k/s -> 103k/s)
+- Removes some buffers.
+- Better abstraction and data flow: Table Sink -> Transaction Event Sink -> MySQL.
 - Better testability.
-- Better maintainability: all functions are thread-safe and async.
+- Better maintainability: all functions are thread-safe and async in Event Sink.
 - Easy to add new sinks.
 
 ---
