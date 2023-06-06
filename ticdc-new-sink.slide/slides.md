@@ -1257,7 +1257,6 @@ end note
 ```
 
 <!--
-
 In the previous section, we checked out this diagram. You might have noticed that the MySQL Sink has a conflict detection mechanism.
 
 Now, let's say we receive a massive amount of events from the system. We can't afford to send them one by one because we need to write them to the target system as quickly as possible.
@@ -1266,8 +1265,7 @@ To speed things up, we have multiple workers who can write events to the target 
 
 However, we must ensure that the events are written in the correct order. To accomplish this, we need to introduce a detector that can identify conflicts.
 
-We only allow non-conflicting events to be written in parallel. For events that do conflict, we must wait until the previous event has been written to the target system before proceeding.
-
+We only allow non-conflicting events to be written concurrently. For events that do conflict, we must wait until the previous event has been written to the target system before proceeding.
 -->
 
 ---
@@ -1339,12 +1337,11 @@ DML5 conflicts with all the other events except DML6 because it modifies the sam
 
 So, how do we detect conflicts? We can use a union set to store the events and identify them using the primary key and unique key. If two events modify the same key, we can put them in the same set.
 
-For example, if we ignore DML5 for now, we can group the events as follows: Group 1 contains DML1 and DML4, Group 2 contains DML2 and DML3, and Group 3 contains only DML6. We can then write the groups to the target system in parallel, with each group being handled by a separate worker.
+For example, if we ignore DML5 for now, we can group the events as follows: Group 1 contains DML1 and DML4, Group 2 contains DML2 and DML3, and Group 3 contains only DML6. We can then write the groups to the target system concurrently, with each group being handled by a separate worker.
 
-It's pretty simple, right? However, there is a problem. If we add DML5 to the mix, we will encounter an issue. DML5 conflicts with all the other events, so can't write it in parallel with the other events. We must wait until all the other events have been written to the target system before we can write DML5.
+It's pretty simple, right? However, there is a problem. If we add DML5 to the mix, we will encounter an issue. DML5 conflicts with all the other events, so  we can't write it concurrently with the other events. We must wait until all the other events have been written to the target system before we can write DML5.
 
-This is a significant problem. If we have a large number of events, we will have to wait a long time before we can write DML5. This is unacceptable. We can write DML6 at any time because it doesn't conflict with any other events. However, DML5 will cause a stop-world problem. Therefore, we need to find a solution to this problem.
-
+This is a significant problem. If we have a large number of events, we will have to wait a long time before we can write DML5. This is unacceptable. We can write DML6 at any time be cause it doesn't conflict with any other events. However, DML5 will cause a stop-world problem. Therefore, we need to find a solution to this problem.
 -->
 
 ---
@@ -1402,9 +1399,9 @@ For example, T3 modifies the same key as T2, so we can draw an edge from T3 to T
 
 T6 doesn't modify the same key as any other transaction, so it doesn't have any edges.
 
-We can solve the stop-world problem by using the graph. We can write T6 to the target system at any time because it doesn't conflict with any other transactions. However, we can't write T5 until we have written T4 and T3 because it conflicts with them. Similarly, we can't write T3 until we have written T because it conflicts with T2.
+We can solve the stop-world problem by using the graph. We can write T6 to the target system at any time because it doesn't conflict with any other transactions. However, we can't write T5 until we have written T4 and T3 because it conflicts with them. Similarly, we can't write T3 until we have written T2 because it conflicts with T2.
 
-However, we can write T2 and T1 in parallel because they don't conflict with each other. This is a significant improvement over the previous algorithm.
+However, we can write T2 and T1 concurrently because they don't conflict with each other. This is a significant improvement over the previous algorithm.
 
 This is the biggest change in the new MySQL sink. I suggest you read the code to understand how it works.
 
@@ -1436,7 +1433,9 @@ Fifthly, we have made the sink more maintainable by ensuring that all functions 
 
 Lastly, we have made it easier to add new sinks. In the old sink, we mixed all the sinks together in the sink manager. This made it difficult to understand and add new sinks. In the new sink, you only need to care about the event sink. You don't need to care about the table sink. Because the table sink logic is quite common, you can reuse it in other sinks. This makes it easier to add new sinks.
 
-That's all for my presentation. I hope you found it informative. If you have any questions, please feel free to ask me.
+That's all for my presentation. I hope you enjoyed it.
+
+If you have any questions, please feel free to ask me.
 -->
 
 ---
