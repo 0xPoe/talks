@@ -1039,7 +1039,20 @@ h1 {
 </style>
 
 <!--
-The data flow also sta
+The data flow also starts from the sink node. I divided the data flow into four parts.
+
+The first part is the add event part. When the sink node receives a row changed event, it calls the append row changed events method of the table sink. The table sink then adds the event to the buffer.
+
+The second part is the update resolved ts part. When the sink node receives a resolved ts, it calls the update resolved ts method of the table sink. The table sink then calls the add event method of the progress tracker to add the resolved ts to the records.
+Every time the table sink adds a event to the progress tracker, it returns a callback. The table sink then calls the write events method of the event sink with the callback. The event sink then adds the callbackable event to the conflicts detector.
+
+The third part is the async write events part. When conflict detection is done, the MySQL worker executes the SQL statement and handles the result. Then, it calls the callback method of the progress tracker to notify the table sink that the event is written to the target system.
+
+The last part is the get checkpoint ts part. When the sink node calls the get checkpoint ts method of the table sink, the table sink calls the advance method of the progress tracker to calculate the progress. Then, it returns the checkpoint ts to the sink node.
+
+
+Basically, in this system, there's only one buffer in the table sink. The event sink is like a writer that simply writes the events to the target system. We make sure not to leak any table information to the event sink.
+
 -->
 
 ---
@@ -1077,6 +1090,16 @@ func (e *EventTableSink[E]) UpdateResolvedTs(resolvedTs model.ResolvedTs) error 
 	return e.backendSink.WriteEvents(resolvedCallbackableEvents...)
 }
 ```
+
+<!--
+Let's check out some code.
+
+The update resolved ts method advances the resolved ts of the table sink. It first updates the max resolved ts of the table sink. Then, it searches for the events that are smaller than the resolved ts. It then removes the resolved events from the buffer and adds them to the resolved callbackable events. Finally, it calls the write events method of the event sink with the resolved callbackable events.
+
+That's it. It's pretty simple, right?
+
+Let's move on to the progress tracker. The progress tracker is the core of the table sink. It tracks the progress of the table sink and calculates the checkpoint ts.
+-->
 
 ---
 transition: slide-up
@@ -1124,6 +1147,23 @@ Example: txn1, txn2, resolvedTs2, txn3-1, txn3-2, resolvedTs3, resolvedTs4, reso
 
 </v-click>
 
+<!--
+
+Let's say we have a table sink that receives nine events, which are sorted by sorter. Now, the question is, how can we track the progress? Since we write the events to the target system asynchronously, we need to ensure that we update the progress at the right time, neither too early nor too late.
+
+
+Updating the progress too early can cause correctness issues. For instance, if we update the progress after txn3-1 and txn3-2 are written to the target system, the checkpoint ts be resolvedTs3. However, if txn1 and txn2 are not yet written to the target system, the checkpoint ts should be resolvedTs2. If the system crashes at this point, we will lose txn1 and txn2.
+
+On the other hand, updating the progress too late can cause latency issues. We need to update the progress as soon as possible to reduce latency.
+
+So the naive solution is to use current order to track the progress. We can simply use a list to store the events with a associated event ID.
+
+We can use a linked map to store it. The key is the event ID and the value is the event. For normal events, the value is nil. For resolved events, the value is the resolved ts.
+
+Every time we write an event to the target system, we can remove the event from the linked map. When we want to get the checkpoint ts, we can iterate the linked map to find the first normal event. Then we can update the progress to the last resolved ts before the normal event.
+
+It works and pretty simple, right? However, it is not good enough. Let's see why.
+-->
 
 ---
 transition: slide-up
@@ -1168,6 +1208,19 @@ postEventFlush = func() { atomic.AddUint64(&lastBuffer[len(lastBuffer)-1], 1<<bi
 ```
 
 </v-click>
+
+<!--
+When it comes to performance, using a map to store events is not ideal. Since we have multiple workers writing events to the target system, using a map would require getting a lock every time we write an event, which can negatively impact performance.
+
+To improve performance, we can use a list to store events, but instead of using a write lock to protect the entire list, we can narrow down the lock scope. We can use a bitmap to indicate progress and use atomic operations to update it. We can use a uint64 to store the bitmap, where each bit represents an event ID mod 64. For example, if the event ID is 3, the bit is 3 mod 64, which is 3. So the bit is the third bit of the uint64.
+
+After writing an event to the target system, we can use an atomic operation to set the corresponding bit to 1.
+
+When we want to get the checkpoint ts, we can find the first 0 bit to indicate progress.
+
+This is big improvement. But it also makes the code more complicated. I guess it is fair enough since we are dealing with performance issues.
+-->
+
 
 ---
 transition: slide-up
