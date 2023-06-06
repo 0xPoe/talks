@@ -90,7 +90,7 @@ layout: center
 ### - Phase 2: Change it from push model to pull model.
 <br/>
 
-Thanks to [Qu Peng](https://github.com/hicqu)、[Shawn](https://github.com/nongfushanquan)、[Yang Fei](https://github.com/amyangfei) and [Liu Zixiong](https://github.com/liuzix).
+Thanks to [Qu Peng](https://github.com/hicqu)、[Shawn Yu](https://github.com/nongfushanquan)、[Yang Fei](https://github.com/amyangfei) and [Liu Zixiong](https://github.com/liuzix).
 
 <!--
 In the past year, we've been refactoring the sink component in TiCDC.
