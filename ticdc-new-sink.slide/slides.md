@@ -971,7 +971,7 @@ participant TXNS as "Transaction Event Sink"
 participant MW as "MySQL Worker"
 participant M as "MySQL Server"
 
-group #lightblue Add Event
+group #lightyellow Add Event
 SN -> TS: call AppendRowChangedEvents
 SN <- TS: added to buffer
 end
@@ -986,18 +986,22 @@ TS -> TXNS: call WriteEvents with callback
 TS <- TXNS: added to Conflicts Detector
 SN <- TS: updated resolvedTs
 end
-group #lightgreen Async Write Events
+group #lightyellow Async Write Events
 TXNS -> MW: Dispatch Txn Events (Conflict detection)
 MW -> M: Execute SQL
 M -> MW: Execute SQL Result
 MW --> PT: call Callback
 end
 
-group #pink Get CheckpointTs
+group #lightyellow Get CheckpointTs
 SN -> TS: call GetCheckpointTs
 TS -> PT: call advance
 TS <- PT: return checkpointTs
 end
+
+note left TS #green
+  Only one buffer.
+end note
 @enduml
 ```
 
@@ -1033,6 +1037,10 @@ h1 {
   text-orientation: mixed;
 }
 </style>
+
+<!--
+The data flow also sta
+-->
 
 ---
 transition: slide-up
