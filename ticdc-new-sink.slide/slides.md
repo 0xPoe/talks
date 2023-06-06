@@ -1263,13 +1263,27 @@ end note
 @enduml
 ```
 
+<!--
+
+In the previous section, we checked out this diagram. You might have noticed that the MySQL Sink has a conflict detection mechanism.
+
+Now, let's say we receive a massive amount of events from the system. We can't afford to send them one by one because we need to write them to the target system as quickly as possible.
+
+To speed things up, we have multiple workers who can write events to the target system simultaneously.
+
+However, we must ensure that the events are written in the correct order. To accomplish this, we need to introduce a detector that can identify conflicts.
+
+We only allow non-conflicting events to be written in parallel. For events that do conflict, we must wait until the previous event has been written to the target system before proceeding.
+
+-->
+
 ---
 transition: slide-up
 ---
 
 # MySQL Sink
 
-## Conflict Detection - Union Set
+## Old Conflict Detection - Union Set
 
 ```sql{all|1|2|3|4|5|6}
 DML1: INSERT INTO t VALUES (1, 2);
@@ -1323,13 +1337,30 @@ UK6 --> G3
 @enduml
 ```
 
+<!--
+Let me give you an example of a conflict. If we received these events at the same time, we would have a conflict.
+
+DML1 and DML4 conflict because they both modify the same key. Similarly, DML2 and DML3 conflict because they both modify the same key.
+
+DML5 conflicts with all the other events except DML6 because it modifies the same key as all the other events.
+
+So, how do we detect conflicts? We can use a union set to store the events and identify them using the primary key and unique key. If two events modify the same key, we can put them in the same set.
+
+For example, if we ignore DML5 for now, we can group the events as follows: Group 1 contains DML1 and DML4, Group 2 contains DML2 and DML3, and Group 3 contains only DML6. We can then write the groups to the target system in parallel, with each group being handled by a separate worker.
+
+It's pretty simple, right? However, there is a problem. If we add DML5 to the mix, we will encounter an issue. DML5 conflicts with all the other events, so can't write it in parallel with the other events. We must wait until all the other events have been written to the target system before we can write DML5.
+
+This is a significant problem. If we have a large number of events, we will have to wait a long time before we can write DML5. This is unacceptable. We can write DML6 at any time because it doesn't conflict with any other events. However, DML5 will cause a stop-world problem. Therefore, we need to find a solution to this problem.
+
+-->
+
 ---
 transition: slide-up
 ---
 
 # MySQL Sink
 
-## Conflict Detection - DAG
+## New Conflict Detection - DAG (Directed Acyclic Graph)
 
 - Node: Transaction received by Conflict Detector, that has not been executed.
 - Edge: T2 -> T1, T1 exists one edge to T2, only if T1 modifies the same key as T2.
@@ -1365,6 +1396,26 @@ T5 --> T3
 node "T6(PK:5, UK:6)" #green
 @enduml
 ```
+<!--
+
+In the new conflict detection algorithm, we use a directed acyclic graph to store the events.
+
+First, let's define a few terms.
+
+A node is a transaction that has not been executed, and an edge is a relationship between two transactions. If T2 modifies the same key as T1, we can draw an edge from T2 to T1.
+However, we can optimize this process. If there exists a path T2 -> Ta -> Tb ... -> Tx -> T1, we can ignore T2 -> T1. This simplifies the graph and the implementation.
+
+For example, T3 modifies the same key as T2, so we can draw an edge from T3 to T2. Similarly, T4 modifies the same key as T1, so we can draw an edge from T4 to T1. T5 modifies the same key as T4 and T3, so we can draw an edge from T5 to T4 and T3.
+
+T6 doesn't modify the same key as any other transaction, so it doesn't have any edges.
+
+We can solve the stop-world problem by using the graph. We can write T6 to the target system at any time because it doesn't conflict with any other transactions. However, we can't write T5 until we have written T4 and T3 because it conflicts with them. Similarly, we can't write T3 until we have written T because it conflicts with T2.
+
+However, we can write T2 and T1 in parallel because they don't conflict with each other. This is a significant improvement over the previous algorithm.
+
+This is the biggest change in the new MySQL sink. I suggest you read the code to understand how it works.
+
+-->
 
 ---
 
@@ -1376,6 +1427,24 @@ node "T6(PK:5, UK:6)" #green
 - Better testability.
 - Better maintainability: all functions are thread-safe and async in Event Sink.
 - Easy to add new sinks.
+
+<!--
+Alright, let's talk about the outcomes of this project.
+
+Firstly, we were able to improve the performance of the MySQL sink by replacing the union set with a directed acyclic graph. This has resulted in a significant improvement in the sink's performance, and in the real world, we can achieve 60% more throughput when used with the pull-based sink.
+
+Secondly, we have removed some buffers from the old sink and replaced them with only one buffer in the new table sink. This not only saves memory but also improves the sink's performance.
+
+Thirdly, we have improved the abstraction and data flow by using only one data flow in the new sink.
+
+Fourthly, we have improved the testability of the sink by separating the DDL and DML parts into two sinks. This makes it easier to test the sink, as you only need to focus on the DML part when testing the DML sink and the DDL part when testing the DDL sink.
+
+Fifthly, we have made the sink more maintainable by ensuring that all functions are thread-safe and async in the new sink.
+
+Lastly, we have made it easier to add new sinks. In the old sink, we mixed all the sinks together in the sink manager. This made it difficult to understand and add new sinks. In the new sink, you only need to care about the event sink. You don't need to care about the table sink. Because the table sink logic is quite common, you can reuse it in other sinks. This makes it easier to add new sinks.
+
+That's all for my presentation. I hope you found it informative. If you have any questions, please feel free to ask me.
+-->
 
 ---
 layout: center
