@@ -80,21 +80,14 @@ transition: slide-up
 layout: center
 ---
 
-<div text-6xl fw100>
-  Sink Refactoring
-</div>
+# Sink Refactoring
 
 <br>
 
-<div class="grid grid-cols-[3fr_2fr] gap-4">
-  <div class="border-l border-gray-400 border-opacity-25 !all:leading-12 !all:list-none my-auto">
+### - Phase 1: Introduce a new sink and a new conflict detector.
+<br>
 
-  - Phase 1: Introduce a new sink and a new conflict detector.
-  - Phase 2: Change it from push model to pull model.
-
-  </div>
-</div>
-
+### - Phase 2: Change it from push model to pull model.
 <br/>
 
 Thanks to [Qu Peng](https://github.com/hicqu)、[Shawn](https://github.com/nongfushanquan)、[Yang Fei](https://github.com/amyangfei) and [Liu Zixiong](https://github.com/liuzix).
