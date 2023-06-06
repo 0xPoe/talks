@@ -1262,7 +1262,7 @@ In the previous section, we checked out this diagram. You might have noticed tha
 
 Now, let's say we receive a massive amount of events from the system. We can't afford to send them one by one because we need to write them to the target system as quickly as possible.
 
-To speed things up, we have multiple workers who can write events to the target system simultaneously.
+To speed things up, we have multiple workers who can write events to the target system concurrently.
 
 However, we must ensure that the events are written in the correct order. To accomplish this, we need to introduce a detector that can identify conflicts.
 
