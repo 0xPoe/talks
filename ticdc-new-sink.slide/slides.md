@@ -194,7 +194,7 @@ node "Owner" {
 
 node "Processor" {
   [ProcessorMounter]
-  [ProcessorSink] #FF6655
+  [SinkManager] #FF6655
   package "DDL" as DDL2 {
     [ProcessorSchemaStorage]
     [ProcessorDDLPuller] --> [gRPC]
@@ -222,12 +222,12 @@ database "MySQL/Kafka" {
 [DDLSink] --> [Broker]
 DDL1 --> [DDLSink]
 [OwnerSchemaStorage] ..> [OwnerDDLPuller] : use
-[ProcessorSink] --> [MySQL]
-[ProcessorSink] --> [Broker]
+[SinkManager] --> [MySQL]
+[SinkManager] --> [Broker]
 [Sorter1] ..> [ProcessorMounter] : use
 [Sorter2] ..> [ProcessorMounter] : use
-[TableSink1] ..> [ProcessorSink] : use
-[TableSink2] ..> [ProcessorSink] : use
+[TableSink1] ..> [SinkManager] : use
+[TableSink2] ..> [SinkManager] : use
 [ProcessorMounter] ..> DDL2 : use
 [Puller1] --> [Sorter1]
 [Sorter1] --> [TableSink1]
@@ -604,14 +604,14 @@ SinkNode <[bold,#FF6655]- SinkNode: ⚠️added to buffer
 SinkNode -> TableSink: buffer is full and SinkNode calls EmitRowChangedEvents
 SinkNode <-[bold,#FF6655]- TableSink: ⚠️added to buffer
 SinkNode -> TableSink: calls FlushRowChangedEvents
-TableSink -> "ProcessorSink(SinkManager)": calls EmitRowChangedEvents
-TableSink <-[bold,#FF6655]- "ProcessorSink(SinkManager)": ⚠️added to buffer
-TableSink -> "ProcessorSink(SinkManager)": calls FlushRowChangedEvents
-TableSink <-[bold,#FF6655]- "ProcessorSink(SinkManager)": ⚠️added to ResolvedTs Buffer
+TableSink -> "SinkManager": calls EmitRowChangedEvents
+TableSink <-[bold,#FF6655]- "SinkManager": ⚠️added to buffer
+TableSink -> "SinkManager": calls FlushRowChangedEvents
+TableSink <-[bold,#FF6655]- "SinkManager": ⚠️added to ResolvedTs Buffer
 SinkNode <-- TableSink: added to buffer sink
 loop BufferSink
-  "ProcessorSink(SinkManager)" -> "ProcessorSink(SinkManager)": BufferSink buffer is full
-  "ProcessorSink(SinkManager)" -> MySQLSink: calls EmitRowChangedEvents \nand FlushRowChangedEvents of MySQLSink
+  "SinkManager" -> "SinkManager)": BufferSink buffer is full
+  "SinkManager" -> MySQLSink: calls EmitRowChangedEvents \nand FlushRowChangedEvents of MySQLSink
 end
 MySQLSink -> MySQL: Execute SQL
 MySQLSink <-- MySQL: SQL Result
@@ -625,7 +625,7 @@ note left of TableSink #FF6655
   Buffer Two.
 end note
 
-note left of "ProcessorSink(SinkManager)" #FF6655
+note left of "SinkManager" #FF6655
   Buffer Three and Four.
 end note
 
@@ -642,13 +642,13 @@ The table sink then adds the row changed events to its own buffer and waits for 
 
 Once the sink node receives a signal from the previous node, it calls the table sink to flush the row changed events.
 
-The table sink then calls the processor sink to emit the row changed events and flush the row changed events.
+The table sink then calls the sink manager to emit the row changed events and flush the row changed events.
 
-The processor sink also has two buffers. One is for row changed events, and the other is for resolvedTs. Once the buffer for row changed events is full, the processor sink calls the MySQL sink to emit the row changed events and flush the row changed events.
+The sink manager also has two buffers. One is for row changed events, and the other is for resolvedTs. Once the buffer for row changed events is full, the sink manager calls the MySQL sink to emit the row changed events and flush the row changed events.
 
 Finally, the MySQL sink converts the row changed events to SQL and sends them to MySQL.
 
-As you can see, this process is quite complex, and there are several buffers involved. The sink node, table sink, and processor sink all have their own buffers. Additionally, if we use a Kafka producer, there is another buffer in the Kafka producer.
+As you can see, this process is quite complex, and there are several buffers involved. The sink node, table sink, and sink manager all have their own buffers. Additionally, if we use a Kafka producer, there is another buffer in the Kafka producer.
 
 Overall, this process requires a lot of coordination and careful management of buffers to ensure that data is processed correctly and efficiently.
 
