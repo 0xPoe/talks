@@ -1046,6 +1046,8 @@ The last part is the get checkpoint ts part. When the sink node calls the get ch
 
 Basically, in this system, there's only one buffer in the table sink. The event sink is like a writer that simply writes the events to the target system. We make sure not to leak any table information to the event sink.
 
+After we understand the data flow, we need to figure out how to track the progress of the table sink. Because we write data concurrently. To solve this problem, we use a progress tracker to track the progress of the table sink.
+
 -->
 
 ---
