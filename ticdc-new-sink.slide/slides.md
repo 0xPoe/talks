@@ -1036,7 +1036,7 @@ The data flow also starts from the sink node. I divided the data flow into four 
 
 The first part is the add event part. When the sink node receives a row changed event, it calls the append row changed events method of the table sink. The table sink then adds the event to the buffer.
 
-The second part is the update resolved ts part. When the sink node receives a resolved ts, it calls the update resolved ts method of the table sink. The table sink then calls the add event method of the progress tracker to add the resolved ts to the records.
+The second part is the update resolved ts part. When the sink node receives a resolved ts, it calls the update resolved ts method of the table sink. The table sink then calls the add event method of the progress tracker to record the event ID and the resolved ts.
 Every time the table sink adds a event to the progress tracker, it returns a callback. The table sink then calls the write events method of the event sink with the callback. The event sink then adds the callbackable event to the conflicts detector.
 
 The third part is the async write events part. When conflict detection is done, the MySQL worker executes the SQL statement and handles the result. Then, it calls the callback method of the progress tracker to notify the table sink that the event is written to the target system.
