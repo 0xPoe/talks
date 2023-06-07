@@ -1054,52 +1054,6 @@ transition: slide-up
 
 # Table Sink
 
-## Implementation
-
-```go {all|6-8|15-19|23|24} {maxHeight:'80%'}
-// UpdateResolvedTs advances the resolved ts of the table sink.
-func (e *EventTableSink[E]) UpdateResolvedTs(resolvedTs model.ResolvedTs) error {
-	...
-	e.maxResolvedTs = resolvedTs
-
-	i := sort.Search(len(e.eventBuffer), func(i int) bool {
-		return e.eventBuffer[i].GetCommitTs() > resolvedTs.Ts
-	})
-	...
-	resolvedEvents := e.eventBuffer[:i]
-	...
-	e.eventBuffer = append(make([]E, 0, len(e.eventBuffer[i:])), e.eventBuffer[i:]...)
-	resolvedCallbackableEvents := make([]*eventsink.CallbackableEvent[E], 0, len(resolvedEvents))
-	for _, ev := range resolvedEvents {
-		ce := &eventsink.CallbackableEvent[E]{
-			Event:     ev,
-			Callback:  e.progressTracker.addEvent(),
-			SinkState: &e.state,
-		}
-		resolvedCallbackableEvents = append(resolvedCallbackableEvents, ce)
-	}
-	// Do not forget to add the resolvedTs to progressTracker.
-	e.progressTracker.addResolvedTs(resolvedTs)
-	return e.backendSink.WriteEvents(resolvedCallbackableEvents...)
-}
-```
-
-<!--
-Let's check out some code.
-
-The update resolved ts method advances the resolved ts of the table sink. It first updates the max resolved ts of the table sink. Then, it searches for the events that are smaller than the resolved ts. It then removes the resolved events from the buffer and adds them to the resolved callbackable events. Finally, it calls the write events method of the event sink with the resolved callbackable events.
-
-That's it. It's pretty simple, right?
-
-Let's move on to the progress tracker. The progress tracker is the core of the table sink. It tracks the progress of the table sink and calculates the checkpoint ts.
--->
-
----
-transition: slide-up
----
-
-# Table Sink
-
 ## Progress Tracker
 
 Example: txn1, txn2, resolvedTs2, txn3-1, txn3-2, resolvedTs3, resolvedTs4, resolvedTs5
