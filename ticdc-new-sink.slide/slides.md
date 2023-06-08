@@ -10,6 +10,7 @@ info: |
 drawings:
   presenterOnly: true
 css: unocss
+download: true
 ---
 
 # TiCDC Sink Component
