@@ -1,6 +1,6 @@
 ---
 theme: seriph
-background: https://source.unsplash.com/collection/94734566/1920x1080
+background: https://images.unsplash.com/photo-1595515770330-ceeea7d82cfd?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=3270&q=80
 class: text-center
 highlighter: shiki
 lineNumbers: false
@@ -15,9 +15,9 @@ transition: slide-left
 title: Welcome to Slidev
 ---
 
-# Welcome to Slidev
+# A Sink
 
-Presentation slides for developers
+A Deep Dive
 
 <div class="pt-12">
   <span @click="$slidev.nav.next" class="px-2 py-1 rounded cursor-pointer" hover="bg-white bg-opacity-10">
