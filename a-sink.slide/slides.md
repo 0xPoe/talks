@@ -1320,11 +1320,7 @@ layout: two-cols
 
 - **How to solve the performance problem?**
 
-- How to make the sink easy to extend?
-
 - How to make it compatible with the old sink and old architecture?
-
-- How to use pull mode to get better resource utilization?
 
 
 ::right::
@@ -1341,6 +1337,23 @@ layout: two-cols
 
 - How to make sure a timely delivery?
 
+<!--
+From the technical perspective, the first challenge is how to abstract the table sink and event sink. In the old sink, we mixed the table sink and event sink together. This made it difficult to understand and extend the sink. In the new sink, we separate the table sink and event sink. This makes it easier to understand and extend the sink.
+
+The second challenge is how to make the sink thread-safe and async. In the old sink, we used a union set to detect conflicts. This made the sink write transactions to the target system in a stop-world manner. In the new sink, we use a DAG to detect conflicts. This makes the asynchronous writing possible. This is a significant improvement over the old sink.
+
+The third challenge is how to solve the performance problem. When I first implemented the new sink, I found that the performance was not as good as the old sink. After some investigation, I found that the performance problem was caused by the callback function. We solved this problem by using a bitmap to store the events.
+
+The last challenge is how to make the new sink compatible with the old sink and old architecture. We solved this problem by using the same data flow as the old sink. This makes it easier to migrate to the new sink. That helps us to start using the new sink in the production environment earlier. We didn't need to wait for the pull based architecture to be ready.
+
+From the non-technical perspective, the first challenge is how to pick up a suitable solution. When I first started this project, I was not sure which solution was the best. I spent a lot of time researching different solutions. This delayed the project. I should have made a decision earlier. There is no perfect solution. You just need to pick up a suitable solution and start trying it.
+
+The second challenge is how to manage a long-term project. This project took me more than 6 months to complete. I need to plan the project carefully and break it down into smaller tasks. I decided to separate it into 2 phases. In the first phase, I implemented the new sink. In the second phase, I implemented the pull-based architecture. This made it easier to manage and move forward the project. Every phase has a clear goal. I can focus on one thing at a time.
+
+The third challenge is how to communicate with colleagues. I need to communicate with colleagues frequently to make sure that we are on the same page. I need to make sure that they understand the project and the progress. I need to make sure that they can help me when I need help. So I booked a meeting with them every week. I also sent them a weekly report to let them know the progress.
+
+The last challenge is how to make sure a timely delivery. Actually, we delayed the project for a bit. We were too optimistic about the project time estimation. I should have added some buffer time to the project. We planned too many things but didn't have enough time to finish them. We need to focus on the most important things and make sure that we can deliver them on time.
+-->
 
 ---
 transition: slide-up
@@ -1362,8 +1375,6 @@ layout: two-cols
 
 - Learned a new conflict detection algorithm.
 
-- Learned how to use pull mode to get better resource utilization.
-
 - **Callback + BitMap probably is not a good solution.**
 
 ::right::
@@ -1376,11 +1387,28 @@ layout: two-cols
 
 - Involve reviewers in the project earlier.
 
-- Communicate with colleagues more frequently.
-
 - Break down the project into smaller tasks.
 
 - Start automated testing as early as possible.
+
+<!--
+
+From the technical perspective, I got a better understanding of the TiCDC architecture. I can see the big picture of the TiCDC project. I can see how the TiCDC components work together. Right now, I can better handle the TiCDC issues. And I understand a lot pervious design decisions.
+
+I learned how to design a fully async and thread-safe component. Especially, I learned how to use a DAG to detect conflicts. This is a huge improvement over the old sink. I also learned how to use a bitmap to store the events. This is a good solution to the performance problem.
+
+But recently, I found that the callback + bitmap solution probably is not a good solution. It is not easy to understand and maintain. It makes the code more complex and difficult to observe. I should have used a simpler solution. Unfortunately, I didn't find a better solution at that time.
+
+From the non-technical perspective, I learned that I shouldn't struggle with the choice of technical solution for too long time. There is no perfect solution. You just need to pick up a suitable solution and start trying it. You can always improve it later. But you must do a quick evaluation first. Otherwise, you will waste a lot of time.
+
+I also learned that project time estimations cannot be overly optimistic. We were too optimistic about the project time estimation. We planned too many things but didn't have enough time to finish them. We need to focus on the most important things and make sure that we can deliver core features on time. This is more important than finishing everything.
+
+I learned that I should involve reviewers in the project earlier. You can not involve them only when you need commit approval. That would be terrible. They don't know what you are doing. They don't know the progress of the project. They don't know the design decisions. They don't know the difficulties you are facing. So they cannot help you when you need help. We should involve them at day 1. At least, we should involve them when we start the implementation.
+
+I learned that I should break down the project into smaller tasks. This makes it easier to manage and move forward the project. Every task has a clear goal. I can focus on one thing at a time. And it also helps us to make a better time estimation.
+
+I learned that I should start automated testing as early as possible. I should not wait until the end of the project. Before we released the new sink, we found too many bugs. We should have started automated testing earlier. We can merge the new sink into the master branch earlier. We can start using the new sink in the automated testing environment earlier. Then we don't need to hurry to fix bugs at the release stage.
+-->
 
 ---
 layout: center
