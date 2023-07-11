@@ -811,49 +811,6 @@ transition: slide-up
 
 # Table Sink
 
-## Abstract
-
-```go{all|6|10|14}
-// It is used to sink data in table units.
-type TableSink interface {
-	// AppendRowChangedEvents appends row changed events to the table sink.
-	// Usually, it is used to cache the row changed events into table sink.
-	// This is a not thread-safe method. Please do not call it concurrently.
-	AppendRowChangedEvents(rows ...*model.RowChangedEvent)
-	// UpdateResolvedTs writes the buffered row changed events to the eventTableSink.
-	// Note: This is an asynchronous and not thread-safe method.
-	// Please do not call it concurrently.
-	UpdateResolvedTs(resolvedTs model.ResolvedTs) error
-	// GetCheckpointTs returns the current checkpoint ts of table sink.
-	// For example, calculating the current progress from the statistics of the table sink.
-	// This is a thread-safe method.
-	GetCheckpointTs() model.ResolvedTs
-	// We should make sure this method is cancellable.
-	Close(ctx context.Context)
-}
-```
-
-<!--
-
-The table sink interface is super easy to use! There are just four methods you need to know.
-
-First up, we've got the AppendRowChangedEvents method. This one is used to store any row changed in the table sink.
-
-Next, we've got the UpdateResolvedTs method. This method writes all of the cached row changed events to the event sink.
-
-The third method is called GetCheckpointTs. This one is used to get the current checkpoint ts of the table sink.
-
-And finally, we've got the Close method.
-
-So as you can see, the table sink is just a simple buffer that stores row changed events. It doesn't have any knowledge of the target system.
--->
-
----
-transition: slide-up
----
-
-# Table Sink
-
 ## Implementation
 
 
@@ -1407,7 +1364,7 @@ layout: two-cols
 
 - Learned how to use pull mode to get better resource utilization.
 
-- **Callback + BitMap is not a good solution.**
+- **Callback + BitMap probably is not a good solution.**
 
 ::right::
 
