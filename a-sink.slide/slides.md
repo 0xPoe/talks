@@ -857,14 +857,6 @@ postEventFlush = func() { atomic.AddUint64(&lastBuffer[len(lastBuffer)-1], 1<<bi
 
 </v-click>
 
-
----
-transition: slide-up
-layout: center
----
-
-# MySQL Sink
-
 ---
 transition: slide-up
 ---
@@ -1015,6 +1007,91 @@ transition: slide-up
 - Better testability.
 - Better maintainability: all functions are thread-safe and async in Event Sink.
 - Easy to add new sinks.
+
+---
+transition: slide-up
+layout: center
+---
+
+# What are my challenges?
+
+
+---
+transition: slide-up
+layout: two-cols
+---
+
+# Technical Challenges
+
+<br/>
+
+- How to abstract the table sink and event sink?
+
+- **How to make the sink thread-safe and async?**
+
+- **How to solve the performance problem?**
+
+- How to make the sink easy to extend?
+
+- How to make it compatible with the old sink and old architecture?
+
+- How to use pull mode to get better resource utilization?
+
+
+::right::
+
+# Non-Technical Challenges
+
+<br/>
+
+- How to pick up a suitable solution?
+
+- How to manage a long-term project?
+
+- How to communicate with colleagues?
+
+- How to make sure a timely delivery?
+
+
+---
+transition: slide-up
+layout: center
+---
+
+# What I learned?
+
+---
+transition: slide-up
+layout: two-cols
+---
+
+# Technical Things
+
+- Got better understanding of the architecture.
+
+- Learned how to design an async and thread-safe component.
+
+- Learned a new conflict detection algorithm.
+
+- Learned how to use pull mode to get better resource utilization.
+
+- **Callback + BitMap is not a good solution.**
+
+::right::
+
+# Non-Technical Things
+
+- **Don't struggle with the choice of technical solution for too long time.**
+
+- **Project time estimations cannot be overly optimistic.**
+
+- Involve reviewers in the project earlier.
+
+- Communicate with colleagues more frequently.
+
+- Break down the project into smaller tasks.
+
+- Start automated testing as early as possible.
 
 ---
 layout: center
