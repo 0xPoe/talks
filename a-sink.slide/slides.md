@@ -128,7 +128,7 @@ layout: center
   - TiCDC Architecture
   - What is the problem?
   - What we did to solve it?
-  - What are my challenges?
+  - What were the challenges?
   - What I learned?
   - Q&A
 
@@ -1302,7 +1302,7 @@ transition: slide-up
 layout: center
 ---
 
-# What are my challenges?
+# What were the challenges?
 
 
 ---
