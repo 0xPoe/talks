@@ -79,7 +79,7 @@ Recently, I’ve been very interested in Infrastructure software and open source
 
 I am also a open source believer. Right now, I'm a very active Cargo Contributor and a Rustup Maintainer.
 
-You can find me on GitHub, Twitter, and my personal website.
+You can find me on GitHub, Twitter, and my personal website. I also have a YouTube channel where I share my knowledge about Rust and open source.
 
 Alright, let's get started!
 -->
@@ -135,8 +135,7 @@ layout: center
   - TiCDC Architecture
   - What is the problem?
   - What we did to solve it?
-  - What were the challenges?
-  - What I learned?
+  - What were the challenges? & What I learned?
   - Q&A
 
   </div>
@@ -151,11 +150,9 @@ Then, I'm gonna talk about the problem we're trying to solve.
 
 After that, I'm gonna talk about what we did to solve it.
 
-Then, I'm gonna talk about the challenges I faced during the development and how I overcame them.
+Then, I'm gonna talk about the challenges I faced during the development and how I overcame them. I'll also share some of my experiences and what I learned.
 
-Finally, I'm gonna talk about what I learned from this experience.
-
-And of course, we'll have a Q&A session at the end. If you have any questions during the talk, feel free to ask them in the chat or save them for the Q&A session.
+And of course, we'll have a Q&A session at the end. If you have any questions during the talk, feel free to ask them in the chat box or save them for the Q&A session.
 -->
 
 ---
@@ -326,7 +323,7 @@ flowchart LR
 <!--
 Each pipeline is responsible for replicating data for a single table, and it consists of four components.
 
-First up, we have the puller. The puller is responsible for pulling data from TiKV.
+First up, we have the puller. The puller is responsible for pulling data from TiKV. I mean. from the storage layer.
 
 Next, we have the sorter. The sorter is responsible for sorting the data based on commit ts. This ensures that the data is replicated in the correct order.
 
@@ -816,49 +813,6 @@ For instance, in Kafka, we use a async producer to write row changed events to K
 transition: slide-up
 ---
 
-# Table Sink
-
-## Implementation
-
-
-```go{all|2|8-9|4|6|5}
-// EventTableSink is a table sink that can write events.
-type EventTableSink[E eventsink.TableEvent] struct {
-	...
-	maxResolvedTs   model.ResolvedTs
-	backendSink     eventsink.EventSink[E]
-	progressTracker *progressTracker
-	...
-	// NOTICE: It is ordered by commitTs.
-	eventBuffer []E
-	state       state.TableSinkState
-	...
-}
-```
-
-```go{0|all}
-type EventSink[E TableEvent] interface {
-	// WriteEvents writes events to the sink.
-	// This is an asynchronously and thread-safe method.
-	WriteEvents(events ...*CallbackableEvent[E]) error
-	Close() error
-}
-```
-
-<!--
-The implementation of the table sink is really easy to understand. Basically, we have a generic struct that can write any type of events. Depending on the system, we may want to write the changed events row by row or transaction by transaction. The generic struct supports both of these options.
-
-To store the events, we use a buffer slice, and we use the max resolved ts as a signal to know when to write the events to the event sink. We also have a progress tracker to keep track of the progress of the table sink. When you call the get checkpoint ts method, it calculates the progress from the progress tracker.
-
-Finally, we have a backend sink that writes the events to the target system, which is the event sink. The event sink interface is simple, with a write events method and a close method. However, you may notice that the events parameter is a slice of callbackable events. This is because we coupled a callback with the event, so we can know when the event is written to the target system.
-
-To help you understand the table sink and the event sink better, let me show you the data flow.
--->
-
----
-transition: slide-up
----
-
 <div class="arch">
 <div>
 
@@ -1309,7 +1263,7 @@ transition: slide-up
 layout: center
 ---
 
-# What were the challenges?
+# What were the challenges? & What I learned?
 
 
 ---
@@ -1317,7 +1271,7 @@ transition: slide-up
 layout: two-cols
 ---
 
-# Technical Challenges
+### Technical Challenges
 
 <br/>
 
@@ -1329,52 +1283,7 @@ layout: two-cols
 
 - How to make it compatible with the old sink and old architecture?
 
-
-::right::
-
-# Non-Technical Challenges
-
-<br/>
-
-- How to pick up a suitable solution?
-
-- How to manage a long-term project?
-
-- How to communicate with colleagues?
-
-- How to make sure a timely delivery?
-
-<!--
-From the technical perspective, the first challenge is how to abstract the table sink and event sink. In the old sink, we mixed the table sink and event sink together. This made it difficult to understand and extend the sink. In the new sink, we separate the table sink and event sink. This makes it easier to understand and extend the sink.
-
-The second challenge is how to make the sink thread-safe and async. In the old sink, we used a union set to detect conflicts. This made the sink write transactions to the target system in a stop-world manner. In the new sink, we use a DAG to detect conflicts. This makes the asynchronous writing possible. This is a significant improvement over the old sink.
-
-The third challenge is how to solve the performance problem. When I first implemented the new sink, I found that the performance was not as good as the old sink. After some investigation, I found that the performance problem was caused by the callback function. We solved this problem by using a bitmap to store the events.
-
-The last challenge is how to make the new sink compatible with the old sink and old architecture. We solved this problem by using the same data flow as the old sink. This makes it easier to migrate to the new sink. That helps us to start using the new sink in the production environment earlier. We didn't need to wait for the pull based architecture to be ready.
-
-From the non-technical perspective, the first challenge is how to pick up a suitable solution. When I first started this project, I was not sure which solution was the best. I spent a lot of time researching different solutions. This delayed the project. I should have made a decision earlier. There is no perfect solution. You just need to pick up a suitable solution and start trying it.
-
-The second challenge is how to manage a long-term project. This project took me more than 6 months to complete. I need to plan the project carefully and break it down into smaller tasks. I decided to separate it into 2 phases. In the first phase, I implemented the new sink. In the second phase, I implemented the pull-based architecture. This made it easier to manage and move forward the project. Every phase has a clear goal. I can focus on one thing at a time.
-
-The third challenge is how to communicate with colleagues. I need to communicate with colleagues frequently to make sure that we are on the same page. I need to make sure that they understand the project and the progress. I need to make sure that they can help me when I need help. So I booked a meeting with them every week. I also sent them a weekly report to let them know the progress.
-
-The last challenge is how to make sure a timely delivery. Actually, we delayed the project for a bit. We were too optimistic about the project time estimation. I should have added some buffer time to the project. We planned too many things but didn't have enough time to finish them. We need to focus on the most important things and make sure that we can deliver them on time.
--->
-
----
-transition: slide-up
-layout: center
----
-
-# What I learned?
-
----
-transition: slide-up
-layout: two-cols
----
-
-# Technical Things
+### Learned
 
 - Got better understanding of the architecture.
 
@@ -1386,7 +1295,19 @@ layout: two-cols
 
 ::right::
 
-# Non-Technical Things
+### Non-Technical Challenges
+
+<br/>
+
+- How to pick up a suitable solution?
+
+- How to manage a long-term project?
+
+- How to communicate with colleagues?
+
+- How to make sure a timely delivery? &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+
+### Learned
 
 - **Don't struggle with the choice of technical solution for too long time.**
 
@@ -1399,22 +1320,21 @@ layout: two-cols
 - Start automated testing as early as possible.
 
 <!--
+From the technical perspective, the first challenge is how to abstract the table sink and event sink. In the old sink, we mixed the table sink and event sink together. This made it difficult to understand and extend the sink. In the new sink, we separate the table sink and event sink. This makes it easier to understand and extend the sink. This change gave me a clearer picture of the whole TiCDC architecture. Now I can see how everything fits together, how the TiCDC components collaborate, and I even understand a bunch of the previous design choices.
 
-From the technical perspective, I got a better understanding of the TiCDC architecture. I can see the big picture of the TiCDC project. I can see how the TiCDC components work together. Right now, I can better handle the TiCDC issues. And I understand a lot pervious design decisions.
+The second challenge is how to make the sink thread-safe and async. In the old sink, we used a union set to detect conflicts. This made the sink write transactions to the target system in a stop-world manner. In the new sink, we use a DAG to detect conflicts. This makes the asynchronous writing possible. This is a significant improvement over the old sink. After this change, I learned how to design a fully async and thread-safe component. Especially, I learned how to use a DAG to detect conflicts. This is a huge improvement over the old sink.
 
-I learned how to design a fully async and thread-safe component. Especially, I learned how to use a DAG to detect conflicts. This is a huge improvement over the old sink. I also learned how to use a bitmap to store the events. This is a good solution to the performance problem.
+The third challenge is how to solve the performance problem. When I first implemented the new sink, I found that the performance was not as good as the old sink. After some investigation, I found that the performance problem was caused by the callback function. We solved this problem by using a bitmap to store the events. But recently, I found that the callback + bitmap solution probably is not a good solution. It is not easy to understand and maintain. It makes the code more complex and difficult to observe. I should have used a simpler solution. Unfortunately, I didn't find a better solution at that time.
 
-But recently, I found that the callback + bitmap solution probably is not a good solution. It is not easy to understand and maintain. It makes the code more complex and difficult to observe. I should have used a simpler solution. Unfortunately, I didn't find a better solution at that time.
+The last challenge is how to make the new sink compatible with the old sink and old architecture. We solved this problem by using the same data flow as the old sink. This makes it easier to migrate to the new sink. That helps us to start using the new sink in the production environment earlier. We didn't need to wait for the pull based architecture to be ready.
 
-From the non-technical perspective, I learned that I shouldn't struggle with the choice of technical solution for too long time. There is no perfect solution. You just need to pick up a suitable solution and start trying it. You can always improve it later. But you must do a quick evaluation first. Otherwise, you will waste a lot of time.
+From the non-technical perspective, the first challenge is how to pick up a suitable solution. When I first started this project, I was not sure which solution was the best. I spent a lot of time researching different solutions. This delayed the project. I should have made a decision earlier. There is no perfect solution. You just need to pick up a suitable solution and start trying it. You can always improve it later. But you must do a quick evaluation first. Otherwise, you will waste a lot of time.
 
-I also learned that project time estimations cannot be overly optimistic. We were too optimistic about the project time estimation. We planned too many things but didn't have enough time to finish them. We need to focus on the most important things and make sure that we can deliver core features on time. This is more important than finishing everything.
+The second challenge is how to manage a long-term project. This project took me about one year to complete. I need to plan the project carefully and break it down into smaller tasks. I decided to separate it into 2 phases. In the first phase, I implemented the new sink. In the second phase, we implemented the pull-based architecture. This made it easier to manage and move forward the project. Every phase has a clear goal. I can focus on one thing at a time. But, the truth was we were too optimistic about the project time estimation. We planned too many things but didn't have enough time to finish them. We need to focus on the most important things and make sure that we can deliver core features on time. This is more important than finishing everything.
 
-I learned that I should involve reviewers in the project earlier. You can not involve them only when you need commit approval. That would be terrible. They don't know what you are doing. They don't know the progress of the project. They don't know the design decisions. They don't know the difficulties you are facing. So they cannot help you when you need help. We should involve them at day 1. At least, we should involve them when we start the implementation.
+The third challenge is how to communicate with colleagues. I need to communicate with colleagues frequently to make sure that we are on the same page. I need to make sure that they understand the project and the progress. I need to make sure that they can help me when I need help. So I booked a meeting with them every week. I also sent them a weekly report to let them know the progress. You can not involve reviewers only when you need commit approval. That would be terrible. They don't know what you are doing. They don't know the progress of the project. They don't know the design decisions. They don't know the difficulties you are facing. So they cannot help you when you need help. We should involve them at day 1. At least, we should involve them when we start the implementation.
 
-I learned that I should break down the project into smaller tasks. This makes it easier to manage and move forward the project. Every task has a clear goal. I can focus on one thing at a time. And it also helps us to make a better time estimation.
-
-I learned that I should start automated testing as early as possible. I should not wait until the end of the project. Before we released the new sink, we found too many bugs. We should have started automated testing earlier. We can merge the new sink into the master branch earlier. We can start using the new sink in the automated testing environment earlier. Then we don't need to hurry to fix bugs at the release stage.
+The last challenge is how to make sure a timely delivery. Actually, we delayed the project for a bit. We were too optimistic about the project time estimation. I should have added some buffer time to the test. We planned too many things but didn't have enough time to finish them. I learned that I should start automated testing as early as possible. Before we released the new sink, we found too many bugs. We should have started automated testing earlier. If we can merge the new sink into the master branch earlier. Then we can start using the new sink in the automated testing environment earlier. Then we don't need to hurry to fix bugs at the release stage.
 -->
 
 ---
