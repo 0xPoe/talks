@@ -102,7 +102,7 @@ layout: center
 
 <!--
 
-First, let me give you a brief introduction of TiCDC.
+First, let me give you a brief introduction of TiCDC and the project.
 
 TiCDC is a change data capture system for TiDB. It can capture the changes from TiDB and send them to other systems. It's a core component of TiDB ecosystem.
 
@@ -458,89 +458,6 @@ To make things worse, the sink manager also combines the buffer sink and the MyS
 Now, let's take a closer look at the MySQL sink.
 -->
 
-
----
-transition: slide-up
----
-
-<div class="arch">
-<div>
-
-# Old Sink Module Abstract
-
-</div>
-
-<div>
-  <br/>
-  <br/>
-  <br/>
-
-```plantuml
-@startuml
-!theme plain
-folder "Sink Manager" as SM {
-  class BS as "Buffer Sink" #FF6655
-  folder "MySQL Sink" as MS {
-    class DML as "DML Sink" #FF6655
-    class DDL as "DDL Sink" #FF6655
-  }
-}
-class SN as "Sink Node" #Yellow
-class TS as "Table Sink" #Yellow
-
-SN *-- TS : use
-SM *-[#FF6655]- TS : manage
-TS *-[#FF6655]- SM : use
-
-note left of TS
-  Table Sink Managed by Sink Manager
-  and Table Sink also use Sink Manager.
-  ⚠️This is a circular dependency.
-end note
-
-note right of MS
-  MySQL Sink is a combination of
-  DML Sink and DDL Sink.
-  ⚠️However, only one of these is used per module.
-end note
-@enduml
-```
-
-</div>
-</div>
-
-<style>
-.arch {
-  display: flex;
-}
-
-.arch img {
-  margin-top: -80px;
-}
-
-h1 {
-  background-color: #2B90B6;
-  background-image: linear-gradient(45deg, #4EC5D4 10%, #146b8c 20%);
-  background-size: 50%;
-  -webkit-background-clip: text;
-  -moz-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  -moz-text-fill-color: transparent;
-  writing-mode: vertical-rl;
-  text-orientation: mixed;
-}
-</style>
-
-<!--
-
-When we zoom in MySQL sink, we can see that it's a combination of DML sink and DDL sink. However, only one of these is used per module.
-
-For instance, for the owner module, we only send DDL to MySQL. For the processor module, we only send DML to MySQL.
-
-Then, every time you wanna change something in the MySQL sink, you have to change both DML part and DDL part. This makes the code very hard to maintain.
-
--->
-
 ---
 transition: slide-up
 ---
@@ -753,7 +670,7 @@ We made the table sink more focused by limiting its scope to just being a buffer
 
 As for the event sinks, we don't have any table information there. We just have some workers that handle writing the row changed events to the target system.
 
-Let's check out the code to see how we implemented this design.
+Let's check out the abstract of the new sink module.
 
 -->
 
@@ -1236,9 +1153,7 @@ transition: slide-up
 - Better performance: Union Set -> DAG. (With pull-based-sink: 63.3k/s -> 103k/s)
 - Removes some buffers.
 - Better abstraction and data flow: Table Sink -> Transaction Event Sink -> MySQL.
-- Better testability.
 - Better maintainability: all functions are thread-safe and async in Event Sink.
-- Easy to add new sinks.
 
 <!--
 Alright, let's talk about the outcomes of this project.
@@ -1249,11 +1164,7 @@ Secondly, we have removed some buffers from the old sink and replaced them with 
 
 Thirdly, we have improved the abstraction and data flow by using only one data flow in the new sink.
 
-Fourthly, we have improved the testability of the sink by separating the DDL and DML parts into two sinks. This makes it easier to test the sink, as you only need to focus on the DML part when testing the DML sink and the DDL part when testing the DDL sink.
-
-Fifthly, we have made the sink more maintainable by ensuring that all functions are thread-safe and async in the new sink.
-
-Lastly, we have made it easier to add new sinks. In the old sink, we mixed all the sinks together in the sink manager. This made it difficult to understand and add new sinks. In the new sink, you only need to care about the event sink. You don't need to care about the table sink. Because the table sink logic is quite common, you can reuse it in other sinks. This makes it easier to add new sinks.
+Lastly, we have made the sink more maintainable by ensuring that all functions are thread-safe and async in the new sink.
 
 That's all for technical details. Let's talk about the challenges I faced during this project.
 -->
@@ -1268,12 +1179,10 @@ layout: center
 
 ---
 transition: slide-up
-layout: two-cols
 ---
 
-### Technical Challenges
+# Technical Challenges
 
-<br/>
 
 - How to abstract the table sink and event sink?
 
@@ -1281,9 +1190,7 @@ layout: two-cols
 
 - **How to solve the performance problem?**
 
-- How to make it compatible with the old sink and old architecture?
-
-### Learned
+## Learned
 
 - Got better understanding of the architecture.
 
@@ -1293,11 +1200,19 @@ layout: two-cols
 
 - **Callback + BitMap probably is not a good solution.**
 
-::right::
+<!--
+From the technical perspective, the first challenge is how to abstract the table sink and event sink. In the old sink, we mixed the table sink and event sink together. In the new sink, we separate the table sink and event sink. This makes it easier to understand and extend the sink. This change gave me a clearer picture of the whole TiCDC architecture. Now I can see how everything fits together, how the TiCDC components collaborate, and I even understand a bunch of the previous design choices.
 
-### Non-Technical Challenges
+The second challenge is how to make the sink thread-safe and async. In the old sink, we used a union set to detect conflicts. This made the sink write transactions to the target system in a stop-world manner. In the new sink, we use a DAG to detect conflicts. This makes the asynchronous writing possible. This is a significant improvement over the old sink. After this change, I learned how to design a fully async and thread-safe component. Especially, I learned how to use a DAG to detect conflicts. This is a huge improvement over the old sink.
 
-<br/>
+The third challenge is how to solve the performance problem. When I first implemented the new sink, I found that the performance was not as good as the old sink. After some investigation, I found that the performance problem was caused by the callback function. We solved this problem by using a bitmap to store the events. But recently, I found that the callback + bitmap solution probably is not a good solution. It is not easy to understand and maintain. It makes the code more complex and difficult to observe. I should have used a simpler solution. Unfortunately, I didn't find a better solution at that time.
+-->
+
+---
+transition: slide-up
+---
+
+# Non-Technical Challenges
 
 - How to pick up a suitable solution?
 
@@ -1305,9 +1220,9 @@ layout: two-cols
 
 - How to communicate with colleagues?
 
-- How to make sure a timely delivery? &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+- How to make sure a timely delivery?
 
-### Learned
+## Learned
 
 - **Don't struggle with the choice of technical solution for too long time.**
 
@@ -1315,19 +1230,9 @@ layout: two-cols
 
 - Involve reviewers in the project earlier.
 
-- Break down the project into smaller tasks.
-
 - Start automated testing as early as possible.
 
 <!--
-From the technical perspective, the first challenge is how to abstract the table sink and event sink. In the old sink, we mixed the table sink and event sink together. This made it difficult to understand and extend the sink. In the new sink, we separate the table sink and event sink. This makes it easier to understand and extend the sink. This change gave me a clearer picture of the whole TiCDC architecture. Now I can see how everything fits together, how the TiCDC components collaborate, and I even understand a bunch of the previous design choices.
-
-The second challenge is how to make the sink thread-safe and async. In the old sink, we used a union set to detect conflicts. This made the sink write transactions to the target system in a stop-world manner. In the new sink, we use a DAG to detect conflicts. This makes the asynchronous writing possible. This is a significant improvement over the old sink. After this change, I learned how to design a fully async and thread-safe component. Especially, I learned how to use a DAG to detect conflicts. This is a huge improvement over the old sink.
-
-The third challenge is how to solve the performance problem. When I first implemented the new sink, I found that the performance was not as good as the old sink. After some investigation, I found that the performance problem was caused by the callback function. We solved this problem by using a bitmap to store the events. But recently, I found that the callback + bitmap solution probably is not a good solution. It is not easy to understand and maintain. It makes the code more complex and difficult to observe. I should have used a simpler solution. Unfortunately, I didn't find a better solution at that time.
-
-The last challenge is how to make the new sink compatible with the old sink and old architecture. We solved this problem by using the same data flow as the old sink. This makes it easier to migrate to the new sink. That helps us to start using the new sink in the production environment earlier. We didn't need to wait for the pull based architecture to be ready.
-
 From the non-technical perspective, the first challenge is how to pick up a suitable solution. When I first started this project, I was not sure which solution was the best. I spent a lot of time researching different solutions. This delayed the project. I should have made a decision earlier. There is no perfect solution. You just need to pick up a suitable solution and start trying it. You can always improve it later. But you must do a quick evaluation first. Otherwise, you will waste a lot of time.
 
 The second challenge is how to manage a long-term project. This project took me about one year to complete. I need to plan the project carefully and break it down into smaller tasks. I decided to separate it into 2 phases. In the first phase, I implemented the new sink. In the second phase, we implemented the pull-based architecture. This made it easier to manage and move forward the project. Every phase has a clear goal. I can focus on one thing at a time. But, the truth was we were too optimistic about the project time estimation. We planned too many things but didn't have enough time to finish them. We need to focus on the most important things and make sure that we can deliver core features on time. This is more important than finishing everything.
