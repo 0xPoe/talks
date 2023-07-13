@@ -28,10 +28,10 @@ RUSTIN LIU
 </div>
 
 <!--
-Alright folks, let's kick off the presentation! I'm assuming most of you are here, so let's dive right in.
+Alright folks, let's kick off the presentation! Thank you giving me the opportunity to discuss the software engineer position.
 
+Today, I'm gonna talk about the sink component in TiCDC.
 
-Today, I'm gonna talk about the a sink component in TiCDC.
 This is gonna be a deep dive, and I'll also share some of my experiences and challenges I faced during the development.
 
 Just a heads up, this talk is based on TiCDC v6.5.1. So if you wanna take a look at the code, make sure to check out the v6.5.1 tag.
@@ -57,6 +57,8 @@ Rustup Maintainer.<br/>
   <div><a href="https://twitter.com/hi_rustin" target="_blank">hi_rustin</a></div>
   <div i-ri-firefox-line op50 ma text-xl/>
   <div><a href="https://hi-rustin.rs" target="_blank">hi-rustin.rs</a></div>
+  <div i-ri-youtube-line op50 ma text-xl/>
+  <div><a href="https://www.youtube.com/@hi-rustin" target="_blank">hi-rustin</a></div>
 </div>
 
 <img src="https://avatars.githubusercontent.com/u/29879298?v=4" rounded-full w-40 abs-tr mt-22 mr-22/>
@@ -67,7 +69,7 @@ Rustup Maintainer.<br/>
 <!--
 Before we start, let me introduce myself.
 
-I’m Rustin. Thank you for giving me the opportunity to discuss the software engineer position.
+I’m Rustin.
 
 I’m from Chengdu, in China, which is home of the panda bear. I graduated from a tech-focused university with a degree in computer science.
 
@@ -75,7 +77,7 @@ Afterward, I specialized in distributed systems and databases. Since graduating,
 
 Recently, I’ve been very interested in Infrastructure software and open source. Hence why I’m interested in this position at BentoML.
 
-I'm also a Cargo Contributor and a Rustup Maintainer.
+I am also a open source believer. Right now, I'm a very active Cargo Contributor and a Rustup Maintainer.
 
 You can find me on GitHub, Twitter, and my personal website.
 
@@ -99,6 +101,11 @@ layout: center
 <br/>
 
 <!--
+
+First, let me give you a brief introduction of TiCDC.
+
+TiCDC is a change data capture system for TiDB. It can capture the changes from TiDB and send them to other systems. It's a core component of TiDB ecosystem.
+
 In the past year, we've been refactoring the sink component in TiCDC.
 
 The refactoring is divided into two phases.
