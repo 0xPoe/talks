@@ -34,7 +34,21 @@ Today, I'm gonna talk about the sink component in TiCDC.
 
 This is gonna be a deep dive, and I'll also share some of my experiences and challenges I faced during the development.
 
-Just a heads up, this talk is based on TiCDC v6.5.1. So if you wanna take a look at the code, make sure to check out the v6.5.1 tag.
+As you can see, the background is a picture of a sink. I hope you like it. I also tried to use Bentoml and stable diffusion to generate the background, but I failed. Because I don't have a GPU on my laptop. But I found some document issues, and I've already submitted a PR to fix them.
+-->
+
+---
+transition: slide-up
+layout: center
+---
+
+# First time bentoml
+
+- [docs: Save models via import_model.py](https://github.com/bentoml/BentoML/pull/4028)
+- [docs: remove incorrect dict API call](https://github.com/bentoml/BentoML/pull/4030)
+
+<!--
+My first PR has been closed and the second is still awaiting review. If you have the time, please take a look at them. I would really appreciate it.
 -->
 
 ---
