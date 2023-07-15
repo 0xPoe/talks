@@ -39,20 +39,6 @@ As you can see, the background is a picture of a sink. I hope you like it. I als
 
 ---
 transition: slide-up
-layout: center
----
-
-# First time bentoml
-
-- [docs: Save models via import_model.py](https://github.com/bentoml/BentoML/pull/4028)
-- [docs: remove incorrect dict API call](https://github.com/bentoml/BentoML/pull/4030)
-
-<!--
-My first PR has been closed and the second is still awaiting review. If you have the time, please take a look at them. I would really appreciate it.
--->
-
----
-transition: slide-up
 ---
 
 # Rustin Liu
@@ -1253,7 +1239,7 @@ The second challenge is how to manage a long-term project. This project took me 
 
 The third challenge is how to communicate with colleagues. I need to communicate with colleagues frequently to make sure that we are on the same page. I need to make sure that they understand the project and the progress. I need to make sure that they can help me when I need help. So I booked a meeting with them every week. I also sent them a weekly report to let them know the progress. You can not involve reviewers only when you need commit approval. That would be terrible. They don't know what you are doing. They don't know the progress of the project. They don't know the design decisions. They don't know the difficulties you are facing. So they cannot help you when you need help. We should involve them at day 1. At least, we should involve them when we start the implementation.
 
-The last challenge is how to make sure a timely delivery. Actually, we delayed the project for a bit. We were too optimistic about the project time estimation. I should have added some buffer time to the test. We planned too many things but didn't have enough time to finish them. I learned that I should start automated testing as early as possible. Before we released the new sink, we found too many bugs. We should have started automated testing earlier. If we can merge the new sink into the master branch earlier. Then we can start using the new sink in the automated testing environment earlier. Then we don't need to hurry to fix bugs at the release stage.
+The last challenge is how to make sure a timely delivery. Actually, we delayed the project for a bit. We should have added some buffer time to the test. We planned too many things but didn't have enough time to finish them. I learned that I should start automated testing as early as possible. Before we released the new sink, we found too many bugs. If we can merge the new sink into the master branch earlier. Then we can start using the new sink in the automated testing environment earlier. Then we don't need to hurry to fix bugs at the release stage.
 -->
 
 ---
