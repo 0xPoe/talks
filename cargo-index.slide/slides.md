@@ -32,7 +32,7 @@ transition: slide-up
 # Rustin Liu
 
 <div class="leading-8 opacity-80">
-PingCAP Software Engineer.<br/>
+PingCAP Database Kernel Engineer.<br/>
 Cargo Active Contributor.<br/>
 Rustup Previous Maintainer.<br/>
 Crates.io Previous Maintainer.<br/>
@@ -53,6 +53,16 @@ Crates.io Previous Maintainer.<br/>
 
 <div flex="~ gap2">
 </div>
+
+---
+transition: slide-up
+---
+# Sparse Index
+
+##### Big thanks to Cargo and crates.io teams for building this feature over the past three years.
+
+<br/>
+<Timeline/>
 
 ---
 transition: slide-up
