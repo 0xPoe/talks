@@ -65,7 +65,7 @@ transition: slide-up
 <Timeline/>
 
 ---
-transition: slide-up
+transition: slide-left
 layout: center
 ---
 
@@ -86,3 +86,151 @@ layout: center
 
   </div>
 </div>
+
+---
+transition: slide-up
+---
+
+# From Cargo to crates.io
+
+## cargo new --lib
+
+```console
+$ cargo new --lib hello-gosim
+     Created library `hello-gosim` package
+```
+
+<br/>
+
+```rust
+$ tree
+.
+├── Cargo.toml
+└── src
+    └── lib.rs
+```
+
+---
+transition: slide-left
+---
+
+# From Cargo to crates.io
+
+## cargo package
+
+```console
+$ cargo package --allow-dirty
+...
+    Packaged 3 files, 945.0B (738.0B compresse
+```
+
+```rust
+$ tree -L 3
+.
+├── Cargo.toml
+├── src
+│   └── lib.rs
+└── target
+    └── package
+        ├── hello-gosim-0.1.0
+        └── hello-gosim-0.1.0.crate
+```
+
+```rust
+$ tar tzf ./target/package/hello-gosim-0.1.0.crate
+hello-gosim-0.1.0/Cargo.toml
+hello-gosim-0.1.0/Cargo.toml.orig
+hello-gosim-0.1.0/src/lib.rs
+```
+
+---
+transition: slide-up
+---
+
+# From Cargo to crates.io
+
+## cargo publish
+
+```console
+$ cargo publish --allow-dirty
+    Updating crates.io index
+    ...
+   Packaging hello-gosim v0.1.0 (/Users/hi-rustin/hello-gosim)
+   ...
+   Uploading hello-gosim v0.1.0 (/Users/hi-rustin/hello-gosim)
+    Uploaded hello-gosim v0.1.0 to registry `crates-io`
+note: Waiting for `hello-gosim v0.1.0` to be available at registry `crates-io`.
+You may press ctrl-c to skip waiting; the crate should be available shortly.
+   Published hello-gosim v0.1.0 at registry `crates-io
+```
+
+<img width="1604" alt="image" src="https://github.com/rust-lang/crates.io-index/assets/29879298/faf1894b-aa69-49c4-96ce-7aaf8e2c4ce1">
+
+
+---
+transition: slide-left
+---
+
+# From crates.io to Cargo
+
+## cargo new --bin
+
+```console
+$ cargo new --bin gosim
+     Created binary (application) `gosim` package
+```
+
+## cargo add
+
+```console
+$ cargo add hello-gosim
+    Updating crates.io index
+      Adding hello-gosim v0.1.0 to dependencies.
+    Updating crates.io index
+```
+
+## cargo build
+
+```console
+$ cargo build
+  Downloaded hello-gosim v0.1.0
+  Downloaded 1 crate (785 B) in 1.82s
+   Compiling hello-gosim v0.1.0
+   Compiling gosim v0.1.0 (/Users/hi-rustin/gosim)
+    Finished dev [unoptimized + debuginfo] target(s) in 2.80s
+```
+
+---
+transition: slide-up
+---
+
+
+# From crates.io to Cargo
+
+## Crate file
+
+```console
+$ pwd
+/Users/hi-rustin/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hello-gosim-0.1.0
+$ tree
+.
+├── Cargo.toml
+├── Cargo.toml.orig
+└── src
+    └── lib.rs
+```
+
+
+```console
+$ pwd
+/Users/hi-rustin/.cargo/registry/cache/index.crates.io-6f17d22bba15001f
+$ find . -type f -name "hello*"
+./hello-gosim-0.1.0.crate
+```
+
+## Index file
+
+```console
+$ curl https://index.crates.io/he/ll/hello-gosim
+{"name":"hello-gosim","vers":"0.1.0","deps":[],"cksum":"5add821f9e323a4eb7bc869eda30883a76408aef5bc1a68a3ffc1ebb1c93cf9c","features":{},"yanked":false}
+```
