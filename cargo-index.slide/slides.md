@@ -216,6 +216,27 @@ $ cargo add hello-gosim
     Updating crates.io index
 ```
 
+## Cargo.toml
+
+```toml
+[package]
+name = "gosim"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+hello-gosim = "0.1.0"
+```
+
+
+---
+transition: slide-up
+---
+
+# Resolve dependencies
+
+
+
 ---
 transition: slide-up
 ---
