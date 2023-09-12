@@ -59,7 +59,7 @@ transition: slide-up
 ---
 # Sparse Index
 
-##### Big thanks to Cargo and crates.io teams for building this feature over the past three years.
+##### Big thanks to the Cargo and crates.io teams for building this feature over the past three years.
 
 <br/>
 <Timeline/>
@@ -91,15 +91,27 @@ layout: center
 layout: center
 ---
 
-# From Cargo to crates.io
+# Architecture
 
 <iframe style="border: 1px solid rgba(0, 0, 0, 0.1);" width="800" height="450" src="https://www.figma.com/embed?embed_host=share&url=https%3A%2F%2Fwww.figma.com%2Ffile%2FaWmwb7IwJcYaCYpaMX4Yyv%2FCargo-to-crates.io%3Ftype%3Dwhiteboard%26node-id%3D0%253A1%26t%3DpfzFBCkrzmTqMDOI-1" allowfullscreen></iframe>
 
 ---
 transition: slide-up
+layout: center
 ---
 
 # From Cargo to crates.io
+
+---
+transition: slide-left
+layout: two-cols-header
+---
+
+# From Cargo to crates.io
+
+::left::
+
+<div class="mx-2">
 
 ## cargo new --lib
 
@@ -108,8 +120,6 @@ $ cargo new --lib hello-gosim
      Created library `hello-gosim` package
 ```
 
-<br/>
-
 ```rust
 $ tree
 .
@@ -117,22 +127,21 @@ $ tree
 └── src
     └── lib.rs
 ```
+</div>
 
----
-transition: slide-left
----
+::right::
 
-# From Cargo to crates.io
+<div class="mx-2">
 
 ## cargo package
 
 ```console
 $ cargo package --allow-dirty
 ...
-    Packaged 3 files, 945.0B (738.0B compresse
+    Packaged 3 files, 945.0B (738.0B compressed)
 ```
 
-```rust
+```rust{all|8,9}
 $ tree -L 3
 .
 ├── Cargo.toml
@@ -144,12 +153,13 @@ $ tree -L 3
         └── hello-gosim-0.1.0.crate
 ```
 
-```rust
+```rust{all|2,3}
 $ tar tzf ./target/package/hello-gosim-0.1.0.crate
 hello-gosim-0.1.0/Cargo.toml
 hello-gosim-0.1.0/Cargo.toml.orig
 hello-gosim-0.1.0/src/lib.rs
 ```
+</div>
 
 ---
 transition: slide-up
@@ -159,27 +169,36 @@ transition: slide-up
 
 ## cargo publish
 
-```console
+```console{all|4|6|7|10}
 $ cargo publish --allow-dirty
     Updating crates.io index
     ...
    Packaging hello-gosim v0.1.0 (/Users/hi-rustin/hello-gosim)
-   ...
+    ...
    Uploading hello-gosim v0.1.0 (/Users/hi-rustin/hello-gosim)
     Uploaded hello-gosim v0.1.0 to registry `crates-io`
 note: Waiting for `hello-gosim v0.1.0` to be available at registry `crates-io`.
 You may press ctrl-c to skip waiting; the crate should be available shortly.
    Published hello-gosim v0.1.0 at registry `crates-io
 ```
+<v-click>
 
 <img width="1604" alt="image" src="https://github.com/rust-lang/crates.io-index/assets/29879298/faf1894b-aa69-49c4-96ce-7aaf8e2c4ce1">
 
+</v-click>
+
+---
+transition: slide-up
+layout: center
+---
+
+# From crates.io to Cargo
 
 ---
 transition: slide-left
 ---
 
-# From crates.io to Cargo
+# Create a new project and add a dependency
 
 ## cargo new --bin
 
@@ -197,9 +216,48 @@ $ cargo add hello-gosim
     Updating crates.io index
 ```
 
+---
+transition: slide-up
+---
+
+# From crates.io to Cargo with Git Index
+
+## Change to Git Index
+
+```toml
+# ~/.cargo/config.toml
+
+registries.crates-io.protocol = "git"
+```
+
 ## cargo build
 
-```console
+```console{all|2|3,4|7}
+$ cargo build
+    Updating crates.io index
+  Downloaded hello-gosim v0.1.0
+  Downloaded 1 crate (785 B) in 2.02s
+   Compiling hello-gosim v0.1.0
+   Compiling gosim v0.1.0 (/Users/hi-rustin/gosim)
+    Finished dev [unoptimized + debuginfo] target(s) in 1m 23s
+```
+
+---
+transition: slide-up
+layout: center
+---
+
+# What is the problem?
+
+---
+transition: slide-left
+---
+
+# From crates.io to Cargo with Sparse Index
+
+## cargo build
+
+```console{all|2,3}
 $ cargo build
   Downloaded hello-gosim v0.1.0
   Downloaded 1 crate (785 B) in 1.82s
@@ -213,7 +271,7 @@ transition: slide-up
 ---
 
 
-# From crates.io to Cargo
+# From crates.io to Cargo with Sparse Index
 
 ## Crate file
 
