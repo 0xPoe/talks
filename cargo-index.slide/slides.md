@@ -273,6 +273,73 @@ layout: center
 
 ---
 transition: slide-left
+layout: two-cols-header
+---
+
+# It is too slow!
+
+::left::
+
+<div class="mx-2">
+  <img width="504" alt="image" src="https://github.com/nodejs/admin/assets/29879298/f3a1c8a7-39bb-4817-96e7-5066d532694b">
+</div>
+
+::right::
+
+<div class="mx-2">
+
+- Downloaded 1 crate (785 B) in **2.02s**
+- Updating crates.io index in **1m 21s**
+
+**68742 Commits in crates.io-index**
+
+<img width="911" alt="image" src="https://github.com/rust-lang/crates.io-index/assets/29879298/152c9c34-5aaa-4637-a1eb-c63b0356a775">
+
+**Try it yourself on your machine!**
+
+```console
+$ time git clone https://github.com/rust-lang/crates.io-index
+```
+
+</div>
+
+---
+transition: slide-left
+layout: center
+---
+
+# How to solve it?
+
+
+---
+transition: slide-up
+---
+
+# Let's squash it!
+
+#### crates.io-index-archive: [Archive of the crates.io-index commit history after squashes](https://github.com/rust-lang/crates.io-index-archive)
+
+<img width="1000" alt="image" src="https://github.com/rust-lang/crates.io-index-archive/assets/29879298/3da00b34-4dc6-492a-b073-8d7b9ea66a00">
+
+
+---
+transition: slide-up
+---
+# Still too slow!
+
+## Can we speed up it with partial clone and shallow clone?
+
+**Yes, but not at that time.** It took 8 years to implement shallow clone in [libgit2](https://github.com/libgit2/libgit2/issues/3058).
+
+<br/>
+
+<div>
+<img width="100" display="inline-block"  alt="image" src="https://camo.githubusercontent.com/b9319c9aec561db409787eed5e9901122b3cd07796a9ae8eedaa2bbf14215c38/68747470733a2f2f6d65646961302e67697068792e636f6d2f6d656469612f69346a5445395a4e4651513144375262784b2f67697068792e6769663f6369643d6563663035653437377974617972763167626e62693139767468746573316471656a6673783334326f6c6f30356764712665703d76315f676966735f736561726368267269643d67697068792e6769662663743d67">
+<img width="700" display="inline-block" alt="image" src="https://github.com/libgit2/libgit2/assets/29879298/2ec2697b-7e23-490e-8340-f1844ddf2277">
+</div>
+
+---
+transition: slide-up
 ---
 
 # From crates.io to Cargo with Sparse Index
