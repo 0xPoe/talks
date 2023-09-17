@@ -115,6 +115,8 @@ layout: two-cols-header
 
 ## cargo new --lib
 
+<v-click>
+
 ```console
 $ cargo new --lib hello-gosim
      Created library `hello-gosim` package
@@ -127,13 +129,19 @@ $ tree
 └── src
     └── lib.rs
 ```
+
+</v-click>
+
 </div>
 
 ::right::
 
 <div class="mx-2">
 
+
 ## cargo package
+
+<v-click>
 
 ```console
 $ cargo package --allow-dirty
@@ -159,6 +167,8 @@ hello-gosim-0.1.0/Cargo.toml
 hello-gosim-0.1.0/Cargo.toml.orig
 hello-gosim-0.1.0/src/lib.rs
 ```
+
+</v-click>
 </div>
 
 ---
@@ -202,12 +212,18 @@ transition: slide-left
 
 ## cargo new --bin
 
+<v-click>
+
 ```console
 $ cargo new --bin gosim
      Created binary (application) `gosim` package
 ```
 
+</v-click>
+
 ## cargo add
+
+<v-click>
 
 ```console
 $ cargo add hello-gosim
@@ -216,7 +232,11 @@ $ cargo add hello-gosim
     Updating crates.io index
 ```
 
+</v-click>
+
 ## Cargo.toml
+
+<v-click>
 
 ```toml
 [package]
@@ -228,6 +248,7 @@ edition = "2021"
 hello-gosim = "0.1.0"
 ```
 
+</v-click>
 
 ---
 transition: slide-up
@@ -246,7 +267,7 @@ transition: slide-up
 
 ## Change to Git Index
 
-```toml
+```toml{all|3}
 # ~/.cargo/config.toml
 
 registries.crates-io.protocol = "git"
@@ -288,8 +309,14 @@ layout: two-cols-header
 
 <div class="mx-2">
 
+<v-click>
+
 - Downloaded 1 crate (785 B) in **2.02s**
 - Updating crates.io index in **1m 21s**
+
+</v-click>
+
+<v-click>
 
 **68742 Commits in crates.io-index**
 
@@ -300,6 +327,8 @@ layout: two-cols-header
 ```console
 $ time git clone https://github.com/rust-lang/crates.io-index
 ```
+
+</v-click>
 
 </div>
 
@@ -329,6 +358,8 @@ transition: slide-up
 
 ## Can we speed up it with partial clone and shallow clone?
 
+<v-click>
+
 **Yes, but not at that time.** It took 8 years to implement shallow clone in [libgit2](https://github.com/libgit2/libgit2/issues/3058).
 
 <br/>
@@ -337,6 +368,8 @@ transition: slide-up
 <img width="100" display="inline-block"  alt="image" src="https://camo.githubusercontent.com/b9319c9aec561db409787eed5e9901122b3cd07796a9ae8eedaa2bbf14215c38/68747470733a2f2f6d65646961302e67697068792e636f6d2f6d656469612f69346a5445395a4e4651513144375262784b2f67697068792e6769663f6369643d6563663035653437377974617972763167626e62693139767468746573316471656a6673783334326f6c6f30356764712665703d76315f676966735f736561726368267269643d67697068792e6769662663743d67">
 <img width="700" display="inline-block" alt="image" src="https://github.com/libgit2/libgit2/assets/29879298/2ec2697b-7e23-490e-8340-f1844ddf2277">
 </div>
+
+</v-click>
 
 ---
 transition: slide-up
