@@ -333,12 +333,52 @@ $ time git clone https://github.com/rust-lang/crates.io-index
 </div>
 
 ---
+transition: slide-up
+---
+
+# Even worse!
+
+## 1m 6s
+
+<v-click>
+
+```console{all|7}
+time git clone https://github.com/rust-lang/crates.io-index
+Cloning into 'crates.io-index'...
+...
+Receiving objects: 100% (489099/489099), 295.23 MiB | 8.09 MiB/s, done.
+...
+
+34.79s user 16.22s system 76% cpu 1:06.84 total
+```
+
+</v-click>
+
+## 2m 39s
+
+<v-click>
+
+```console{all|3,4|6|10}
+$ cd git2-rs
+
+# Compile it first
+$ cargo run -r -q --example clone
+
+$ time cargo run -r -q --example clone https://github.com/rust-lang/crates.io-index ./crates.io-index
+net  99% (302481 kb, 489093/489094)  /  idx  30% (151502/489094)  /  chk   0% (   0/   0)
+Resolving deltas 337592/337592
+
+95.01s user 30.31s system 78% cpu 2:39.32 tota
+```
+
+</v-click>
+
+---
 transition: slide-left
 layout: center
 ---
 
 # How to solve it?
-
 
 ---
 transition: slide-up
@@ -370,6 +410,28 @@ transition: slide-up
 </div>
 
 </v-click>
+
+---
+transition: slide-left
+---
+
+# [gitoxide](https://github.com/Byron/gitoxide)
+
+#### An idiomatic, lean, fast & safe pure Rust implementation of Git.
+
+<br/>
+
+```console
+cargo build -Zgitoxide=shallow-index,shallow-deps
+```
+
+- `shallow-index` - perform a shallow clone of the index.
+<br/>
+
+- `shallow-deps` - perform a shallow clone of git dependencies.
+
+See more details in [Tracking Issue for -Zgitoxide](https://github.com/rust-lang/cargo/issues/11813)
+
 
 ---
 transition: slide-up
