@@ -254,7 +254,7 @@ hello-gosim = "0.1.0"
 transition: slide-up
 ---
 
-# Resolve dependencies
+# Resolve dependencies with Git Index
 
 <iframe style="border: 1px solid rgba(0, 0, 0, 0.1);" width="800" height="450" src="https://www.figma.com/embed?embed_host=share&url=https%3A%2F%2Fwww.figma.com%2Ffile%2FOArPQlLE77eyWaJcGplDSa%2FForm-crates.io-to-Cargo%3Ftype%3Dwhiteboard%26node-id%3D0%253A1%26t%3DIWZiFq6NrCUQtEsJ-1" allowfullscreen></iframe>
 
@@ -417,9 +417,7 @@ transition: slide-left
 
 # [gitoxide](https://github.com/Byron/gitoxide)
 
-#### An idiomatic, lean, fast & safe pure Rust implementation of Git.
-
-<br/>
+An idiomatic, lean, fast & safe pure Rust implementation of Git.
 
 ```console
 cargo build -Zgitoxide=shallow-index,shallow-deps
@@ -432,6 +430,36 @@ cargo build -Zgitoxide=shallow-index,shallow-deps
 
 See more details in [Tracking Issue for -Zgitoxide](https://github.com/rust-lang/cargo/issues/11813)
 
+---
+transition: slide-left
+---
+
+# Sparse Index
+
+Use a HTTP request to fetch the index file instead of a full clone.
+
+```toml{all|3}
+# ~/.cargo/config.toml
+
+registries.crates-io.protocol = "sparse"
+```
+
+Store the index file in S3. And use [CloudFront](https://aws.amazon.com/cloudfront/) to cache it.
+
+```rust
+https://index.crates.io
+```
+
+See more details in [RFC: Serve crates-io registry over HTTP as static files](https://github.com/rust-lang/rfcs/pull/2789).
+
+---
+transition: slide-up
+---
+
+# Resolve dependencies with Sparse Index
+
+<iframe style="border: 1px solid rgba(0, 0, 0, 0.1);" width="800" height="450" src="https://www.figma.com/embed?embed_host=share&url=https%3A%2F%2Fwww.figma.com%2Ffile%2FkfdHmymCqq5Gdr9jWTaA7h%2FForm-crates.io-to-Cargo-with-Sparse-Index%3Ftype%3Dwhiteboard%26node-id%3D0%253A1%26t%3D7Vu6iqynOwbnaEhP-1" allowfullscreen></iframe>
+
 
 ---
 transition: slide-up
@@ -441,7 +469,9 @@ transition: slide-up
 
 ## cargo build
 
-```console{all|2,3}
+<v-click>
+
+```console{all|2,3|6}
 $ cargo build
   Downloaded hello-gosim v0.1.0
   Downloaded 1 crate (785 B) in 1.82s
@@ -450,14 +480,43 @@ $ cargo build
     Finished dev [unoptimized + debuginfo] target(s) in 2.80s
 ```
 
+</v-click>
+
+<br/>
+<br/>
+<br/>
+<br/>
+
+<v-click>
+
+<div class="ml-70">
+
+# 1m 23s -> 2.80s!
+
+</div>
+</v-click>
+
 ---
 transition: slide-up
 ---
 
 
-# From crates.io to Cargo with Sparse Index
+# What actually happened?
+
+## Index file
+
+<v-click>
+
+```console
+$ curl https://index.crates.io/he/ll/hello-gosim
+{"name":"hello-gosim","vers":"0.1.0","deps":[],"cksum":"5add821f9e323a4eb7bc869eda30883a76408aef5bc1a68a3ffc1ebb1c93cf9c","features":{},"yanked":false}
+```
+
+</v-click>
 
 ## Crate file
+
+<v-click>
 
 ```console
 $ pwd
@@ -478,9 +537,15 @@ $ find . -type f -name "hello*"
 ./hello-gosim-0.1.0.crate
 ```
 
-## Index file
+</v-click>
 
-```console
-$ curl https://index.crates.io/he/ll/hello-gosim
-{"name":"hello-gosim","vers":"0.1.0","deps":[],"cksum":"5add821f9e323a4eb7bc869eda30883a76408aef5bc1a68a3ffc1ebb1c93cf9c","features":{},"yanked":false}
-```
+---
+layout: center
+---
+
+# Q&A
+
+<br/>
+<br/>
+
+## Do you have any questions?
