@@ -65,7 +65,7 @@ transition: slide-up
 <Timeline/>
 
 ---
-transition: slide-left
+transition: slide-up
 layout: center
 ---
 
@@ -88,6 +88,7 @@ layout: center
 </div>
 
 ---
+transition: slide-up
 layout: center
 ---
 
@@ -96,7 +97,7 @@ layout: center
 <iframe style="border: 1px solid rgba(0, 0, 0, 0.1);" width="800" height="450" src="https://www.figma.com/embed?embed_host=share&url=https%3A%2F%2Fwww.figma.com%2Ffile%2FaWmwb7IwJcYaCYpaMX4Yyv%2FCargo-to-crates.io%3Ftype%3Dwhiteboard%26node-id%3D0%253A1%26t%3DpfzFBCkrzmTqMDOI-1" allowfullscreen></iframe>
 
 ---
-transition: slide-up
+transition: slide-left
 layout: center
 ---
 
@@ -198,7 +199,7 @@ You may press ctrl-c to skip waiting; the crate should be available shortly.
 </v-click>
 
 ---
-transition: slide-up
+transition: slide-left
 layout: center
 ---
 
@@ -251,7 +252,7 @@ hello-gosim = "0.1.0"
 </v-click>
 
 ---
-transition: slide-up
+transition: slide-left
 ---
 
 # Resolve dependencies with Git Index
@@ -286,7 +287,7 @@ $ cargo build
 ```
 
 ---
-transition: slide-up
+transition: slide-left
 layout: center
 ---
 
@@ -381,7 +382,7 @@ layout: center
 # How to solve it?
 
 ---
-transition: slide-up
+transition: slide-left
 ---
 
 # Let's squash it!
@@ -392,7 +393,7 @@ transition: slide-up
 
 
 ---
-transition: slide-up
+transition: slide-left
 ---
 # Still too slow!
 
@@ -453,7 +454,7 @@ https://index.crates.io
 See more details in [RFC: Serve crates-io registry over HTTP as static files](https://github.com/rust-lang/rfcs/pull/2789).
 
 ---
-transition: slide-up
+transition: slide-left
 ---
 
 # Resolve dependencies with Sparse Index
@@ -462,7 +463,7 @@ transition: slide-up
 
 
 ---
-transition: slide-up
+transition: slide-left
 ---
 
 # From crates.io to Cargo with Sparse Index
