@@ -173,7 +173,7 @@ hello-gosim-0.1.0/src/lib.rs
 </div>
 
 ---
-transition: slide-up
+transition: slide-left
 ---
 
 # From Cargo to crates.io
@@ -197,6 +197,60 @@ You may press ctrl-c to skip waiting; the crate should be available shortly.
 <img width="1604" alt="image" src="https://github.com/rust-lang/crates.io-index/assets/29879298/faf1894b-aa69-49c4-96ce-7aaf8e2c4ce1">
 
 </v-click>
+
+---
+transition: slide-up
+---
+
+# Index JSON file
+
+
+```plantuml
+@startjson
+#highlight "records" / "0" / "deps"
+#highlight "records" / "1" / "vers"
+{
+  "records": [
+    {
+      "name": "hello-gosim",
+      "vers": "0.1.0",
+      "deps": [
+        {
+          "name":"anyhow",
+          "req":"^1.0.47",
+          "features":[],
+          "optional":false,
+          "default_features":true,
+          "target":null,
+          "kind":"normal"
+        }
+      ],
+      "chsum": "5add...",
+      "features": "{}",
+      "yanked": false
+    },
+        {
+      "name": "hello-gosim",
+      "vers": "0.1.1",
+      "deps": [
+        {
+          "name":"anyhow",
+          "req":"^1.0.47",
+          "features":[],
+          "optional":false,
+          "default_features":true,
+          "target":null,
+          "kind":"normal"
+        }
+      ],
+      "chsum": "...",
+      "features": "{}",
+      "yanked": false
+    }
+  ]
+}
+@endjson
+```
 
 ---
 transition: slide-left
