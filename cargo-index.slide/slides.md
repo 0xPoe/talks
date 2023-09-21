@@ -153,8 +153,8 @@ $ tree
 <v-click>
 
 ```console
-$ cargo package --allow-dirty
-...
+$ cargo package
+    ...
     Packaged 3 files, 945.0B (738.0B compressed)
 ```
 
@@ -188,7 +188,7 @@ transition: slide-left
 
 ## cargo publish
 
-```console{all|4|6|7|10}
+```console{all|4|6,7|10}
 $ cargo publish --allow-dirty
     Updating crates.io index
     ...
@@ -465,8 +465,6 @@ transition: slide-left
 
 **Yes, but not at that time.** It took 8 years to implement shallow clone in [libgit2](https://github.com/libgit2/libgit2/issues/3058).
 
-<br/>
-
 <div>
 <img width="100" display="inline-block"  alt="image" src="https://camo.githubusercontent.com/b9319c9aec561db409787eed5e9901122b3cd07796a9ae8eedaa2bbf14215c38/68747470733a2f2f6d65646961302e67697068792e636f6d2f6d656469612f69346a5445395a4e4651513144375262784b2f67697068792e6769663f6369643d6563663035653437377974617972763167626e62693139767468746573316471656a6673783334326f6c6f30356764712665703d76315f676966735f736561726368267269643d67697068792e6769662663743d67">
 <img width="700" display="inline-block" alt="image" src="https://github.com/libgit2/libgit2/assets/29879298/2ec2697b-7e23-490e-8340-f1844ddf2277">
@@ -474,24 +472,19 @@ transition: slide-left
 
 </v-click>
 
----
-transition: slide-left
----
+<v-click>
 
-# [gitoxide](https://github.com/Byron/gitoxide)
+#### [gitoxide](https://github.com/Byron/gitoxide) - An idiomatic, lean, fast & safe pure Rust implementation of Git
 
-An idiomatic, lean, fast & safe pure Rust implementation of Git.
+<br/>
 
 ```console
 cargo build -Zgitoxide=shallow-index,shallow-deps
 ```
 
-- `shallow-index` - perform a shallow clone of the index.
-<br/>
-
-- `shallow-deps` - perform a shallow clone of git dependencies.
-
 See more details in [Tracking Issue for -Zgitoxide](https://github.com/rust-lang/cargo/issues/11813)
+
+</v-click>
 
 ---
 transition: slide-left
