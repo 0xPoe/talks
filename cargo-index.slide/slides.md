@@ -183,7 +183,7 @@ transition: slide-left
 ## cargo publish
 
 ```console{all|4|6,7|10}
-$ cargo publish --allow-dirty
+$ cargo publish
     Updating crates.io index
     ...
    Packaging hello-gosim v0.1.0 (/Users/hi-rustin/hello-gosim)
