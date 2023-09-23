@@ -359,8 +359,6 @@ layout: two-cols-header
 - Downloaded 1 crate (785 B) in **2.02s**
 - Updating crates.io index in **1m 21s**
 
-<v-click>
-
 **68742 Commits in crates.io-index**
 
 <img width="911" alt="image" src="https://github.com/rust-lang/crates.io-index/assets/29879298/152c9c34-5aaa-4637-a1eb-c63b0356a775">
@@ -371,7 +369,6 @@ layout: two-cols-header
 $ time git clone https://github.com/rust-lang/crates.io-index
 ```
 
-</v-click>
 
 </div>
 
@@ -383,7 +380,6 @@ transition: slide-up
 
 ## 1m 6s
 
-<v-click>
 
 ```console{all|7}
 time git clone https://github.com/rust-lang/crates.io-index
@@ -394,8 +390,6 @@ Receiving objects: 100% (489099/489099), 295.23 MiB | 8.09 MiB/s, done.
 
 34.79s user 16.22s system 76% cpu 1:06.84 total
 ```
-
-</v-click>
 
 ## 2m 39s
 
@@ -493,6 +487,46 @@ transition: slide-left
 
 
 ---
+transition: slide-up
+---
+
+
+# What actually happened?
+
+## Index file
+
+
+```console
+$ curl https://index.crates.io/he/ll/hello-gosim
+{"name":"hello-gosim","vers":"0.1.0","deps":[],"cksum":"5add821f9e323a4eb7bc869eda30883a76408aef5bc1a68a3ffc1ebb1c93cf9c","features":{},"yanked":false}
+```
+
+## Crate file
+
+```console
+$ curl https://crates.io/api/v1/crates/hello-gosim/0.1.0/download
+```
+
+```console
+$ pwd
+/Users/hi-rustin/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hello-gosim-0.1.0
+$ tree
+.
+├── Cargo.toml
+├── Cargo.toml.orig
+└── src
+    └── lib.rs
+```
+
+
+```console
+$ pwd
+/Users/hi-rustin/.cargo/registry/cache/index.crates.io-6f17d22bba15001f
+$ find . -type f -name "hello*"
+./hello-gosim-0.1.0.crate
+```
+
+---
 transition: slide-left
 ---
 
@@ -522,43 +556,6 @@ $ cargo build
 
 </div>
 </v-click>
-
----
-transition: slide-up
----
-
-
-# What actually happened?
-
-## Index file
-
-
-```console
-$ curl https://index.crates.io/he/ll/hello-gosim
-{"name":"hello-gosim","vers":"0.1.0","deps":[],"cksum":"5add821f9e323a4eb7bc869eda30883a76408aef5bc1a68a3ffc1ebb1c93cf9c","features":{},"yanked":false}
-```
-
-## Crate file
-
-
-```console
-$ pwd
-/Users/hi-rustin/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hello-gosim-0.1.0
-$ tree
-.
-├── Cargo.toml
-├── Cargo.toml.orig
-└── src
-    └── lib.rs
-```
-
-
-```console
-$ pwd
-/Users/hi-rustin/.cargo/registry/cache/index.crates.io-6f17d22bba15001f
-$ find . -type f -name "hello*"
-./hello-gosim-0.1.0.crate
-```
 
 ---
 layout: center
