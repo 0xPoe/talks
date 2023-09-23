@@ -40,7 +40,7 @@ transition: slide-up
 # Rustin Liu
 
 <div class="leading-8 opacity-80">
-PingCAP Database Kernel Engineer.<br/>
+PingCAP Database Engineer.<br/>
 Cargo Active Contributor.<br/>
 Rustup Previous Maintainer.<br/>
 Crates.io Previous Maintainer.<br/>
@@ -124,7 +124,6 @@ layout: two-cols-header
 
 ## cargo new --lib
 
-<v-click>
 
 ```console
 $ cargo new --lib hello-gosim
@@ -139,8 +138,6 @@ $ tree
     └── lib.rs
 ```
 
-</v-click>
-
 </div>
 
 ::right::
@@ -149,8 +146,6 @@ $ tree
 
 
 ## cargo package
-
-<v-click>
 
 ```console
 $ cargo package
@@ -177,7 +172,6 @@ hello-gosim-0.1.0/Cargo.toml.orig
 hello-gosim-0.1.0/src/lib.rs
 ```
 
-</v-click>
 </div>
 
 ---
@@ -275,18 +269,13 @@ transition: slide-left
 
 ## cargo new --bin
 
-<v-click>
-
 ```console
 $ cargo new --bin gosim
      Created binary (application) `gosim` package
 ```
 
-</v-click>
-
 ## cargo add
 
-<v-click>
 
 ```console
 $ cargo add hello-gosim
@@ -295,11 +284,8 @@ $ cargo add hello-gosim
     Updating crates.io index
 ```
 
-</v-click>
-
 ## Cargo.toml
 
-<v-click>
 
 ```toml
 [package]
@@ -310,8 +296,6 @@ edition = "2021"
 [dependencies]
 hello-gosim = "0.1.0"
 ```
-
-</v-click>
 
 ---
 transition: slide-left
@@ -372,12 +356,8 @@ layout: two-cols-header
 
 <div class="mx-2">
 
-<v-click>
-
 - Downloaded 1 crate (785 B) in **2.02s**
 - Updating crates.io index in **1m 21s**
-
-</v-click>
 
 <v-click>
 
@@ -461,8 +441,6 @@ transition: slide-left
 
 ## Can we speed up it with partial clone and shallow clone?
 
-<v-click>
-
 **Yes, but not at that time.** It took 8 years to implement shallow clone in [libgit2](https://github.com/libgit2/libgit2/issues/3058).
 
 <div>
@@ -470,13 +448,11 @@ transition: slide-left
 <img width="700" display="inline-block" alt="image" src="https://github.com/libgit2/libgit2/assets/29879298/2ec2697b-7e23-490e-8340-f1844ddf2277">
 </div>
 
-</v-click>
-
-<v-click>
+<br/>
+<br/>
 
 #### [gitoxide](https://github.com/Byron/gitoxide) - An idiomatic, lean, fast & safe pure Rust implementation of Git
 
-<br/>
 
 ```console
 cargo build -Zgitoxide=shallow-index,shallow-deps
@@ -484,7 +460,6 @@ cargo build -Zgitoxide=shallow-index,shallow-deps
 
 See more details in [Tracking Issue for -Zgitoxide](https://github.com/rust-lang/cargo/issues/11813)
 
-</v-click>
 
 ---
 transition: slide-left
@@ -525,8 +500,6 @@ transition: slide-left
 
 ## cargo build
 
-<v-click>
-
 ```console{all|2,3|6}
 $ cargo build
   Downloaded hello-gosim v0.1.0
@@ -535,8 +508,6 @@ $ cargo build
    Compiling gosim v0.1.0 (/Users/hi-rustin/gosim)
     Finished dev [unoptimized + debuginfo] target(s) in 2.80s
 ```
-
-</v-click>
 
 <br/>
 <br/>
@@ -561,18 +532,14 @@ transition: slide-up
 
 ## Index file
 
-<v-click>
 
 ```console
 $ curl https://index.crates.io/he/ll/hello-gosim
 {"name":"hello-gosim","vers":"0.1.0","deps":[],"cksum":"5add821f9e323a4eb7bc869eda30883a76408aef5bc1a68a3ffc1ebb1c93cf9c","features":{},"yanked":false}
 ```
 
-</v-click>
-
 ## Crate file
 
-<v-click>
 
 ```console
 $ pwd
@@ -593,15 +560,23 @@ $ find . -type f -name "hello*"
 ./hello-gosim-0.1.0.crate
 ```
 
-</v-click>
-
 ---
 layout: center
 ---
 
 # Q&A
 
-<br/>
-<br/>
-
 ## Do you have any questions?
+
+If you have any questions later, please feel free to contact me.
+
+<div my-10 grid="~ cols-[20px_1fr] gap-y4" items-center justify-center>
+  <div i-ri-github-line op50 ma text-xl/>
+  <div><a href="https://github.com/hi-rustin" target="_blank">hi-rustin</a></div>
+  <div i-ri-twitter-line op50 ma text-xl/>
+  <div><a href="https://twitter.com/hi_rustin" target="_blank">hi_rustin</a></div>
+  <div i-ri-firefox-line op50 ma text-xl/>
+  <div><a href="https://hi-rustin.rs" target="_blank">hi-rustin.rs</a></div>
+  <div i-ri-youtube-line op50 ma text-xl/>
+  <div><a href="https://www.youtube.com/@hi-rustin" target="_blank">hi-rustin</a></div>
+</div>
