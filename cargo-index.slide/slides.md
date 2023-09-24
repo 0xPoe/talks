@@ -393,7 +393,6 @@ Receiving objects: 100% (489099/489099), 295.23 MiB | 8.09 MiB/s, done.
 
 ## 2m 39s
 
-<v-click>
 
 ```console{all|3,4|6|10}
 $ cd git2-rs
@@ -407,8 +406,6 @@ Resolving deltas 337592/337592
 
 95.01s user 30.31s system 78% cpu 2:39.32 tota
 ```
-
-</v-click>
 
 ---
 transition: slide-left
@@ -565,15 +562,6 @@ layout: center
 
 ## Do you have any questions?
 
-If you have any questions later, please feel free to contact me.
+If you have any further questions, please feel free to contact me.
 
-<div my-10 grid="~ cols-[20px_1fr] gap-y4" items-center justify-center>
-  <div i-ri-github-line op50 ma text-xl/>
-  <div><a href="https://github.com/hi-rustin" target="_blank">hi-rustin</a></div>
-  <div i-ri-twitter-line op50 ma text-xl/>
-  <div><a href="https://twitter.com/hi_rustin" target="_blank">hi_rustin</a></div>
-  <div i-ri-firefox-line op50 ma text-xl/>
-  <div><a href="https://hi-rustin.rs" target="_blank">hi-rustin.rs</a></div>
-  <div i-ri-youtube-line op50 ma text-xl/>
-  <div><a href="https://www.youtube.com/@hi-rustin" target="_blank">hi-rustin</a></div>
-</div>
+### <a herf="hi-rustin.rs">hi-rustin.rs</a>
