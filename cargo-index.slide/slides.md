@@ -34,9 +34,9 @@ transition: slide-up
 
 <div class="leading-8 opacity-80">
 PingCAP Database Engineer.<br/>
-Cargo Active Contributor.<br/>
+Cargo Contributor.<br/>
+Crates.io Maintainer.<br/>
 Rustup Previous Maintainer.<br/>
-Crates.io Previous Maintainer.<br/>
 </div>
 
 <div my-10 grid="~ cols-[40px_1fr] gap-y4" items-center justify-center>
