@@ -10,16 +10,9 @@ drawings:
 transition: slide-up
 title: From Git Index to Sparse Index
 mdc: true
-layout: image
-image: https://github.com/hi-rustin/hi-rustin/assets/29879298/c5312ce8-37f1-4e1a-9685-ac7df976ff75
----
-
----
-transition: slide-up
 background: https://user-images.githubusercontent.com/47556145/251160363-27298f5c-43a4-4068-9154-5d07f9e37c11.svg
 layout: cover
 ---
-
 
 # From Git Index to Sparse Index
 
