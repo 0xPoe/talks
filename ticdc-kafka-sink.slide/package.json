@@ -10,7 +10,9 @@
     "@iconify/json": "^2.1.129",
     "@slidev/cli": "^0.40.3",
     "@slidev/theme-default": "*",
-    "@slidev/theme-seriph": "*",
-    "playwright-chromium": "^1.27.1"
+    "@slidev/theme-seriph": "*"
+  },
+  "devDependencies": {
+    "playwright-chromium": "^1.46.0"
   }
 }
