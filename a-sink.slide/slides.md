@@ -50,17 +50,6 @@ Cargo Contributor.<br/>
 Rustup Maintainer.<br/>
 </div>
 
-<div my-10 grid="~ cols-[40px_1fr] gap-y4" items-center justify-center>
-  <div i-ri-github-line op50 ma text-xl/>
-  <div><a href="https://github.com/hi-rustin" target="_blank">hi-rustin</a></div>
-  <div i-ri-twitter-line op50 ma text-xl/>
-  <div><a href="https://twitter.com/hi_rustin" target="_blank">hi_rustin</a></div>
-  <div i-ri-firefox-line op50 ma text-xl/>
-  <div><a href="https://hi-rustin.rs" target="_blank">hi-rustin.rs</a></div>
-  <div i-ri-youtube-line op50 ma text-xl/>
-  <div><a href="https://www.youtube.com/@hi-rustin" target="_blank">hi-rustin</a></div>
-</div>
-
 <img src="https://avatars.githubusercontent.com/u/29879298?v=4" rounded-full w-40 abs-tr mt-22 mr-22/>
 
 <div flex="~ gap2">
@@ -1260,4 +1249,4 @@ class: text-center
 
 # Learn More
 
-[Documentations](https://docs.pingcap.com/tidb/dev/ticdc-overview) · [GitHub](https://github.com/pingcap/tiflow)  · [How to write a new sink](https://hi-rustin.rs/TiCDC-Sink-%E5%BC%80%E5%8F%91%E6%8C%87%E5%8D%97/)
+[Documentations](https://docs.pingcap.com/tidb/dev/ticdc-overview) · [GitHub](https://github.com/pingcap/tiflow)  · [How to write a new sink](https://hgw-xx-7.dev/TiCDC-Sink-%E5%BC%80%E5%8F%91%E6%8C%87%E5%8D%97/)
