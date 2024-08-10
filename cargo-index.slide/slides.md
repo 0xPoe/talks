@@ -39,17 +39,6 @@ Crates.io Maintainer.<br/>
 Rustup Previous Maintainer.<br/>
 </div>
 
-<div my-10 grid="~ cols-[40px_1fr] gap-y4" items-center justify-center>
-  <div i-ri-github-line op50 ma text-xl/>
-  <div><a href="https://github.com/hi-rustin" target="_blank">hi-rustin</a></div>
-  <div i-ri-twitter-line op50 ma text-xl/>
-  <div><a href="https://twitter.com/hi_rustin" target="_blank">hi_rustin</a></div>
-  <div i-ri-firefox-line op50 ma text-xl/>
-  <div><a href="https://hi-rustin.rs" target="_blank">hi-rustin.rs</a></div>
-  <div i-ri-youtube-line op50 ma text-xl/>
-  <div><a href="https://www.youtube.com/@hi-rustin" target="_blank">hi-rustin</a></div>
-</div>
-
 <img src="https://avatars.githubusercontent.com/u/29879298?v=4" rounded-full w-30 abs-tr mt-22 mr-22/>
 
 <div flex="~ gap2">
@@ -179,9 +168,9 @@ transition: slide-left
 $ cargo publish
     Updating crates.io index
     ...
-   Packaging hello-gosim v0.1.0 (/Users/hi-rustin/hello-gosim)
+   Packaging hello-gosim v0.1.0 (/Users/Rustin170506/hello-gosim)
     ...
-   Uploading hello-gosim v0.1.0 (/Users/hi-rustin/hello-gosim)
+   Uploading hello-gosim v0.1.0 (/Users/Rustin170506/hello-gosim)
     Uploaded hello-gosim v0.1.0 to registry `crates-io`
 note: Waiting for `hello-gosim v0.1.0` to be available at registry `crates-io`.
 You may press ctrl-c to skip waiting; the crate should be available shortly.
@@ -321,7 +310,7 @@ $ cargo build
   Downloaded hello-gosim v0.1.0
   Downloaded 1 crate (785 B) in 2.02s
    Compiling hello-gosim v0.1.0
-   Compiling gosim v0.1.0 (/Users/hi-rustin/gosim)
+   Compiling gosim v0.1.0 (/Users/Rustin170506/gosim)
     Finished dev [unoptimized + debuginfo] target(s) in 1m 23s
 ```
 
@@ -499,7 +488,7 @@ $ curl https://crates.io/api/v1/crates/hello-gosim/0.1.0/download
 
 ```console
 $ pwd
-/Users/hi-rustin/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hello-gosim-0.1.0
+/Users/Rustin170506/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hello-gosim-0.1.0
 $ tree
 .
 ├── Cargo.toml
@@ -511,7 +500,7 @@ $ tree
 
 ```console
 $ pwd
-/Users/hi-rustin/.cargo/registry/cache/index.crates.io-6f17d22bba15001f
+/Users/Rustin170506/.cargo/registry/cache/index.crates.io-6f17d22bba15001f
 $ find . -type f -name "hello*"
 ./hello-gosim-0.1.0.crate
 ```
@@ -529,7 +518,7 @@ $ cargo build
   Downloaded hello-gosim v0.1.0
   Downloaded 1 crate (785 B) in 1.82s
    Compiling hello-gosim v0.1.0
-   Compiling gosim v0.1.0 (/Users/hi-rustin/gosim)
+   Compiling gosim v0.1.0 (/Users/Rustin170506/gosim)
     Finished dev [unoptimized + debuginfo] target(s) in 2.80s
 ```
 
@@ -557,4 +546,4 @@ layout: center
 
 If you have any further questions, please feel free to contact me.
 
-### <a herf="hi-rustin.rs">hi-rustin.rs</a>
+### <a herf="Rustin170506.rs">Rustin170506.rs</a>
