@@ -1,5 +1,4 @@
 ---
-background: '#white'
 theme: seriph
 title: Shiping TiKV with Cargo
 info: |
@@ -13,7 +12,8 @@ drawings:
 transition: slide-left
 mdc: true
 colorScheme: light
-duration: 35min
+background: https://user-images.githubusercontent.com/47556145/251160363-27298f5c-43a4-4068-9154-5d07f9e37c11.svg
+duration: 40min
 ---
 
 # Shipping TiKV with Cargo
