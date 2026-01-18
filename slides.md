@@ -32,47 +32,31 @@ Some thoughts and tips on how we use Cargo to ship TiKV.
   </a>
 </div>
 
-
 ---
-transition: fade-out
+layout: intro
+class: pl-25
+glowSeed: 14
+transition: slide-up
 ---
 
-# What is Slidev?
+<div text-5xl >Dongpo Liu</div>
+<div op50 tracking-wide text-xl mt1 font-zh>刘东坡</div>
 
-Slidev is a slides maker and presenter designed for developers, consist of the following features
+<div class="[&>*]:important-leading-10 opacity-80 mt5">
+Senior Database Kernel Engineer@PingCAP <br/>
+Cargo Maintainer@Rust<br/>
+</div>
 
-- 📝 **Text-based** - focus on the content with Markdown, and then style them later
-- 🎨 **Themable** - themes can be shared and re-used as npm packages
-- 🧑‍💻 **Developer Friendly** - code highlighting, live coding with autocompletion
-- 🤹 **Interactive** - embed Vue components to enhance your expressions
-- 🎥 **Recording** - built-in recording and camera view
-- 📤 **Portable** - export to PDF, PPTX, PNGs, or even a hostable SPA
-- 🛠 **Hackable** - virtually anything that's possible on a webpage is possible in Slidev
-<br>
-<br>
+<div mt-10 w-min flex="~ gap-1" items-center justify-center>
+  <div i-ri-user-3-line op50 ma text-xl />
+  <div><a href="https://0xpoe.dev" target="_blank" class="border-none! font-300">0xPoe.dev</a></div>
+  <div i-ri-github-line op50 ma text-xl ml4/>
+  <div><a href="https://github.com/0xPoe" target="_blank" class="border-none! font-300">0xPoe</a></div>
+  <div i-ri-linkedin-line op50 ma text-xl ml4/>
+  <div ws-nowrap><a href="https://www.linkedin.com/in/dongpo-liu" target="_blank" class="border-none! font-300">Dongpo Liu</a></div>
+</div>
 
-Read more about [Why Slidev?](https://sli.dev/guide/why)
-
-<!--
-You can have `style` tag in markdown to override the style for the current page.
-Learn more: https://sli.dev/features/slide-scope-style
--->
-
-<style>
-h1 {
-  background-color: #2B90B6;
-  background-image: linear-gradient(45deg, #4EC5D4 10%, #146b8c 20%);
-  background-size: 100%;
-  -webkit-background-clip: text;
-  -moz-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  -moz-text-fill-color: transparent;
-}
-</style>
-
-<!--
-Here is another comment.
--->
+<img src="https://avatars.githubusercontent.com/u/29879298?v=4" rounded-full absolute top-48 right-40 w-40 />
 
 ---
 transition: slide-up
