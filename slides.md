@@ -100,10 +100,29 @@ transition: slide-left
 
 
 ---
-transition: slide-up
+transition: slide-left
 ---
 
 # Inside TiKV
 
 
 <img src="https://tikv.org/img/tikv-instance.png" rounded-lg shadow-lg w="90%" h="90%" mx-auto />
+
+
+---
+transition: slide-up
+layout: center
+---
+
+# 6 Tips for Shipping TiKV with Cargo
+
+
+---
+transition: slide-left
+---
+
+# Always check in `Cargo.lock`
+
+1. For applications, always check in `Cargo.lock` to ensure reproducible builds.
+2. For libraries, also check in `Cargo.lock` to ensure consistent dependency resolution across different environments.
+
