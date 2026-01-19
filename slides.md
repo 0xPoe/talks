@@ -81,3 +81,19 @@ layout: center
   </div>
 </div>
 
+
+---
+transition: slide-left
+layout: center
+---
+
+# TiKV Project Overview
+
+
+---
+transition: slide-left
+---
+
+# A distributed Transactional KV Database
+
+<img src="https://tikv.org/img/basic-architecture.png" rounded-lg shadow-lg w="90%" h="90%" mx-auto />
