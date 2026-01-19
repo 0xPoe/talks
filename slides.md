@@ -126,3 +126,68 @@ transition: slide-left
 1. For applications, always check in `Cargo.lock` to ensure reproducible builds.
 2. For libraries, also check in `Cargo.lock` to ensure consistent dependency resolution across different environments.
 
+
+---
+transition: slide-left
+---
+
+# Workspace inheritance
+
+The `package` table
+
+```toml
+# [PROJECT_DIR]/Cargo.toml
+[workspace]
+members = ["bar"]
+
+[workspace.package]
+version = "1.2.3"
+authors = ["Nice Folks"]
+description = "A short description of my package"
+documentation = "https://example.com/bar"
+```
+
+```toml
+# [PROJECT_DIR]/bar/Cargo.toml
+[package]
+name = "bar"
+version.workspace = true
+authors.workspace = true
+description.workspace = true
+documentation.workspace = true
+```
+
+---
+transition: slide-left
+---
+
+# Workspace inheritance
+
+The `dependencies` table
+
+```toml
+# [PROJECT_DIR]/Cargo.toml
+[workspace]
+members = ["bar"]
+
+[workspace.dependencies]
+cc = "1.0.73"
+rand = "0.8.5"
+regex = { version = "1.6.0", default-features = false, features = ["std"] }
+```
+
+```toml
+# [PROJECT_DIR]/bar/Cargo.toml
+[package]
+name = "bar"
+version = "0.2.0"
+
+[dependencies]
+regex = { workspace = true, features = ["unicode"] }
+
+[build-dependencies]
+cc.workspace = true
+
+[dev-dependencies]
+rand.workspace = true
+```
