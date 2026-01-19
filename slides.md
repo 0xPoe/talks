@@ -97,3 +97,13 @@ transition: slide-left
 # A distributed Transactional KV Database
 
 <img src="https://tikv.org/img/basic-architecture.png" rounded-lg shadow-lg w="90%" h="90%" mx-auto />
+
+
+---
+transition: slide-up
+---
+
+# Inside TiKV
+
+
+<img src="https://tikv.org/img/tikv-instance.png" rounded-lg shadow-lg w="90%" h="90%" mx-auto />
