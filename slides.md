@@ -191,3 +191,59 @@ cc.workspace = true
 [dev-dependencies]
 rand.workspace = true
 ```
+
+---
+transition: slide-left
+---
+
+# nextest-rs/nextest
+
+1. 
+2. 
+3.
+
+---
+transition: slide-left
+---
+
+# cargo-deny
+
+1.
+2.
+3.
+
+
+
+---
+transition: slide-left
+---
+
+# Git shallow clone
+
+
+---
+transition: slide-left
+---
+
+# Cargo Profiles
+
+```toml
+[profile.dev]
+opt-level = 0
+debug = 0
+codegen-units = 4
+lto = false
+incremental = true
+panic = 'unwind'
+debug-assertions = true
+overflow-checks = false
+rpath = false
+
+[profile.dev.package.librocksdb_sys]
+debug = false
+opt-level = 1
+
+[profile.dev.package.tests]
+debug = 1
+opt-level = 1
+```
