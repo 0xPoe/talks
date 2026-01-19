@@ -247,3 +247,23 @@ opt-level = 1
 debug = 1
 opt-level = 1
 ```
+
+
+---
+transition: slide-up
+layout: center
+---
+
+# Q&A
+
+<br/>
+<br/>
+
+## Do you have any questions?
+
+---
+transition: slide-up
+layout: center
+---
+
+# Thank You!
