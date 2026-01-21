@@ -127,18 +127,22 @@ transition: slide-up
 layout: center
 ---
 
-# 6 Tips for Shipping TiKV with Cargo
+# 5 Tips for Shipping TiKV with Cargo
 
 
 ---
 transition: slide-left
 ---
 
-# Always check in `Cargo.lock`
+# Always check in `Cargo.lock` 
 
 1. For applications, always check in `Cargo.lock` to ensure reproducible builds.
-2. For libraries, also check in `Cargo.lock` to ensure consistent dependency resolution across different environments.
+2. For libraries, also check in `Cargo.lock` to ensure consistent dependency resolution across different environments. [^1] [^2]
 
+<br/>
+
+[^1]: [cargo#12382](https://github.com/rust-lang/cargo/pull/12382)
+[^2]: [cargo#8728](https://github.com/rust-lang/cargo/issues/8728)
 
 ---
 transition: slide-left
