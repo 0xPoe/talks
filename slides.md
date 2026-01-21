@@ -120,6 +120,7 @@ transition: slide-left
 - [pprof-rs](https://github.com/tikv/pprof-rs)
 - [grpc-rs](https://github.com/tikv/grpc-rs)
 - [fastrace](https://github.com/fast/fastrace)
+- [fail-rs](https://github.com/tikv/fail-rs)
 
 ---
 transition: slide-up
