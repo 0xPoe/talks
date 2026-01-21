@@ -194,12 +194,12 @@ transition: slide-left
 
 # Workspace inheritance
 
-The `dependencies` table
+The `dependencies` table [^1]
 
 ```toml
 # [PROJECT_DIR]/Cargo.toml
 [workspace]
-members = ["bar"]
+members = ["bar", "baz"]
 
 [workspace.dependencies]
 cc = "1.0.73"
@@ -207,11 +207,24 @@ rand = "0.8.5"
 regex = { version = "1.6.0", default-features = false, features = ["std"] }
 ```
 
+
+````md magic-move
+
 ```toml
 # [PROJECT_DIR]/bar/Cargo.toml
-[package]
-name = "bar"
-version = "0.2.0"
+
+[dependencies]
+regex = { version = "1.6.0", features = ["unicode"] }
+
+[build-dependencies]
+cc = "1.0.73"
+
+[dev-dependencies]
+rand = "0.8.5"
+```
+
+```toml
+# [PROJECT_DIR]/bar/Cargo.toml
 
 [dependencies]
 regex = { workspace = true, features = ["unicode"] }
@@ -222,6 +235,8 @@ cc.workspace = true
 [dev-dependencies]
 rand.workspace = true
 ```
+````
+[^1]: [Cargo Book: Workspace Dependency Table](https://doc.rust-lang.org/cargo/reference/workspaces.html#the-dependencies-table)
 
 ---
 transition: slide-left
