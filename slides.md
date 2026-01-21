@@ -74,8 +74,7 @@ layout: center
   <div class="border-l border-gray-400 border-opacity-25 !all:leading-12 !all:list-none my-auto">
 
   - TiKV Project Overview
-  - 6 Tips
-  - Cargo Office Hours
+  - 5 Tips
   - Q&A
 
   </div>
@@ -219,19 +218,11 @@ transition: slide-left
 transition: slide-left
 ---
 
-# cargo-deny
+# Linters
 
 1.
 2.
 3.
-
-
-
----
-transition: slide-left
----
-
-# Git shallow clone
 
 
 ---
