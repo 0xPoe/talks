@@ -150,29 +150,43 @@ transition: slide-left
 
 # Workspace inheritance
 
-The `package` table
+The `package` table [^1]
 
 ```toml
 # [PROJECT_DIR]/Cargo.toml
 [workspace]
-members = ["bar"]
+members = ["bar", "baz"]
 
 [workspace.package]
-version = "1.2.3"
 authors = ["Nice Folks"]
-description = "A short description of my package"
-documentation = "https://example.com/bar"
+homepage = "https://example.com"
+rust-version = "1.70"
+publish = false
+```
+
+````md magic-move
+```toml
+# [PROJECT_DIR]/bar/Cargo.toml
+[package]
+name = "bar"
+authors = ["Nice Folks"]
+homepage = "https://example.com"
+rust-version = "1.70"
+publish = false
 ```
 
 ```toml
 # [PROJECT_DIR]/bar/Cargo.toml
 [package]
 name = "bar"
-version.workspace = true
 authors.workspace = true
-description.workspace = true
-documentation.workspace = true
+homepage.workspace = true
+rust-version.workspace = true
+publish.workspace = true
 ```
+````
+
+[^1]: [Cargo Book: Workspace Package Table](https://doc.rust-lang.org/cargo/reference/workspaces.html#the-package-table)
 
 ---
 transition: slide-left
