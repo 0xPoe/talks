@@ -441,6 +441,59 @@ workspace = true
 
 [^1]: [Cargo Book: Workspace Lints Table](https://doc.rust-lang.org/cargo/reference/workspaces.html#the-lints-table)
 
+
+---
+transition: slide-left
+layout: two-cols-header
+---
+
+# Linters
+
+One more thing!
+
+::left::
+
+<div>
+
+```toml
+[package]
+name = "foo"
+edition = "2021"
+[dependencies]
+dep = "1.0"
+[lints.cargo]
+implicit_minimum_version_req = "warn"
+```
+
+</div>
+
+::right::
+
+<div style="margin-left: 2rem;">
+
+```rust
+cargo check -Zcargo-lints
+warning: dependency version requirement without an explicit minimum version
+ --> Cargo.toml:6:9
+  |
+6 | serde = "1.0"
+  |         ^^^^^ missing full version components
+  |
+help: consider specifying full `major.minor.patch` version components
+  |
+6 | serde = "1.0.0"
+  |             ++
+  = note: `cargo::implicit_minimum_version_req` is set to `warn` in `[lints]`
+    Updating crates.io index
+     Locking 7 packages to latest Rust 1.95.0-nightly compatible versions
+   Compiling serde_core v1.0.228
+   Compiling serde v1.0.228
+    Checking foo v0.0.0 (/Users/poe/code/test-lint-cargo/foo)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1.48s
+```
+
+</div>
+
 ---
 transition: slide-left
 ---
