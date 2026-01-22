@@ -350,10 +350,54 @@ transition: slide-left
 
 # Linters
 
-1.
-2.
-3.
+Clippy [^1]
 
+```toml
+[[disallowed-methods]]
+path = "std::thread::Builder::spawn"
+reason = """
+Wrapper function `<std::thread::Builder as tikv_util::sys::thread::StdThreadBuildWrapper>::spawn_wrapper`
+should be used instead, refer to https://github.com/tikv/tikv/pull/12442 for more details.
+"""
+
+[[disallowed-types]]
+path = "openssl::cipher::Cipher::fetch"
+reason = """
+When a Some(...) value was passed to the properties argument of openssl::cipher::Cipher::fetch, \
+a use-after-free would result. See RUSTSEC-2025-0022
+"""
+```
+
+
+[^1]: [Clippy Disallowing Methods and Types](https://rust-lang.github.io/rust-clippy/master/index.html#disallowed_methods)
+
+---
+transition: slide-left
+---
+
+# Linters
+
+Cargo Deny [^1]
+
+```toml
+[licenses]
+version = 2
+private = { ignore = false }
+allow = ["0BSD", "Apache-2.0", "BSD-3-Clause", "CC0-1.0", "ISC", "MIT", "Zlib", "Unicode-3.0"]
+exceptions = [
+    { name = "unicode-ident", allow = ["Unicode-DFS-2016"] },
+    { name = "slog-json", allow = ["MPL-2.0"] },
+    { name = "smartstring", allow = ["MPL-2.0"] },
+    { name = "inferno", allow = ["CDDL-1.0"] },
+]
+
+[sources]
+unknown-git = "deny"
+unknown-registry = "deny"
+allow-org = { github = ["tikv", "pingcap", "rust-lang"] }
+```
+
+[^1]: [Cargo Deny](https://embarkstudios.github.io/cargo-deny/)
 
 ---
 transition: slide-left
