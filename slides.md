@@ -451,7 +451,6 @@ layout: two-cols-header
 
 One more thing!
 
-::left::
 
 <div>
 
@@ -467,30 +466,21 @@ implicit_minimum_version_req = "warn"
 
 </div>
 
-::right::
+<br/>
 
-<div style="margin-left: 2rem;">
+<div>
 
-```rust
-cargo check -Zcargo-lints
-warning: dependency version requirement without an explicit minimum version
- --> Cargo.toml:6:9
-  |
-6 | serde = "1.0"
-  |         ^^^^^ missing full version components
-  |
-help: consider specifying full `major.minor.patch` version components
-  |
-6 | serde = "1.0.0"
-  |             ++
-  = note: `cargo::implicit_minimum_version_req` is set to `warn` in `[lints]`
-    Updating crates.io index
-     Locking 7 packages to latest Rust 1.95.0-nightly compatible versions
-   Compiling serde_core v1.0.228
-   Compiling serde v1.0.228
-    Checking foo v0.0.0 (/Users/poe/code/test-lint-cargo/foo)
-    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1.48s
-```
+<pre class="bg-white text-dark-800 p-2 rounded font-mono text-xs border border-gray-300" style="white-space: pre;"><span class="text-yellow">warning:</span> dependency version requirement without an explicit minimum version
+<span class="text-blue"> --></span> Cargo.toml:6:9
+<span class="text-blue">  |</span>
+<span class="text-blue">6 |</span> serde = "1.0"
+<span class="text-blue">  |</span><span class="text-yellow">          ^^^^^ missing full version components</span>
+<span class="text-blue">  |</span>
+<span class="text-cyan">help:</span> consider specifying full `major.minor.patch` version components
+<span class="text-blue">  |</span>
+<span class="text-blue">6 |</span> serde = "1.0<span class="text-green">.0</span>"
+<span class="text-blue">  |</span><span class="text-green">              ++</span>
+</pre>
 
 </div>
 
