@@ -242,11 +242,82 @@ rand.workspace = true
 transition: slide-left
 ---
 
-# nextest-rs/nextest
+# nextest-rs/nextest [^1]
 
-1. 
-2. 
-3.
+tokio: 1647 tests in 228 binaries [^2]
+
+| Command | User Time | System Time | Total |
+|---------|-----------|-------------|-------|
+| `cargo test` | 115.61s | 66.09s | 181.70s |
+| `cargo nextest run` | 15.57s | 6.55s | 22.12s |
+
+[^1]: [nextest](https://nexte.st/)
+[^2]: [tokio](https://github.com/tokio-rs/tokio)
+
+
+---
+transition: slide-left
+layout: two-cols-header
+---
+
+# Why `cargo test` is slow?
+
+::left::
+
+<div style="margin-top: -2rem; display: flex; justify-content: center;">
+
+```plantuml {scale: 0.8}
+@startuml
+!theme plain
+start
+:build every test binary;
+
+while (binaries to run?) is (yes)
+  #LightGray:run binary, wait until it exits;
+  if (exit code 0?) then (yes)
+  else (no)
+    :failure;
+    stop
+  endif
+endwhile (no)
+
+:success;
+stop
+@enduml
+```
+</div>
+
+::right::
+
+<div style="margin-top: -2rem; display: flex; justify-content: center;">
+
+```plantuml {scale: 0.8}
+@startuml
+!theme plain
+
+partition "list phase" {
+  :build every test binary;
+  :for every binary, list tests;
+}
+
+partition "run phase" #LightGray {
+  while (tests to run?) is (yes)
+    :execute test process in\nparallel, wait until it exits;
+    :collect test result;
+  endwhile (no)
+}
+
+if (test failures?) then (yes)
+  :failure;
+  stop
+else (no)
+  :success;
+  stop
+endif
+@enduml
+```
+
+</div>
 
 ---
 transition: slide-left
