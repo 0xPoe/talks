@@ -449,7 +449,7 @@ layout: two-cols-header
 
 # Linters
 
-One more thing!
+One more thing! [^1]
 
 
 <div>
@@ -483,6 +483,8 @@ implicit_minimum_version_req = "warn"
 </pre>
 
 </div>
+
+[^1]: [Cargo Linting System](https://github.com/rust-lang/cargo/issues/12235)
 
 ---
 transition: slide-left
