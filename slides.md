@@ -319,6 +319,31 @@ endif
 
 </div>
 
+
+---
+transition: slide-left
+---
+
+# Surprise!
+
+cargo: 4216 tests in 3 binaries 
+
+| Command | User Time | System Time | Total |
+|---------|-----------|-------------|-------|
+| `cargo test` | 523.01s | 431.60s | 324.46s |
+| `cargo nextest run` | 721.57s | 464.16s | 329.90s |
+
+<br/>
+
+<div class="bg-dark-800 text-white p-2 rounded font-mono text-sm">
+<span class="text-red">█ Summary</span> [ 329.395s] 4216 tests run: 4163 <span class="text-green">passed</span>, 53 <span class="text-red">failed</span>, 36 <span class="text-yellow">skipped</span>
+</div>
+
+<br/>
+
+1. Most tests are concentrated in a few binaries.
+2. Cargo's tests rely on shared state, which causes failures when run in parallel across processes.
+
 ---
 transition: slide-left
 ---
