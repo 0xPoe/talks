@@ -399,6 +399,48 @@ allow-org = { github = ["tikv", "pingcap", "rust-lang"] }
 
 [^1]: [Cargo Deny](https://embarkstudios.github.io/cargo-deny/)
 
+
+---
+transition: slide-left
+---
+
+# Linters
+
+Lints inheritance [^1]
+
+```toml
+# [PROJECT_DIR]/Cargo.toml
+[workspace]
+members = ["crates/*"]
+
+[workspace.lints.rust]
+unsafe_code = "forbid"
+```
+
+````md magic-move
+```toml
+# [PROJECT_DIR]/crates/bar/Cargo.toml
+[package]
+name = "bar"
+version = "0.1.0"
+
+[lints.rust]
+unsafe_code = "forbid"
+```
+
+```toml
+# [PROJECT_DIR]/crates/bar/Cargo.toml
+[package]
+name = "bar"
+version = "0.1.0"
+
+[lints]
+workspace = true
+```
+````
+
+[^1]: [Cargo Book: Workspace Lints Table](https://doc.rust-lang.org/cargo/reference/workspaces.html#the-lints-table)
+
 ---
 transition: slide-left
 ---
