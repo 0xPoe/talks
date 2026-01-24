@@ -102,16 +102,6 @@ transition: slide-left
 transition: slide-left
 ---
 
-# Inside TiKV
-
-
-<img src="https://tikv.org/img/tikv-instance.png" rounded-lg shadow-lg w="90%" h="90%" mx-auto />
-
-
----
-transition: slide-left
----
-
 # TiKV Community
 
 - [jemallocator](https://github.com/tikv/jemallocator)
@@ -121,6 +111,28 @@ transition: slide-left
 - [grpc-rs](https://github.com/tikv/grpc-rs)
 - [fastrace](https://github.com/fast/fastrace)
 - [fail-rs](https://github.com/tikv/fail-rs)
+
+
+---
+transition: slide-left
+---
+
+# TiKV
+
+<div class="grid grid-cols-3 gap-8 text-center mx-auto w-fit mt-32">
+  <div>
+    <div class="text-5xl font-bold text-blue-400">500K+</div>
+    <div class="text-sm opacity-75">lines of Rust</div>
+  </div>
+  <div>
+    <div class="text-5xl font-bold text-green-400">83</div>
+    <div class="text-sm opacity-75">crates</div>
+  </div>
+  <div>
+    <div class="text-5xl font-bold text-orange-400">600+</div>
+    <div class="text-sm opacity-75">dependencies</div>
+  </div>
+</div>
 
 ---
 transition: slide-up
