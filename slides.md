@@ -461,8 +461,7 @@ layout: two-cols-header
 
 # Linters
 
-One more thing! [^1]
-
+Cargo Linting System is coming soon! [^1]
 
 <div>
 
