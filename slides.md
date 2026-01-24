@@ -1,5 +1,4 @@
 ---
-theme: seriph
 title: Shiping TiKV with Cargo
 info: |
   ## Shipping TiKV with Cargo
@@ -121,15 +120,15 @@ transition: slide-left
 
 <div class="grid grid-cols-3 gap-8 text-center mx-auto w-fit mt-32">
   <div>
-    <div class="text-5xl font-bold text-blue-400">500K+</div>
+    <div class="text-5xl font-bold">500K+</div>
     <div class="text-sm opacity-75">lines of Rust</div>
   </div>
   <div>
-    <div class="text-5xl font-bold text-green-400">83</div>
+    <div class="text-5xl font-bold">83</div>
     <div class="text-sm opacity-75">crates</div>
   </div>
   <div>
-    <div class="text-5xl font-bold text-orange-400">600+</div>
+    <div class="text-5xl font-bold">600+</div>
     <div class="text-sm opacity-75">dependencies</div>
   </div>
 </div>
