@@ -548,17 +548,16 @@ transition: slide-left
 ---
 
 # Cargo Profiles - `debug`
+A cmake-rs issue [^1]
 
 
 ```toml
 [profile.dev]
 debug = 0
 ...
-
 [profile.dev.package.librocksdb_sys]
 debug = false
 opt-level = 1
-
 [profile.dev.package.tests]
 debug = 1
 opt-level = 1
@@ -568,6 +567,8 @@ opt-level = 1
 |-------|------------|-------------|
 | true | 3:21 | 599M |
 | 0 | **3:00** | **478M** |
+
+[^1]: [cmake-rs#79](https://github.com/rust-lang/cmake-rs/issues/79#issuecomment-494676960)
 
 ---
 transition: slide-up
