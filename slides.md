@@ -502,6 +502,8 @@ transition: slide-left
 
 # Cargo Profiles
 
+A tiny historical mistake!
+
 ```toml
 [profile.dev]
 opt-level = 0
@@ -523,6 +525,22 @@ debug = 1
 opt-level = 1
 ```
 
+
+---
+transition: slide-left
+---
+
+# Cargo Profiles - `codegen-units`
+
+| codegen-units | Dev Build Time |
+|---------------|------------|
+| 4 [^1][^2]             | 3:11       |
+| 256[^3]          | **2:55**   |
+
+
+[^1]: [2014](https://github.com/rust-lang/rust/commit/cf672850)
+[^2]: [2016](https://github.com/tikv/tikv/pull/1393/changes)
+[^3]: [2020](https://github.com/rust-lang/rust/pull/70156)
 
 ---
 transition: slide-up
