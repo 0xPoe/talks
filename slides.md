@@ -521,7 +521,10 @@ rpath = false
 transition: slide-left
 ---
 
+
 # Cargo Profiles - `codegen-units`
+
+A tiny historical mistake!
 
 | codegen-units | Dev Build Time |
 |---------------|------------|
