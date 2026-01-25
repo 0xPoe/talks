@@ -346,8 +346,8 @@ cargo: 4216 tests in 3 binaries
 
 <br/>
 
-<div class="bg-dark-800 text-white p-2 rounded font-mono text-sm">
-<span class="text-red">█ Summary</span> [ 329.395s] 4216 tests run: 4163 <span class="text-green">passed</span>, 53 <span class="text-red">failed</span>, 36 <span class="text-yellow">skipped</span>
+<div class="bg-white text-black p-2 rounded font-mono text-sm">
+<span class="text-red-600">█ Summary</span> [ 329.395s] 4216 tests run: 4163 <span class="text-green-600">passed</span>, 53 <span class="text-red-600">failed</span>, 36 <span class="text-yellow-600">skipped</span>
 </div>
 
 <br/>
