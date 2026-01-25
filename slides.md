@@ -515,16 +515,7 @@ panic = 'unwind'
 debug-assertions = true
 overflow-checks = false
 rpath = false
-
-[profile.dev.package.librocksdb_sys]
-debug = false
-opt-level = 1
-
-[profile.dev.package.tests]
-debug = 1
-opt-level = 1
 ```
-
 
 ---
 transition: slide-left
