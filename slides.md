@@ -542,6 +542,33 @@ transition: slide-left
 [^2]: [2016](https://github.com/tikv/tikv/pull/1393/changes)
 [^3]: [2020](https://github.com/rust-lang/rust/pull/70156)
 
+
+---
+transition: slide-left
+---
+
+# Cargo Profiles - `debug`
+
+
+```toml
+[profile.dev]
+debug = 0
+...
+
+[profile.dev.package.librocksdb_sys]
+debug = false
+opt-level = 1
+
+[profile.dev.package.tests]
+debug = 1
+opt-level = 1
+```
+
+| debug | Build Time | Binary Size |
+|-------|------------|-------------|
+| true | 3:21 | 599M |
+| 0 | **3:00** | **478M** |
+
 ---
 transition: slide-up
 layout: center
