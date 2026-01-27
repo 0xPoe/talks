@@ -155,6 +155,29 @@ transition: slide-left
 [^1]: [cargo#12382](https://github.com/rust-lang/cargo/pull/12382)
 [^2]: [cargo#8728](https://github.com/rust-lang/cargo/issues/8728)
 
+
+---
+transition: slide-left
+---
+
+
+# Always check in `Cargo.lock` 
+
+Check latest dependencies regularly
+
+```yaml
+jobs:
+  latest_deps:
+    name: Latest Dependencies
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v3
+      - run: rustup update stable && rustup default stable
+      - run: cargo update --verbose
+      - run: cargo build --verbose
+      - run: cargo test --verbose
+```
 ---
 transition: slide-left
 ---
