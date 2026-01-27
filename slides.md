@@ -307,7 +307,7 @@ start
 :build every test binary;
 
 while (binaries to run?) is (yes)
-  #LightGray:run binary, wait until it exits;
+  :run binary, wait until it exits; <<#LightGray>>
   if (exit code 0?) then (yes)
   else (no)
     :failure;
