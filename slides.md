@@ -282,8 +282,8 @@ tokio: 1647 tests in 228 binaries [^2]
 
 | Command | User Time | System Time | Total |
 |---------|-----------|-------------|-------|
-| `cargo test` | 115.61s | 66.09s | 181.70s |
-| `cargo nextest run` | 15.57s | 6.55s | 22.12s |
+| `cargo test` | 106.31s | 50.83s | 236.03s |
+| `cargo nextest run` | 15.46s | 6.52s | 5.92s |
 
 [^1]: [nextest](https://nexte.st/)
 [^2]: [tokio](https://github.com/tokio-rs/tokio)
