@@ -31,6 +31,13 @@ Some thoughts and tips on how we use Cargo to ship TiKV.
   </a>
 </div>
 
+<!--
+Alright, let's get started!
+
+Today I'm going to share with you some thoughts and tips on how we use Cargo to ship TiKV, a distributed transactional key-value database.
+
+-->
+
 ---
 layout: intro
 class: pl-25
@@ -57,6 +64,12 @@ Cargo Maintainer@Rust<br/>
 
 <img src="https://avatars.githubusercontent.com/u/29879298?v=4" rounded-full absolute top-48 right-40 w-40 />
 
+<!--
+Let me introduce myself first.
+I'm Dongpo, a senior database kernel engineer at PingCAP, the company behind TiDB and TiKV. All our products are open source. So feel free to check them out.
+I'm also a big believer in Open Source and I help maintain Cargo, the Rust package manager.
+I'm pretty interested in distributed systems, databases, and dev tools. You can find me on the internet via these links. Feel free to reach out if you're interested in any of these topics.
+-->
 
 ---
 transition: slide-up
@@ -79,6 +92,12 @@ layout: center
   </div>
 </div>
 
+<!--
+Here's the agenda for today's talk.
+First, I'll give a brief overview of the TiKV project.
+Then, I'll share 5 tips on how we use Cargo to ship TiKV.
+Finally, we'll have a Q&A session where you can ask any questions you may have.
+-->
 
 ---
 transition: slide-left
