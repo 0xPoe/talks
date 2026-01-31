@@ -372,7 +372,7 @@ tokio: 1647 tests in 228 binaries [^2]
 | Command | User Time | System Time | Total |
 |---------|-----------|-------------|-------|
 | `cargo test` | 106.31s | 50.83s | 236.03s |
-| `cargo nextest run` | 15.46s | 6.52s | 5.92s |
+| `cargo nextest run` | 15.46s | 6.52s | <span v-mark="{ color: 'green', type: 'circle' }">5.92s</span> |
 
 [^1]: [nextest](https://nexte.st/)
 [^2]: [tokio](https://github.com/tokio-rs/tokio)
@@ -472,7 +472,7 @@ cargo: 4216 tests in 3 binaries
 | Command | User Time | System Time | Total |
 |---------|-----------|-------------|-------|
 | `cargo test` | 523.01s | 431.60s | 324.46s |
-| `cargo nextest run` | 721.57s | 464.16s | 329.90s |
+| `cargo nextest run` | 721.57s | 464.16s |  <span v-mark="{ color: 'red', type: 'circle' }">329.90s</span> |
 
 <br/>
 
