@@ -302,6 +302,14 @@ publish.workspace = true
 
 [^1]: [Cargo Book: Workspace Package Table](https://doc.rust-lang.org/cargo/reference/workspaces.html#the-package-table)
 
+<!--
+The second tip is to use workspace inheritance for the `package` table.
+By defining common fields in the workspace `Cargo.toml`, you avoid duplication and keep all member crates consistent.
+Before workspace inheritance, you had to repeat fields like `authors`, `homepage`, `rust-version`, and `publish` in every crate’s `Cargo.toml`.
+Now you can define them once in the workspace `Cargo.toml`, and member crates inherit them with `workspace = true`.
+This simplifies maintenance and reduces the risk of inconsistencies.
+-->
+
 ---
 transition: slide-left
 ---
