@@ -377,6 +377,16 @@ tokio: 1647 tests in 228 binaries [^2]
 [^1]: [nextest](https://nexte.st/)
 [^2]: [tokio](https://github.com/tokio-rs/tokio)
 
+<!--
+The third tip is to use nextest for running tests.
+Nextest is a community tool that speeds up test execution by running tests in parallel and optimizing the overall test process.
+
+Take Tokio as an example. It has 1,647 tests across 228 binaries.
+With `cargo test`, it took over 236 seconds. With `cargo nextest run`, it finished in just under 6 seconds.
+
+That kind of speedup is huge for large projects. In TiKV we have more than 4,000 tests, so nextest has been a game‑changer for our CI times.
+-->
+
 
 ---
 transition: slide-left
@@ -441,6 +451,14 @@ endif
 ```
 
 </div>
+
+<!--
+`cargo test` is slower because it builds each test binary and runs them sequentially. Each binary runs in its own process, and Cargo waits for one to finish before starting the next.
+Within a single process, tests can still run in parallel.
+Nextest separates listing from execution. It first builds all test binaries and lists the tests they contain.
+Then it runs tests in parallel across multiple processes and collects results as they complete.
+So of course nextest is faster! It seems we can blindly trust nextest for all out projects, right?
+-->
 
 
 ---
