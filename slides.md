@@ -753,6 +753,27 @@ opt-level = 1
 
 [^1]: [cmake-rs#79](https://github.com/rust-lang/cmake-rs/issues/79#issuecomment-494676960)
 
+<!--
+Another interesting story is about the `debug` option.
+As I mentioned earlier, we use RocksDB as our storage engine, which means we compile a lot of C++ code via cmake-rs.
+
+We wanted to reduce the binary size of our dev builds, but even after setting `debug = 0`, the binaries were still large.
+
+It turned out cmake-rs was forcing debug info for the C++ code, ignoring our Cargo profile settings.
+
+You can see the discussion in this GitHub issue.
+
+We worked around this by overriding the profile settings for the cmake-rs package specifically.
+
+After enabling optimizations and disabling debug info, CMake respected the settings and produced smaller binaries.
+
+As you can see, that reduced the binary size by more than 100MB and sped up build times as well.
+
+You can also enable debug info only for test binaries, which is useful when debugging test failures.
+
+That’s another trick you can use with Cargo profiles.
+-->
+
 ---
 transition: slide-up
 layout: center
@@ -762,6 +783,12 @@ layout: center
 
 <br/>
 <br/>
+
+<!--
+Alright, that wraps up my tips for shipping TiKV with Cargo.
+I hope you found them useful.
+Now I’d love to hear from you — any questions?
+-->
 
 ## Do you have any questions?
 
