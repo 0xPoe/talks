@@ -322,7 +322,6 @@ The `dependencies` table [^1]
 # [PROJECT_DIR]/Cargo.toml
 [workspace]
 members = ["bar", "baz"]
-
 [workspace.dependencies]
 cc = "1.0.73"
 rand = "0.8.5"
@@ -337,10 +336,8 @@ regex = { version = "1.6.0", default-features = false, features = ["std"] }
 
 [dependencies]
 regex = { version = "1.6.0", features = ["unicode"] }
-
 [build-dependencies]
 cc = "1.0.73"
-
 [dev-dependencies]
 rand = "0.8.5"
 ```
@@ -350,15 +347,19 @@ rand = "0.8.5"
 
 [dependencies]
 regex = { workspace = true, features = ["unicode"] }
-
 [build-dependencies]
 cc.workspace = true
-
 [dev-dependencies]
 rand.workspace = true
 ```
 ````
 [^1]: [Cargo Book: Workspace Dependency Table](https://doc.rust-lang.org/cargo/reference/workspaces.html#the-dependencies-table)
+
+<!--
+Similarly, you can use workspace inheritance for the `dependencies` table.
+This is especially helpful when multiple crates share the same dependencies. It reduces the burden of updating versions across crates.
+Even for tools like Renovate or Dependabot, dependency updates become much easier to manage.
+-->
 
 ---
 transition: slide-left
