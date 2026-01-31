@@ -734,7 +734,7 @@ transition: slide-left
 A cmake-rs issue [^1]
 
 
-```toml
+```toml {all|2,4-6}
 [profile.dev]
 debug = 0
 ...
@@ -749,7 +749,7 @@ opt-level = 1
 | debug | Build Time | Binary Size |
 |-------|------------|-------------|
 | true | 3:21 | 599M |
-| 0 | **3:00** | **478M** |
+| 0 | **3:00** |  <span v-mark="{ color: 'green', type: 'circle' }">478M</span> |
 
 [^1]: [cmake-rs#79](https://github.com/rust-lang/cmake-rs/issues/79#issuecomment-494676960)
 
