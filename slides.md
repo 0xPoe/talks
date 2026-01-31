@@ -660,6 +660,14 @@ implicit_minimum_version_req = "warn"
 
 [^1]: [Cargo Linting System](https://github.com/rust-lang/cargo/issues/12235)
 
+<!--
+Looking ahead, Cargo is working on a built‑in linting system.
+It will let you define lint rules directly in `Cargo.toml`, similar to Clippy but focused on Cargo itself.
+For example, you could warn about dependencies that don’t specify a full version requirement.
+This should help catch common mistakes and enforce best practices at the package‑manager level.
+The feature is still in development, but it looks promising. You can follow the GitHub issue for updates.
+-->
+
 ---
 transition: slide-left
 ---
@@ -680,6 +688,15 @@ debug-assertions = true
 overflow-checks = false
 rpath = false
 ```
+
+<!--
+The last tip is about Cargo profiles.
+I’ll start with a small historical mistake we made early on.
+Here is our dev profile — see if you can spot it.
+We avoided optimizations in dev builds to speed up compile times.
+We also disabled debug info to reduce binary size.
+`codegen-units` controls parallel code generation. More units usually mean faster builds but worse runtime performance.
+-->
 
 ---
 transition: slide-left
