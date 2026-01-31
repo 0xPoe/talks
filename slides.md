@@ -676,7 +676,7 @@ transition: slide-left
 
 A tiny historical mistake!
 
-```toml
+```toml {all|4}
 [profile.dev]
 opt-level = 0
 debug = 0
@@ -710,7 +710,7 @@ A tiny historical mistake!
 | codegen-units | Dev Build Time |
 |---------------|------------|
 | 4 [^1][^2]             | 3:11       |
-| 256[^3]          | **2:55**   |
+| 256[^3]          |  <span v-mark="{ color: 'green', type: 'circle' }">2:55</span>   |
 
 
 [^1]: [2014](https://github.com/rust-lang/rust/commit/cf672850)
