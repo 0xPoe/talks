@@ -121,10 +121,12 @@ Cluster Overview
 
 <img src="https://tikv.org/img/basic-architecture.png" rounded-lg shadow-lg w="90%" h="85%" mx-auto />
 
-<!--
-It's a distributed transactional key-value database. Under the hood, TiKV uses the Raft consensus algorithm to ensure data consistency across multiple nodes.
--->
 
+<!--
+TiKV is a distributed, transactional key-value database. Under the hood, it uses Raft to keep data consistent across nodes.
+Here is a typical TiKV cluster architecture. A cluster is made up of multiple TiKV nodes that store the data. Each node runs several Raft groups to replicate data across the cluster. The Placement Driver (PD) manages metadata and schedules the Raft groups.
+Because TiKV targets high performance and low latency, it is implemented in Rust. The project started in 2016. Next, let’s zoom in on a single TiKV instance.
+-->
 
 ---
 transition: slide-left
@@ -138,9 +140,11 @@ Instance Deatails
 <img src="https://tikv.org/img/tikv-instance.png" rounded-lg shadow-lg w="90%" h="80%" mx-auto />
 
 <!--
-It's a distributed transactional key-value database. Under the hood, TiKV uses the Raft consensus algorithm to ensure data consistency across multiple nodes.
-
+Under the hood, TiKV uses RocksDB as its storage engine. If you look at our other components, like TiDB, you’ll see we use Go for most of them.
+Since we rely heavily on RocksDB, Go wasn’t a great fit. At the same time, our co‑founders were big fans of Rust, so we chose Rust for TiKV.
+That choice was challenging because Rust was still young and the ecosystem wasn’t mature. We had to build a lot of pieces from scratch.
 -->
+
 
 ---
 transition: slide-left
@@ -155,6 +159,12 @@ transition: slide-left
 - [grpc-rs](https://github.com/tikv/grpc-rs)
 - [fastrace](https://github.com/fast/fastrace)
 - [fail-rs](https://github.com/tikv/fail-rs)
+
+<!--
+As you can see, we’ve contributed a lot to the Rust ecosystem, especially in systems programming and distributed systems.
+Several of these projects are widely used in the Rust community, and we’re proud to have had a positive impact.
+Please feel free to check them out.
+-->
 
 
 ---
