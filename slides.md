@@ -238,7 +238,7 @@ transition: slide-left
 
 Check latest dependencies regularly
 
-```yaml
+```yaml {all|5}
 jobs:
   latest_deps:
     name: Latest Dependencies
@@ -251,6 +251,13 @@ jobs:
       - run: cargo build --verbose
       - run: cargo test --verbose
 ```
+
+<!--
+Here’s a GitHub Actions workflow that checks out the code, updates dependencies, builds the project, and runs tests.
+
+You can also set `continue-on-error: true` so this job won’t fail the whole workflow if something breaks. That lets you monitor dependency updates without disrupting the main CI pipeline or blocking merges.
+-->
+
 ---
 transition: slide-left
 ---
