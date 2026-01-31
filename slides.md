@@ -717,6 +717,14 @@ A tiny historical mistake!
 [^2]: [2016](https://github.com/tikv/tikv/pull/1393/changes)
 [^3]: [2020](https://github.com/rust-lang/rust/pull/70156)
 
+<!--
+The mistake was setting `codegen-units = 4`. Today the default is 256, which can speed up builds even more.
+We set it this way because back in 2014, the Rust compiler default was 1, which led to long build times.
+In 2016, we bumped it to 4 to speed things up.
+Over time, the compiler improved build times with incremental compilation, and the default codegen units increased to 256 in 2020.
+So usually you don’t need to set these options manually anymore — Cargo’s defaults are good enough.
+If you do tweak them, make sure to revisit them periodically as the compiler evolves.
+-->
 
 ---
 transition: slide-left
