@@ -188,6 +188,12 @@ transition: slide-left
   </div>
 </div>
 
+<!--
+TiKV has over 500,000 lines of Rust code, organized into 83 crates.
+It also has 600+ dependencies, which we manage with Cargo. It’s fair to say Cargo plays a crucial role in our development workflow.
+Now, let’s dive into five tips for shipping TiKV with Cargo and managing a project at this scale.
+-->
+
 ---
 transition: slide-up
 layout: center
@@ -200,16 +206,28 @@ layout: center
 transition: slide-left
 ---
 
-# Always check in `Cargo.lock` 
+# Always check in `Cargo.lock` [^1]
 
 1. For applications, always check in `Cargo.lock` to ensure reproducible builds.
-2. For libraries, also check in `Cargo.lock` to ensure consistent dependency resolution across different environments. [^1] [^2]
+2. For libraries, also check in `Cargo.lock` to ensure consistent dependency resolution across different environments. [^2] [^3]
 
 <br/>
 
-[^1]: [cargo#12382](https://github.com/rust-lang/cargo/pull/12382)
-[^2]: [cargo#8728](https://github.com/rust-lang/cargo/issues/8728)
+[^1]: [tikv#4](https://github.com/tikv/tikv/commit/c9b10c33ab2a94f816b00c2d093334434daa1082)
+[^2]: [cargo#12382](https://github.com/rust-lang/cargo/pull/12382)
+[^3]: [cargo#8728](https://github.com/rust-lang/cargo/issues/8728)
 
+<!--
+The first tip is to always check in the `Cargo.lock` file.
+For applications, this is standard practice to ensure reproducible builds. TiKV is definitely an application, even though it also contains libraries, so we committed `Cargo.lock` from the start.
+This ensures everyone uses the same dependency versions and avoids surprises during builds.
+
+Cargo has also updated its guidance for libraries. Today, both applications and libraries are advised to check in `Cargo.lock`, which helps keep dependency resolution consistent across environments.
+
+Historically, the main reason to skip `Cargo.lock` in libraries was to test against the latest dependencies. But that can cause unexpected breakages when a dependency releases a new version. By checking in `Cargo.lock`, we avoid that risk and keep control over our dependency set. For example, CI won’t suddenly fail because an upstream release introduced breaking changes.
+
+When you do want to test against the newest dependencies, set up a separate CI job that periodically updates dependencies and runs tests. That way, you can catch issues early without disrupting the main workflow.
+-->
 
 ---
 transition: slide-left
