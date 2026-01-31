@@ -518,6 +518,15 @@ a use-after-free would result. See RUSTSEC-2025-0022
 """
 ```
 
+<!--
+The next tip is to use linters as much as possible.
+I believe most of you are familiar with Clippy and use it daily.
+But I want to share an advanced feature of Clippy.
+In TiKV, we use Clippy’s disallowed methods and types to enforce coding standards.
+For example, we don’t allow direct use of `std::thread::Builder::spawn`. Instead, we provide a wrapper that adds extra functionality.
+This is useful when you want to enforce team‑wide standards or prevent the use of APIs you don’t recommend.
+-->
+
 
 [^1]: [Clippy Disallowing Methods and Types](https://rust-lang.github.io/rust-clippy/master/index.html#disallowed_methods)
 
