@@ -559,6 +559,16 @@ allow-org = { github = ["tikv", "pingcap", "rust-lang"] }
 [^1]: [Cargo Deny](https://embarkstudios.github.io/cargo-deny/)
 
 
+<!--
+Another powerful linter is Cargo Deny.
+As an open-source project, TiKV has strict requirements on dependency licenses.
+With Cargo Deny, we define allowed licenses and automatically check dependencies against that list.
+
+It also helps enforce sourcing policies, such as only allowing dependencies from certain organizations.
+
+We also use it to monitor security vulnerabilities in dependencies. The documentation has more details.
+-->
+
 ---
 transition: slide-left
 ---
@@ -599,6 +609,12 @@ workspace = true
 ````
 
 [^1]: [Cargo Book: Workspace Lints Table](https://doc.rust-lang.org/cargo/reference/workspaces.html#the-lints-table)
+
+<!--
+Furthermore, Cargo now supports lints inheritance in workspaces.
+You can define linting rules at the workspace level, and member crates can inherit them with `workspace = true`.
+This keeps linting consistent across all crates and reduces duplication.
+-->
 
 
 ---
