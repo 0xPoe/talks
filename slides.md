@@ -485,6 +485,15 @@ cargo: 4216 tests in 3 binaries
 1. Most tests are concentrated in a few binaries.
 2. Cargo's tests rely on shared state, which causes failures when run in parallel across processes.
 
+<!--
+Interestingly, in Cargo itself, nextest can be slower than `cargo test`.
+
+That’s because most Cargo tests are end‑to‑end integration tests concentrated in just a few binaries.
+When nextest runs them in parallel across processes, they can interfere with each other due to shared state, which leads to failures.
+And since there aren’t many binaries, cross‑process parallelism doesn’t help much.
+So whether nextest is faster depends on your test structure. If most tests are unit tests spread across many binaries, it will likely speed things up. But if you have just a few integration-test binaries, it might not help. It may even break tests that rely on shared state.
+-->
+
 ---
 transition: slide-left
 ---
