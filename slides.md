@@ -68,7 +68,7 @@ Cargo Maintainer@Rust<br/>
 Let me introduce myself first.
 I'm Dongpo, a senior database kernel engineer at PingCAP, the company behind TiDB and TiKV. All our products are open source. So feel free to check them out.
 I'm also a big believer in Open Source and I help maintain Cargo, the Rust package manager.
-I'm pretty interested in distributed systems, databases, and dev tools. You can find me on the internet via these links. Feel free to reach out if you're interested in any of these topics.
+I'm pretty interested in distributed systems, databases, and dev tools. You can find me on the internet via these links. 
 -->
 
 ---
@@ -106,6 +106,10 @@ layout: center
 
 # TiKV Project Overview
 
+<!--
+Let's start with a brief overview of the TiKV project.
+-->
+
 
 ---
 transition: slide-left
@@ -113,8 +117,30 @@ transition: slide-left
 
 # A distributed Transactional KV Database
 
-<img src="https://tikv.org/img/basic-architecture.png" rounded-lg shadow-lg w="90%" h="90%" mx-auto />
+Cluster Overview
 
+<img src="https://tikv.org/img/basic-architecture.png" rounded-lg shadow-lg w="90%" h="85%" mx-auto />
+
+<!--
+It's a distributed transactional key-value database. Under the hood, TiKV uses the Raft consensus algorithm to ensure data consistency across multiple nodes.
+-->
+
+
+---
+transition: slide-left
+---
+
+# A distributed Transactional KV Database
+
+Instance Deatails
+
+
+<img src="https://tikv.org/img/tikv-instance.png" rounded-lg shadow-lg w="90%" h="80%" mx-auto />
+
+<!--
+It's a distributed transactional key-value database. Under the hood, TiKV uses the Raft consensus algorithm to ensure data consistency across multiple nodes.
+
+-->
 
 ---
 transition: slide-left
