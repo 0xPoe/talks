@@ -323,11 +323,20 @@ The `dependencies` table [^1]
 ```toml
 # [PROJECT_DIR]/Cargo.toml
 [workspace]
-members = ["bar", "baz"]
+members = ["foo", "bar"]
 [workspace.dependencies]
 cc = "1.0.73"
 rand = "0.8.5"
 regex = { version = "1.6.0", default-features = false, features = ["std"] }
+tracing = "0.1.37"
+
+# [PROJECT_DIR]/foo/Cargo.toml
+[dependencies]
+tracing = { workspace = true }
+
+# [PROJECT_DIR]/bar/Cargo.toml
+[dependencies]
+tracing = { workspace = true, default-features = false } # warning: default-features ignored
 ```
 
 
@@ -362,6 +371,37 @@ Similarly, you can use workspace inheritance for the `dependencies` table.
 This is especially helpful when multiple crates share the same dependencies. It reduces the burden of updating versions across crates.
 Even for tools like Renovate or Dependabot, dependency updates become much easier to manage.
 -->
+
+
+---
+transition: slide-left
+---
+
+# Workspace inheritance
+
+A known issue [^1]
+
+
+```toml
+# [PROJECT_DIR]/Cargo.toml
+[workspace]
+members = ["foo", "bar"]
+[workspace.dependencies]
+cc = "1.0.73"
+rand = "0.8.5"
+regex = { version = "1.6.0", default-features = false, features = ["std"] }
+tracing = "0.1.37"
+
+# [PROJECT_DIR]/foo/Cargo.toml
+[dependencies]
+tracing = { workspace = true }
+
+# [PROJECT_DIR]/bar/Cargo.toml
+[dependencies]
+tracing = { workspace = true, default-features = false } # warning: default-features ignored
+```
+
+[^1]: [cargo#12162](https://github.com/rust-lang/cargo/issues/12162)
 
 ---
 transition: slide-left
