@@ -410,6 +410,46 @@ This is a known limitation tracked in this GitHub issue.
 For now, if you need to customize those fields, disable them in the workspace and enable them per crate.
 -->
 
+
+---
+transition: slide-left
+---
+
+# Git Dependencies
+
+`-Zgit=shallow-deps` unstable feature
+
+| Command | User Time | System Time | Total |
+|---------|-----------|-------------|-------|
+| `cargo build` | 1013.69s | 152.69s | 3:27.03 |
+| `cargo build -Zgit=shallow-deps` | 1017.79s | 152.84s | 2:43.67 |
+
+
+```bash {*}{maxHeight:'100px'}
+    Updating git repository `https://github.com/rust-lang/cmake-rs`
+    Updating git repository `https://github.com/tikv/fs2-rs`
+    Updating git repository `https://github.com/pingcap/rust-protobuf`
+    Updating git submodule `https://github.com/google/protobuf`
+    Updating git submodule `https://github.com/google/benchmark.git`
+    Updating git repository `https://github.com/tikv/raft-rs`
+    Updating git repository `https://github.com/tikv/rust-snappy.git`
+    Updating git submodule `https://github.com/google/snappy.git`
+    Updating git repository `https://github.com/tikv/sysinfo`
+    Updating git repository `https://github.com/tikv/tame-oauth`
+    Updating git repository `https://github.com/pingcap/kvproto.git`
+    Updating git repository `https://github.com/tikv/raft-engine.git`
+    Updating git repository `https://github.com/tikv/slog-global.git`
+    Updating git repository `https://github.com/tikv/tokio`
+    Updating git repository `https://github.com/tikv/yatp.git`
+    Updating git repository `https://github.com/tikv/procinfo-rs`
+    Updating git repository `https://github.com/tikv/tracing-active-tree.git`
+    Updating git repository `https://github.com/tikv/rust-rocksdb.git`
+    Updating git submodule `https://github.com/tikv/rocksdb.git`
+    Updating git submodule `https://github.com/tikv/titan.git`
+    Updating git repository `https://github.com/tikv/encoding_rs.git`
+    Updating git repository `https://github.com/pingcap/tipb.git`
+```
+
 ---
 transition: slide-left
 ---
