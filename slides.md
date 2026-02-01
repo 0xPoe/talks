@@ -403,6 +403,13 @@ tracing = { workspace = true, default-features = false } # warning: default-feat
 
 [^1]: [cargo#12162](https://github.com/rust-lang/cargo/issues/12162)
 
+<!--
+One caveat with workspace dependency inheritance is that you can’t override fields like `default-features` or `features` when inheriting.
+If you try, Cargo emits a warning and ignores the override.
+This is a known limitation tracked in this GitHub issue.
+For now, if you need to customize those fields, disable them in the workspace and enable them per crate.
+-->
+
 ---
 transition: slide-left
 ---
