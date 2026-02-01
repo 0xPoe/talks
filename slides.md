@@ -88,7 +88,7 @@ layout: center
   <div class="border-l border-gray-400 border-opacity-25 !all:leading-12 !all:list-none my-auto">
 
   - TiKV Project Overview
-  - 5 Tips
+  - 6 Tips
   - Q&A
 
   </div>
@@ -97,7 +97,7 @@ layout: center
 <!--
 Here's the agenda for today's talk.
 First, I'll give a brief overview of the TiKV project.
-Then, I'll share 5 tips on how we use Cargo to ship TiKV.
+Then, I'll share 6 tips on how we use Cargo to ship TiKV.
 Finally, we'll have a Q&A session where you can ask any questions you may have.
 -->
 
@@ -201,7 +201,7 @@ transition: slide-up
 layout: center
 ---
 
-# 5 Tips for Shipping TiKV with Cargo
+# 6 Tips for Shipping TiKV with Cargo
 
 
 ---
