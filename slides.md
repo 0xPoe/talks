@@ -417,7 +417,7 @@ transition: slide-left
 
 # Git Dependencies
 
-`-Zgit=shallow-deps` unstable feature
+`-Zgit=shallow-deps` unstable feature [^1]
 
 | Command | User Time | System Time | Total |
 |---------|-----------|-------------|-------|
@@ -425,7 +425,7 @@ transition: slide-left
 | `cargo build -Zgit=shallow-deps` | 1017.79s | 152.84s | 2:43.67 |
 
 
-```bash {*}{maxHeight:'100px'}
+```bash {*}{maxHeight:'150px'}
     Updating git repository `https://github.com/rust-lang/cmake-rs`
     Updating git repository `https://github.com/tikv/fs2-rs`
     Updating git repository `https://github.com/pingcap/rust-protobuf`
@@ -449,6 +449,8 @@ transition: slide-left
     Updating git repository `https://github.com/tikv/encoding_rs.git`
     Updating git repository `https://github.com/pingcap/tipb.git`
 ```
+
+[^1]: [git-shallow-deps](https://doc.rust-lang.org/cargo/reference/unstable.html#git)
 
 ---
 transition: slide-left
