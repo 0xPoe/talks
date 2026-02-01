@@ -34,6 +34,8 @@ Some thoughts and tips on how we use Cargo to ship TiKV.
 <!--
 Alright, let's get started!
 
+Thanks for joining me today.
+
 Today I'm going to share with you some thoughts and tips on how we use Cargo to ship TiKV, a distributed transactional key-value database.
 
 -->
@@ -67,7 +69,7 @@ Cargo Maintainer@Rust<br/>
 <!--
 Let me introduce myself first.
 I'm Dongpo, a senior database kernel engineer at PingCAP, the company behind TiDB and TiKV. All our products are open source. So feel free to check them out.
-I'm also a big believer in Open Source and I help maintain Cargo, the Rust package manager.
+I'm also a big believer in Open Source and I help maintain Cargo.
 I'm pretty interested in distributed systems, databases, and dev tools. You can find me on the internet via these links. 
 -->
 
@@ -518,6 +520,10 @@ a use-after-free would result. See RUSTSEC-2025-0022
 """
 ```
 
+
+[^1]: [Clippy Disallowing Methods and Types](https://rust-lang.github.io/rust-clippy/master/index.html#disallowed_methods)
+
+
 <!--
 The next tip is to use linters as much as possible.
 I believe most of you are familiar with Clippy and use it daily.
@@ -527,8 +533,6 @@ For example, we don’t allow direct use of `std::thread::Builder::spawn`. Inste
 This is useful when you want to enforce team‑wide standards or prevent the use of APIs you don’t recommend.
 -->
 
-
-[^1]: [Clippy Disallowing Methods and Types](https://rust-lang.github.io/rust-clippy/master/index.html#disallowed_methods)
 
 ---
 transition: slide-left
@@ -784,13 +788,14 @@ layout: center
 <br/>
 <br/>
 
+
+## Do you have any questions?
+
 <!--
 Alright, that wraps up my tips for shipping TiKV with Cargo.
 I hope you found them useful.
 Now I’d love to hear from you — any questions?
 -->
-
-## Do you have any questions?
 
 ---
 transition: slide-up
