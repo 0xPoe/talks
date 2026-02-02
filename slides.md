@@ -32,12 +32,9 @@ Some thoughts and tips on how we use Cargo to ship TiKV.
 </div>
 
 <!--
-Alright, let's get started!
+All right, let’s get started. Thank you for joining me today.
 
-Thanks for joining me today.
-
-Today I'm going to share with you some thoughts and tips on how we use Cargo to ship TiKV, a distributed transactional key-value database.
-
+Today, I’d like to share some thoughts and practical tips on how we use Cargo to ship TiKV, a distributed transactional key-value database.
 -->
 
 ---
@@ -67,10 +64,16 @@ Cargo Maintainer@Rust<br/>
 <img src="https://avatars.githubusercontent.com/u/29879298?v=4" rounded-full absolute top-48 right-40 w-40 />
 
 <!--
-Let me introduce myself first.
-I'm Dongpo, a senior database kernel engineer at PingCAP, the company behind TiDB and TiKV. All our products are open source. So feel free to check them out.
-I'm also a big believer in Open Source and I help maintain Cargo.
-I'm pretty interested in distributed systems, databases, and dev tools. You can find me on the internet via these links. 
+Let me briefly introduce myself.
+My name is Dongpo, and I’m a senior database kernel engineer at PingCAP, the company behind TiDB and TiKV.
+
+All of our products are open source. We build distributed databases, so feel free to check them out.
+
+I’m a strong believer in open source, and I’m currently one of the maintainers of the Cargo project. In the past, I was also a member of the Rustup and TiDB crates.io teams.
+
+Right now, my main focus is on Cargo. My interests include distributed systems, databases, and developer tools.
+
+You can find me online through these links. And feel free to reach out if there’s anything you’d like to discuss.
 -->
 
 ---
@@ -95,10 +98,11 @@ layout: center
 </div>
 
 <!--
-Here's the agenda for today's talk.
-First, I'll give a brief overview of the TiKV project.
-Then, I'll share 6 tips on how we use Cargo to ship TiKV.
-Finally, we'll have a Q&A session where you can ask any questions you may have.
+First, I’ll give a brief overview of the TiKV project and its community.
+
+Then, I’ll share six tips on how we use Cargo to ship TiKV.
+
+Finally, we’ll wrap up with a Q&A session, where you can ask any questions you may have.
 -->
 
 ---
@@ -123,11 +127,19 @@ Cluster Overview
 
 <img src="https://tikv.org/img/basic-architecture.png" rounded-lg shadow-lg w="90%" h="85%" mx-auto />
 
-
 <!--
-TiKV is a distributed, transactional key-value database. Under the hood, it uses Raft to keep data consistent across nodes.
-Here is a typical TiKV cluster architecture. A cluster is made up of multiple TiKV nodes that store the data. Each node runs several Raft groups to replicate data across the cluster. The Placement Driver (PD) manages metadata and schedules the Raft groups.
-Because TiKV targets high performance and low latency, it is implemented in Rust. The project started in 2016. Next, let’s zoom in on a single TiKV instance.
+As you can see, TiKV is a distributed transactional key-value database.
+Under the hood, it uses Raft to keep data consistent across multiple instances.
+
+This slide shows a typical TiKV cluster architecture. A cluster consists of multiple TiKV nodes, which are responsible for storing data. Each node runs multiple Raft groups to replicate data across the cluster.
+
+The Placement Driver cluster manages metadata and handles scheduling for these Raft groups.
+
+Since TiKV serves as the storage layer of our database system, it is designed to deliver high performance and low latency. That’s also why we chose to implement it in Rust.
+
+The project started back in 2016.
+
+Next, let’s zoom in and take a closer look at a single TiKV instance.
 -->
 
 ---
@@ -345,7 +357,6 @@ rand = "0.8.5"
 
 ```toml
 # [PROJECT_DIR]/bar/Cargo.toml
-
 [dependencies]
 regex = { workspace = true, features = ["unicode"] }
 [build-dependencies]
@@ -989,3 +1000,4 @@ layout: center
 ---
 
 # Thank You!
+ou!
