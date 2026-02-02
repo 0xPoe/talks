@@ -585,6 +585,113 @@ And since there aren’t many binaries, cross‑process parallelism doesn’t he
 So whether nextest is faster depends on your test structure. If most tests are unit tests spread across many binaries, it will likely speed things up. But if you have just a few integration-test binaries, it might not help. It may even break tests that rely on shared state.
 -->
 
+
+---
+transition: slide-left
+layout: two-cols-header
+---
+
+# Integration Tests
+
+Put all integration tests in a single binary
+
+
+::left::
+
+
+<div class="mx-2">
+
+````md magic-move {at:1}
+```rust {1,8}
+# tests/test1.rs
+#[test]
+fn test_addition() {
+    let sum = 2 + 2;
+    assert_eq!(sum, 4);
+}
+
+# tests/test2.rs
+#[test]
+fn test_subtraction() {
+    let difference = 5 - 3;
+    assert_eq!(difference, 2);
+}
+```
+
+```rust {1-3,5,12}
+# tests/testsuite/main.rust
+mod test1;
+mod test2;
+
+# tests/testsuite/test1.rs
+#[test]
+fn test_addition() {
+    let sum = 2 + 2;
+    assert_eq!(sum, 4);
+}
+
+# tests/testsuite/test2.rs
+#[test]
+fn test_subtraction() {
+    let difference = 5 - 3;
+    assert_eq!(difference, 2);
+}
+```
+````
+</div>
+
+::right::
+
+<div class="mx-2">
+
+````md magic-move {at:1}
+```bash {11-13,17-19}
+.
+├── Cargo.lock
+├── Cargo.toml
+├── src
+│   └── main.rs
+├── target
+│   ├── CACHEDIR.TAG
+│   ├── debug
+│   │   ├── build
+│   │   ├── deps
+│   │   │   ├── foo-a5cef2429056f6e1
+│   │   │   ├── test1-4c1f19403823faf2
+│   │   │   ├── test2-ede9a97ce0a4eb10
+│   │   ├── examples
+│   │   └── foo
+│   └── tmp
+└── tests
+    ├── test1.rs
+    └── test2.rs
+```
+
+```bash {11-13,16-20}
+.
+├── Cargo.lock
+├── Cargo.toml
+├── src
+│   └── main.rs
+├── target
+│   ├── CACHEDIR.TAG
+│   ├── debug
+│   │   ├── build
+│   │   ├── deps
+│   │   │   ├── foo-a5cef2429056f6e1
+│   │   │   ├── foo-e471945388faef79
+│   │   │   └── testsuite-c27e06ab2ed00b25
+│   │   ├── examples
+│   │   └── foo
+└── tests
+    └── testsuite
+        ├── main.rs
+        ├── test1.rs
+        └── test2.rs
+```
+````
+</div>
+
 ---
 transition: slide-left
 ---
