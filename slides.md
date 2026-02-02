@@ -154,11 +154,17 @@ Instance Deatails
 <img src="https://tikv.org/img/tikv-instance.png" rounded-lg shadow-lg w="90%" h="80%" mx-auto />
 
 <!--
-Under the hood, TiKV uses RocksDB as its storage engine. If you look at our other components, like TiDB, you’ll see we use Go for most of them.
-Since we rely heavily on RocksDB, Go wasn’t a great fit. At the same time, our co‑founders were big fans of Rust, so we chose Rust for TiKV.
-That choice was challenging because Rust was still young and the ecosystem wasn’t mature. We had to build a lot of pieces from scratch.
--->
+Under the hood, TiKV uses RocksDB as its storage engine.
+RocksDB is a high-performance C++ storage engine originally developed at Facebook and later open sourced.
 
+If you look at our other components, such as TiDB—which serves as the compute layer of our database—you’ll notice that they are mostly built in Go.
+
+However, TiKV relies heavily on RocksDB. For this kind of usage, Go wasn’t a great fit. Even though cgo is available, managing memory efficiently through the CGo interface can be quite challenging.
+
+At the time, our co-founders were strong believers in Rust, so back in 2016, we decided to build TiKV in Rust.
+
+That decision wasn’t without challenges. Rust was still very young—the 1.0 release had just come out—and the ecosystem was far from mature. We had to build many components from scratch.
+-->
 
 ---
 transition: slide-left
@@ -175,11 +181,20 @@ transition: slide-left
 - [fail-rs](https://github.com/tikv/fail-rs)
 
 <!--
-As you can see, we’ve contributed a lot to the Rust ecosystem, especially in systems programming and distributed systems.
-Several of these projects are widely used in the Rust community, and we’re proud to have had a positive impact.
-Please feel free to check them out.
--->
+As you can see, we’ve contributed quite a lot to the Rust ecosystem, especially in the areas of systems programming and distributed systems.
 
+Several of these projects are widely used in the Rust community. For example, we maintain the jemalloactor rust implementation, and we also built the first Rust client for Prometheus.
+
+We even open sourced our core implementation of the Raft algorithm in Rust.
+
+At the same time, we borrowed many good ideas from the Go community. One example is that we built the first implementation of pprof in Rust, which allows you to collect and inspect CPU profiles. This tool is extremely useful when you’re doing performance investigations.
+
+In addition, TiDB is composed of multiple layers, and these layers communicate with each other using gRPC. As a result, we implemented the first high-performance gRPC framework in Rust. It has been used in production and delivers very strong performance.
+
+Beyond that, we’ve also developed a number of smaller libraries to improve observability and testing infrastructure.
+
+Please feel free to check them out—we hope these tools can be useful to you as well.
+-->
 
 ---
 transition: slide-left
@@ -203,9 +218,17 @@ transition: slide-left
 </div>
 
 <!--
-TiKV has over 500,000 lines of Rust code, organized into 83 crates.
-It also has 600+ dependencies, which we manage with Cargo. It’s fair to say Cargo plays a crucial role in our development workflow.
-Now, let’s dive into five tips for shipping TiKV with Cargo and managing a project at this scale.
+Let’s talk about the TiKV codebase.
+
+TiKV consists of over 500,000 lines of Rust code, organized into 83 crates. It also depends on around 600 dependencies, all of which are managed using Cargo.
+
+Given this scale, it’s fair to say that Cargo plays a critical role in our day-to-day development workflow.
+
+With that in mind, let’s dive into some practical tips for shipping TiKV with Cargo and managing a project at this scale.
+
+In this talk, we’ll focus specifically on how we use Cargo—sharing tips and tricks from our experience—rather than diving into the internals of the database itself.
+
+So, let’s get started.
 -->
 
 ---
@@ -215,6 +238,9 @@ layout: center
 
 # 6 Tips for Shipping TiKV with Cargo
 
+<!--
+
+-->
 
 ---
 transition: slide-left
@@ -232,21 +258,30 @@ transition: slide-left
 [^3]: [cargo#8728](https://github.com/rust-lang/cargo/issues/8728)
 
 <!--
-The first tip is to always check in the `Cargo.lock` file.
-For applications, this is standard practice to ensure reproducible builds. TiKV is definitely an application, even though it also contains libraries, so we committed `Cargo.lock` from the start.
-This ensures everyone uses the same dependency versions and avoids surprises during builds.
+The first tip is to always check in your Cargo.lock file.
 
-Cargo has also updated its guidance for libraries. Today, both applications and libraries are advised to check in `Cargo.lock`, which helps keep dependency resolution consistent across environments.
+For applications, this is already a standard practice, since it guarantees reproducible builds—and Cargo actually enables this by default.
 
-Historically, the main reason to skip `Cargo.lock` in libraries was to test against the latest dependencies. But that can cause unexpected breakages when a dependency releases a new version. By checking in `Cargo.lock`, we avoid that risk and keep control over our dependency set. For example, CI won’t suddenly fail because an upstream release introduced breaking changes.
+TiKV is definitely an application. We have multiple binary targets, and although we also have some library targets, we’ve checked in our Cargo.lock file from the very beginning.
 
-When you do want to test against the newest dependencies, set up a separate CI job that periodically updates dependencies and runs tests. That way, you can catch issues early without disrupting the main workflow.
+This ensures that everyone uses the exact same dependency versions and avoids surprises during builds—not only on local machines, but also in CI environments.
+
+Interestingly, Cargo has also updated its guidance for libraries. Today, both applications and libraries are encouraged to check in Cargo.lock, which helps keep dependency resolution consistent across different environments.
+
+Historically, the main reason for excluding Cargo.lock in libraries was to test against the latest versions of dependencies. However, this often leads to unexpected breakages when an upstream dependency releases a new version.
+
+By checking in Cargo.lock, we avoid this kind of risk and gain full control over our dependency set. For example, your CI won’t suddenly fail just because an upstream release introduced a breaking change.
+
+This situation is quite common: a contributor submits a perfectly valid pull request, but the CI fails for reasons completely unrelated to their changes—simply because a dependency was updated. That can be very frustrating.
+
+At the same time, as a library maintainer, you may still want to understand how your project behaves with the latest dependencies. In that case, a good approach is to set up a separate CI job that periodically updates dependencies and runs tests.
+
+This way, you can catch issues early without disrupting your main development workflow.
 -->
 
 ---
 transition: slide-left
 ---
-
 
 # Always check in `Cargo.lock` 
 
@@ -267,9 +302,15 @@ jobs:
 ```
 
 <!--
-Here’s a GitHub Actions workflow that checks out the code, updates dependencies, builds the project, and runs tests.
+Here’s an example of a GitHub Actions workflow.
 
-You can also set `continue-on-error: true` so this job won’t fail the whole workflow if something breaks. That lets you monitor dependency updates without disrupting the main CI pipeline or blocking merges.
+This job checks out the code, updates dependencies, builds the project, and then runs the test suite.
+
+One important detail is that you can set continue-on-error to true. With this setting, even if something breaks, the job won’t fail the entire workflow.
+
+This allows you to continuously monitor dependency updates without disturbing your main CI pipeline or blocking merges.
+
+The same idea applies to most other CI systems as well—you can usually configure a non-blocking job to track dependency updates in a similar way.
 -->
 
 ---
@@ -317,11 +358,15 @@ publish.workspace = true
 [^1]: [Cargo Book: Workspace Package Table](https://doc.rust-lang.org/cargo/reference/workspaces.html#the-package-table)
 
 <!--
-The second tip is to use workspace inheritance for the `package` table.
-By defining common fields in the workspace `Cargo.toml`, you avoid duplication and keep all member crates consistent.
-Before workspace inheritance, you had to repeat fields like `authors`, `homepage`, `rust-version`, and `publish` in every crate’s `Cargo.toml`.
-Now you can define them once in the workspace `Cargo.toml`, and member crates inherit them with `workspace = true`.
-This simplifies maintenance and reduces the risk of inconsistencies.
+The next tip is to use workspace inheritance for the package table.
+
+As you can see here, we define the package table at the workspace level. It includes fields such as authors, homepage, rust-version, and the publish setting.
+
+Without this feature, you would have to repeat the same set of metadata again and again in every single crate, which quickly becomes tedious and error-prone.
+
+With workspace inheritance, you can simply mark these fields with workspace = true, and all member crates will automatically inherit them from the workspace Cargo.toml.
+
+This is extremely useful for maintaining consistency across a large codebase. In a project of this size, most crates share the same metadata, and this approach significantly simplifies maintenance while reducing duplication.
 -->
 
 ---
@@ -368,11 +413,18 @@ rand.workspace = true
 [^1]: [Cargo Book: Workspace Dependency Table](https://doc.rust-lang.org/cargo/reference/workspaces.html#the-dependencies-table)
 
 <!--
-Similarly, you can use workspace inheritance for the `dependencies` table.
-This is especially helpful when multiple crates share the same dependencies. It reduces the burden of updating versions across crates.
-Even for tools like Renovate or Dependabot, dependency updates become much easier to manage.
--->
+Similarly, you can also use workspace inheritance for dependencies.
 
+As shown here, we define shared dependencies in the workspace-level dependency table. These dependencies can then be reused across multiple crates.
+
+Without this feature, each crate would need to repeat dependency versions, feature flags, and other configuration over and over again. In a large project, this quickly becomes hard to maintain.
+
+In practice, many crates within the same workspace depend on the same libraries. With workspace dependency inheritance, you can simply set workspace = true, and those crates will automatically inherit the dependency configuration.
+
+This dramatically reduces the burden of version updates. Previously, updating a dependency meant touching every crate that used it. Now, you only need to change a single line in the workspace dependency table.
+
+This also makes dependency update tools—such as Dependabot—much easier to work with. Updates become simpler to review, since they often result in just a one-line change.
+-->
 
 ---
 transition: slide-left
@@ -405,12 +457,20 @@ tracing = { workspace = true, default-features = false } # warning: default-feat
 [^1]: [cargo#12162](https://github.com/rust-lang/cargo/issues/12162)
 
 <!--
-One caveat with workspace dependency inheritance is that you can’t override fields like `default-features` or `features` when inheriting.
-If you try, Cargo emits a warning and ignores the override.
-This is a known limitation tracked in this GitHub issue.
-For now, if you need to customize those fields, disable them in the workspace and enable them per crate.
--->
+That said, I also want to highlight a known issue with workspace dependency inheritance.
 
+In this example, we have a workspace with two member crates, foo and bar. Both of them depend on the tracing crate.
+
+For the foo crate, it simply inherits the dependency from the workspace, which works as expected.
+
+However, the bar crate also inherits tracing from the workspace, but it wants to disable the default features. Unfortunately, this doesn’t work as intended. Once default features are enabled at the workspace level, member crates cannot selectively disable them.
+
+The workaround here is to disable default features at the workspace level first. Then, in each individual crate, you can explicitly enable or override features on a crate-by-crate basis.
+
+This behavior can sometimes be surprising, so it’s something to be aware of when using workspace dependencies to manage shared libraries.
+
+Hopefully, this issue will be addressed in a future Rust edition. Fixing it would require a behavior change, which is why it has to wait until the next edition.
+-->
 
 ---
 transition: slide-left
