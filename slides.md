@@ -328,20 +328,10 @@ members = ["foo", "bar"]
 cc = "1.0.73"
 rand = "0.8.5"
 regex = { version = "1.6.0", default-features = false, features = ["std"] }
-tracing = "0.1.37"
-
-# [PROJECT_DIR]/foo/Cargo.toml
-[dependencies]
-tracing = { workspace = true }
-
-# [PROJECT_DIR]/bar/Cargo.toml
-[dependencies]
-tracing = { workspace = true, default-features = false } # warning: default-features ignored
 ```
 
 
 ````md magic-move
-
 ```toml
 # [PROJECT_DIR]/bar/Cargo.toml
 
