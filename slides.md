@@ -861,7 +861,7 @@ fn test_subtraction() {
 ```
 
 ```rust {1-3,5,12}
-# tests/testsuite/main.rust
+# tests/testsuite/main.rs
 mod test1;
 mod test2;
 
