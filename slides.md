@@ -513,6 +513,150 @@ transition: slide-left
 
 [^1]: [git-shallow-deps](https://doc.rust-lang.org/cargo/reference/unstable.html#git)
 
+<!--
+Once all the crates and projects are set up, the next thing we need to think about is the build phase.
+
+In this phase, I’d like to share a practical trick we use in the TiKV project. As I mentioned earlier, many of the libraries we depend on are actually wrappers around C++ projects.
+
+As a result, when building TiKV, we also have to compile a significant amount of C++ code. In addition, we rely on many Git-based dependencies, and some of them are large C++ projects with long commit histories.
+
+Cloning these repositories can be quite slow and often becomes a noticeable part of the build time.
+
+To speed this up, we enable Cargo’s shallow Git dependency support, which is currently an unstable feature. With this setting, Cargo performs shallow clones instead of fetching the full Git history.
+
+As you can see from the numbers here, without this feature, a cargo build takes around 3 minutes and 27 seconds. After enabling shallow Git dependencies, the build time drops to 2 minutes and 43 seconds—an improvement of more than 30 seconds.
+
+This optimization is especially useful for projects with many Git dependencies. It significantly speeds up the cloning process and can noticeably improve overall build times.
+-->
+
+---
+transition: slide-left
+---
+
+# Cargo Profiles
+
+A tiny historical mistake!
+
+```toml {all|4}
+[profile.dev]
+opt-level = 0
+debug = 0
+codegen-units = 4
+lto = false
+incremental = true
+panic = 'unwind'
+debug-assertions = true
+overflow-checks = false
+rpath = false
+```
+
+<!--
+Let’s continue talking about the build phase, and specifically about Cargo profiles.
+
+As you all know, Rust provides multiple build profiles: dev, release, test, and even bench. Today, I want to focus on the dev profile, because this is the one that affects our daily work the most.
+
+We don’t really worry too much about release builds here—we all know they’re slow, and that’s expected. What really matters is developer build speed.
+
+In the early days of TiKV, a full build could take anywhere from one to two hours. That meant you only had a handful of chances to build the project in a single day. We even joked about it back then.
+
+To address this, we tuned our dev profile to prioritize build speed over runtime performance.
+
+First, we disabled optimizations, since performance is not our primary concern in development builds.
+
+Second, we turned off debug information. This significantly reduces compile time and also helps shrink binary size.
+
+We also set codegen-units to 4, which allows the compiler to generate code in parallel and further speeds up compilation.
+
+Interestingly, there’s a small historical mistake in this dev profile. I’m not sure if you can spot it.
+
+I won’t go through every possible configuration here—you can find the full list in Cargo’s documentation—but these settings alone made a huge difference to our daily development experience.
+-->
+
+---
+transition: slide-left
+---
+
+# Cargo Profiles - `codegen-units`
+
+A tiny historical mistake!
+
+| codegen-units | Dev Build Time |
+|---------------|------------|
+| 4 [^1][^2]             | 3:11       |
+| 256[^3]          |  <span v-mark="{ color: 'green', type: 'circle' }">2:55</span>   |
+
+
+[^1]: [2014](https://github.com/rust-lang/rust/commit/cf672850)
+[^2]: [2016](https://github.com/tikv/tikv/pull/1393/changes)
+[^3]: [2020](https://github.com/rust-lang/rust/pull/70156)
+
+<!--
+So here’s the small mistake we made in the past.
+
+We set codegen-units to 4 in our Cargo configuration. However, today the default value is actually 256.
+
+As you can see from this benchmark, with the default setting, the build time is reduced from 3 minutes and 11 seconds to 2 minutes and 55 seconds, which is roughly a 20-second improvement.
+
+The reason we originally set this value to 4 was historical. Back in 2014, the Rust compiler defaulted to a single codegen unit, which resulted in very long build times. At that time, increasing it to 4 was a reasonable optimization.
+
+Over the years, the compiler has improved significantly. Incremental compilation was introduced, and in 2020 the default number of codegen units was increased to 256.
+
+As a result, today you usually don’t need to manually tune this option anymore—Cargo already picks a good default for you.
+
+That said, if you do choose to tweak compiler or Cargo settings, it’s important to revisit them periodically as the compiler evolves, and make sure old optimizations don’t quietly turn into new bottlenecks.
+-->
+
+---
+transition: slide-left
+---
+
+# Cargo Profiles - `debug`
+A cmake-rs issue [^1]
+
+
+```toml {all|2,4-6}
+[profile.dev]
+debug = 0
+...
+[profile.dev.package.librocksdb_sys]
+debug = false
+opt-level = 1
+[profile.dev.package.tests]
+debug = 1
+opt-level = 1
+```
+
+| debug | Build Time | Binary Size |
+|-------|------------|-------------|
+| true | 3:21 | 599M |
+| 0 | **3:00** |  <span v-mark="{ color: 'green', type: 'circle' }">478M</span> |
+
+[^1]: [cmake-rs#79](https://github.com/rust-lang/cmake-rs/issues/79#issuecomment-494676960)
+
+<!--
+Another interesting story—and a very practical trick—we used to improve TiKV’s build time is related to debug information.
+
+As I mentioned earlier, TiKV uses RocksDB as its storage engine, which means we compile a large amount of C++ code through the cmake-rs crate.
+
+At the time, we wanted to reduce both the binary size and the overall build time. Naturally, we tried disabling debug information by setting debug = 0 in our Cargo profiles.
+
+However, even after doing that, we noticed that the final binary was still very large, and the build time was still slow. Some debug information was clearly still being generated.
+
+After some investigation, we found that cmake-rs was forcing debug information for the C++ code and effectively ignoring our global Cargo profile settings. The full discussion and details can be found in this GitHub issue.
+
+Our workaround was to override the profile settings specifically for the librocksdb-sys crate. In this configuration, we explicitly disabled debug information and set the optimization level to 1.
+
+With these settings in place, CMake finally respected our configuration. As a result, the build time was reduced by around 20 seconds, and the binary size dropped by more than 100 megabytes.
+
+This is a huge improvement, especially if your project depends on large C++ codebases.
+
+At the same time, while we disabled debug information for the final TiKV binary, we still wanted useful debugging support when running tests. So for test builds, we explicitly set debug = 1.
+
+This gives us a good balance: fast builds and small binaries for final binaries, while still retaining enough debug information to investigate failing tests.
+
+This is another example of how carefully tuning Cargo profiles can significantly improve developer experience in large, mixed-language projects.
+-->
+
 ---
 transition: slide-left
 ---
@@ -530,15 +674,23 @@ tokio: 1647 tests in 228 binaries [^2]
 [^2]: [tokio](https://github.com/tokio-rs/tokio)
 
 <!--
-The third tip is to use nextest for running tests.
-Nextest is a community tool that speeds up test execution by running tests in parallel and optimizing the overall test process.
+Now let’s talk about testing.
+After building the project, the next step is running tests—and this is another area where we can significantly improve developer productivity.
 
-Take Tokio as an example. It has 1,647 tests across 228 binaries.
-With `cargo test`, it took over 236 seconds. With `cargo nextest run`, it finished in just under 6 seconds.
+This tip is about speeding up test execution by leveraging a community tool called nextest.
 
-That kind of speedup is huge for large projects. In TiKV we have more than 4,000 tests, so nextest has been a game‑changer for our CI times.
+Nextest accelerates test execution by running tests in parallel and optimizing the overall test scheduling process.
+
+Let’s take Tokio as an example. Tokio has more than 1,000 tests spread across over 200 binaries. Most of these are unit tests distributed across many packages.
+
+With the default cargo test command, the total execution time is more than 200 seconds.
+
+When using Nextest, the entire test suite can finish in under 6 seconds. That’s an extremely dramatic improvement.
+
+This kind of speedup is especially impactful for large projects. In TiKV, we have more than 4,000 tests, and Nextest has been a real game changer for our CI pipeline.
+
+For projects at this scale, faster tests directly translate into faster feedback loops and much more efficient development.
 -->
-
 
 ---
 transition: slide-left
@@ -605,13 +757,28 @@ endif
 </div>
 
 <!--
-`cargo test` is slower because it builds each test binary and runs them sequentially. Each binary runs in its own process, and Cargo waits for one to finish before starting the next.
-Within a single process, tests can still run in parallel.
-Nextest separates listing from execution. It first builds all test binaries and lists the tests they contain.
-Then it runs tests in parallel across multiple processes and collects results as they complete.
-So of course nextest is faster! It seems we can blindly trust nextest for all out projects, right?
--->
+You might be wondering why cargo test is slow.
 
+The reason becomes clear if you look at how cargo test works internally.
+
+With cargo test, Cargo builds every test binary—what I’ll call a test crate or test target—and then runs them one by one.
+
+Within a single test binary, tests may run in parallel, but across different test binaries, execution is strictly sequential. Cargo won’t start running the next test binary until the previous one has finished.
+
+This becomes a serious bottleneck in large workspaces with many crates and many test targets.
+
+Nextest takes a different approach. It splits the entire test process into two phases.
+
+The first phase is the list phase. In this phase, Nextest still builds each test binary, but instead of running tests immediately, it invokes the test binary to list all available tests.
+
+The second phase is the run phase. In this phase, Nextest executes tests in parallel across processes and across test binaries. This allows much higher concurrency compared to cargo test.
+
+Finally, Nextest collects all results and presents a unified test report.
+
+This difference in execution model is the main reason why Nextest is so much faster than cargo test.
+
+So, with that being said, it might sound like we can blindly trust Nextest for all our projects… right?
+-->
 
 ---
 transition: slide-left
@@ -638,14 +805,28 @@ cargo: 4216 tests in 3 binaries
 2. Cargo's tests rely on shared state, which causes failures when run in parallel across processes.
 
 <!--
-Interestingly, in Cargo itself, nextest can be slower than `cargo test`.
+Here’s a surprising result—from Cargo itself.
 
-That’s because most Cargo tests are end‑to‑end integration tests concentrated in just a few binaries.
-When nextest runs them in parallel across processes, they can interfere with each other due to shared state, which leads to failures.
-And since there aren’t many binaries, cross‑process parallelism doesn’t help much.
-So whether nextest is faster depends on your test structure. If most tests are unit tests spread across many binaries, it will likely speed things up. But if you have just a few integration-test binaries, it might not help. It may even break tests that rely on shared state.
+If you try to use nextest on the Cargo codebase, you’ll actually find that Nextest is slower than cargo test.
+
+In Cargo, we have more than 4,000 tests, but they are concentrated in just three test binaries, because most of them are end-to-end integration tests.
+
+As a result, when running tests with Nextest, the total runtime ends up being even longer than cargo test, and we also observe a large number of test failures.
+
+There are two main reasons for this.
+
+First, because the tests are concentrated in only a few test binaries, Cargo doesn’t really benefit from Nextest’s execution model. There simply isn’t much additional concurrency to gain.
+
+Second, many of Cargo’s integration tests rely on shared state, such as reading from and writing to disk. When these tests are executed in parallel across processes, they can interfere with each other, leading to flaky or failed tests.
+
+So whether Nextest is faster really depends on your test structure.
+
+If most of your tests are unit tests spread across many crates—like in Tokio—Nextest can deliver dramatic speedups.
+
+But if your project mainly consists of a small number of large integration test binaries, Nextest may not help at all—and it may even break tests that rely on shared state.
+
+So while Nextest is a very powerful tool, it’s important to evaluate whether it actually fits your project before introducing it.
 -->
-
 
 ---
 transition: slide-left
@@ -752,6 +933,30 @@ fn test_subtraction() {
 ```
 ````
 </div>
+
+<!--
+As I mentioned earlier, whether Nextest helps or not really depends on your test structure.
+
+So I’d like to share an additional tip on how to manage and organize integration tests more efficiently.
+
+The core idea is simple: try to put all your integration tests into a single test binary.
+
+Let me show you an example. Suppose a project has two integration tests, test_one and test_two, and they are placed as separate files under the tests directory.
+
+With this structure, Cargo will generate two separate test binaries—one for each file. This increases both build time and test execution overhead.
+
+A useful trick to avoid this is to group all integration tests into a single test suite.
+
+Instead of having multiple test files directly under tests, you can create a subdirectory—for example, tests/test_suite—and add a main.rs file there.
+
+In that main.rs, you include test_one and test_two as modules of the same test suite.
+
+With this setup, Cargo will only produce one integration test binary for the entire suite.
+
+This approach reduces build time, and it also significantly improves test execution speed, because tests within a single binary can run in parallel.
+
+This is a simple structural change, but it can make a big difference—especially for large projects with many integration tests.
+-->
 
 ---
 transition: slide-left
@@ -929,111 +1134,6 @@ This should help catch common mistakes and enforce best practices at the package
 The feature is still in development, but it looks promising. You can follow the GitHub issue for updates.
 -->
 
----
-transition: slide-left
----
-
-# Cargo Profiles
-
-A tiny historical mistake!
-
-```toml {all|4}
-[profile.dev]
-opt-level = 0
-debug = 0
-codegen-units = 4
-lto = false
-incremental = true
-panic = 'unwind'
-debug-assertions = true
-overflow-checks = false
-rpath = false
-```
-
-<!--
-The last tip is about Cargo profiles.
-I’ll start with a small historical mistake we made early on.
-Here is our dev profile — see if you can spot it.
-We avoided optimizations in dev builds to speed up compile times.
-We also disabled debug info to reduce binary size.
-`codegen-units` controls parallel code generation. More units usually mean faster builds but worse runtime performance.
--->
-
----
-transition: slide-left
----
-
-
-# Cargo Profiles - `codegen-units`
-
-A tiny historical mistake!
-
-| codegen-units | Dev Build Time |
-|---------------|------------|
-| 4 [^1][^2]             | 3:11       |
-| 256[^3]          |  <span v-mark="{ color: 'green', type: 'circle' }">2:55</span>   |
-
-
-[^1]: [2014](https://github.com/rust-lang/rust/commit/cf672850)
-[^2]: [2016](https://github.com/tikv/tikv/pull/1393/changes)
-[^3]: [2020](https://github.com/rust-lang/rust/pull/70156)
-
-<!--
-The mistake was setting `codegen-units = 4`. Today the default is 256, which can speed up builds even more.
-We set it this way because back in 2014, the Rust compiler default was 1, which led to long build times.
-In 2016, we bumped it to 4 to speed things up.
-Over time, the compiler improved build times with incremental compilation, and the default codegen units increased to 256 in 2020.
-So usually you don’t need to set these options manually anymore — Cargo’s defaults are good enough.
-If you do tweak them, make sure to revisit them periodically as the compiler evolves.
--->
-
----
-transition: slide-left
----
-
-# Cargo Profiles - `debug`
-A cmake-rs issue [^1]
-
-
-```toml {all|2,4-6}
-[profile.dev]
-debug = 0
-...
-[profile.dev.package.librocksdb_sys]
-debug = false
-opt-level = 1
-[profile.dev.package.tests]
-debug = 1
-opt-level = 1
-```
-
-| debug | Build Time | Binary Size |
-|-------|------------|-------------|
-| true | 3:21 | 599M |
-| 0 | **3:00** |  <span v-mark="{ color: 'green', type: 'circle' }">478M</span> |
-
-[^1]: [cmake-rs#79](https://github.com/rust-lang/cmake-rs/issues/79#issuecomment-494676960)
-
-<!--
-Another interesting story is about the `debug` option.
-As I mentioned earlier, we use RocksDB as our storage engine, which means we compile a lot of C++ code via cmake-rs.
-
-We wanted to reduce the binary size of our dev builds, but even after setting `debug = 0`, the binaries were still large.
-
-It turned out cmake-rs was forcing debug info for the C++ code, ignoring our Cargo profile settings.
-
-You can see the discussion in this GitHub issue.
-
-We worked around this by overriding the profile settings for the cmake-rs package specifically.
-
-After enabling optimizations and disabling debug info, CMake respected the settings and produced smaller binaries.
-
-As you can see, that reduced the binary size by more than 100MB and sped up build times as well.
-
-You can also enable debug info only for test binaries, which is useful when debugging test failures.
-
-That’s another trick you can use with Cargo profiles.
--->
 
 ---
 transition: slide-up
