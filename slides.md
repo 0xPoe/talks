@@ -985,16 +985,21 @@ a use-after-free would result. See RUSTSEC-2025-0022
 
 [^1]: [Clippy Disallowing Methods and Types](https://rust-lang.github.io/rust-clippy/master/index.html#disallowed_methods)
 
-
 <!--
-The next tip is to use linters as much as possible.
-I believe most of you are familiar with Clippy and use it daily.
-But I want to share an advanced feature of Clippy.
-In TiKV, we use Clippy’s disallowed methods and types to enforce coding standards.
-For example, we don’t allow direct use of `std::thread::Builder::spawn`. Instead, we provide a wrapper that adds extra functionality.
-This is useful when you want to enforce team‑wide standards or prevent the use of APIs you don’t recommend.
--->
+After building and testing the project, the next phase is long-term maintenance.
 
+And for maintenance, my final tip is to use linters as much as possible.
+
+I believe most of you are already familiar with Clippy and probably use it in your daily workflow. What I want to highlight here are some of Clippy’s more advanced features that allow you to enforce project-specific rules.
+
+Let me use TiKV as an example. In our project, we don’t want developers to directly use the standard thread spawn API. Instead, we require all threads to be created through a wrapper, where we can perform additional checks and bookkeeping.
+
+To enforce this consistently, we simply disallow the original API using Clippy, and provide a clear explanation of why this API is forbidden and what should be used instead.
+
+This is a very effective way to enforce team-wide standards and prevent accidental misuse of APIs that are unsafe or inappropriate for your project.
+
+The same approach applies to many other cases as well. Clippy offers a rich set of advanced configurations that allow you to encode project conventions directly into the tooling.
+-->
 
 ---
 transition: slide-left
@@ -1024,15 +1029,22 @@ allow-org = { github = ["tikv", "pingcap", "rust-lang"] }
 
 [^1]: [Cargo Deny](https://embarkstudios.github.io/cargo-deny/)
 
-
 <!--
-Another powerful linter is Cargo Deny.
-As an open-source project, TiKV has strict requirements on dependency licenses.
-With Cargo Deny, we define allowed licenses and automatically check dependencies against that list.
+Another powerful linting and policy enforcement tool I’d like to introduce is Cargo Deny.
 
-It also helps enforce sourcing policies, such as only allowing dependencies from certain organizations.
+As I mentioned earlier, TiKV is an open-source project, and we have strict requirements when it comes to dependency licenses.
 
-We also use it to monitor security vulnerabilities in dependencies. The documentation has more details.
+With cargo-deny, we can explicitly define an allowlist of acceptable licenses. Cargo Deny then automatically checks all dependencies against this list.
+
+This is extremely useful, because doing this manually would be very difficult. Every time you introduce a new dependency, you’d have to remember to check its license—and not every contributor or developer is aware of these requirements.
+
+Beyond license checks, Cargo Deny also helps us enforce supply-chain policies. For example, we forbid unknown Git dependencies and unknown registries, except for the default registry.
+
+We also restrict Git dependencies to only trusted organizations, such as PingCAP and RustLang.
+
+This helps us avoid accidentally depending on untrusted third-party code.
+
+Overall, Cargo Deny is a very powerful tool for maintaining large open-source projects with strict license and security requirements. And it provides many other useful features that are worth exploring.
 -->
 
 ---
@@ -1077,11 +1089,16 @@ workspace = true
 [^1]: [Cargo Book: Workspace Lints Table](https://doc.rust-lang.org/cargo/reference/workspaces.html#the-lints-table)
 
 <!--
-Furthermore, Cargo now supports lints inheritance in workspaces.
-You can define linting rules at the workspace level, and member crates can inherit them with `workspace = true`.
-This keeps linting consistent across all crates and reduces duplication.
--->
+Regarding linters, I’d like to mention workspace inheritance once again.
 
+In addition to packages and dependencies, Cargo also supports workspace-level lint configuration.
+
+You can define lint tables for the Rust compiler and for Clippy at the workspace level, and then share these rules across all member crates.
+
+The mechanism is very similar to package and dependency inheritance. You simply mark the configuration with workspace = true, and all crates in the workspace will inherit the same lint rules.
+
+This is extremely useful for maintaining consistency across a large project. Instead of duplicating lint settings in every crate, you define them once and apply them everywhere.
+-->
 
 ---
 transition: slide-left
@@ -1127,13 +1144,20 @@ implicit_minimum_version_req = "warn"
 [^1]: [Cargo Linting System](https://github.com/rust-lang/cargo/issues/12235)
 
 <!--
-Looking ahead, Cargo is working on a built‑in linting system.
-It will let you define lint rules directly in `Cargo.toml`, similar to Clippy but focused on Cargo itself.
-For example, you could warn about dependencies that don’t specify a full version requirement.
-This should help catch common mistakes and enforce best practices at the package‑manager level.
-The feature is still in development, but it looks promising. You can follow the GitHub issue for updates.
--->
+I’d like to wrap up this talk by looking at what’s coming next.
 
+Cargo itself is currently working on a new manifest-level linting system. This system will allow you to define lint rules directly in Cargo.toml.
+
+Conceptually, it’s similar to Rust compiler lints or Clippy lints, but instead of focusing on Rust code, it focuses on Cargo manifests themselves.
+
+Here’s an example. In this manifest, we define a lint table that is specific to Cargo. Inside this table, we can specify various lint rules.
+
+In this case, we mark a minimum version requirement as a warning. Because the dependency version is not fully specified, Cargo emits a warning along with a very helpful message explaining how to fix it.
+
+This kind of linting helps catch common mistakes early and enforces best practices directly at the manifest level.
+
+The feature is still under development, but it already looks very promising. If you’re interested, you can follow the corresponding GitHub issue to track its progress.
+-->
 
 ---
 transition: slide-up
@@ -1149,9 +1173,11 @@ layout: center
 ## Do you have any questions?
 
 <!--
-Alright, that wraps up my tips for shipping TiKV with Cargo.
-I hope you found them useful.
-Now I’d love to hear from you — any questions?
+All right, that wraps up my tips for shipping TiKV with Cargo.
+
+I hope you found these ideas useful and that you can apply some of them in your own projects.
+
+Now I’d love to hear from you. Any questions?
 -->
 
 ---
@@ -1160,4 +1186,9 @@ layout: center
 ---
 
 # Thank You!
-ou!
+
+<!--
+All right, thank you everyone.
+Thank you for listening, and I hope you enjoy the afterparty.
+Thank you.
+-->
