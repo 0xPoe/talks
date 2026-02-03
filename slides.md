@@ -69,9 +69,7 @@ My name is Dongpo, and I’m a senior database kernel engineer at PingCAP, the c
 
 All of our products are open source. We build distributed databases, so feel free to check them out.
 
-I’m a strong believer in open source, and I’m currently one of the maintainers of the Cargo project. In the past, I was also a member of the Rustup and TiDB crates.io teams.
-
-Right now, my main focus is on Cargo. My interests include distributed systems, databases, and developer tools.
+I’m a strong believer in open source, and I’m currently one of the maintainers of the Cargo project. In the past, I was also a member of the Rustup and crates.io teams.
 
 You can find me online through these links. And feel free to reach out if there’s anything you’d like to discuss.
 -->
@@ -557,7 +555,7 @@ As you all know, Rust provides multiple build profiles: dev, release, test, and 
 
 We don’t really worry too much about release builds here—we all know they’re slow, and that’s expected. What really matters is developer build speed.
 
-In the early days of TiKV, a full build could take anywhere from one to two hours. That meant you only had a handful of chances to build the project in a single day. We even joked about it back then.
+In the early days of TiKV, a full build could take anywhere from one to two hours. That meant you only had a handful of chances to build the project in a single day. 
 
 To address this, we tuned our dev profile to prioritize build speed over runtime performance.
 
@@ -569,7 +567,7 @@ We also set codegen-units to 4, which allows the compiler to generate code in pa
 
 Interestingly, there’s a small historical mistake in this dev profile. I’m not sure if you can spot it.
 
-I won’t go through every possible configuration here—you can find the full list in Cargo’s documentation—but these settings alone made a huge difference to our daily development experience.
+I won’t go through every possible configuration here—you can find the full list in Cargo’s documentation.
 -->
 
 ---
