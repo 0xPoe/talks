@@ -612,7 +612,7 @@ transition: slide-left
 A cmake-rs issue [^1]
 
 
-```toml {all|2,4-6}
+```toml {all|2,4-6|2,7-9}
 [profile.dev]
 debug = 0
 ...
