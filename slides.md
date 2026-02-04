@@ -67,7 +67,8 @@ Cargo Maintainer@Rust<br/>
 Let me briefly introduce myself.
 My name is Dongpo, and I’m a senior database kernel engineer at PingCAP, the company behind TiDB and TiKV.
 
-All of our products are open source. We build distributed databases, so feel free to check them out.
+We are building a distributed database called TiDB.
+All of our products are open source. So feel free to check them out.
 
 I’m a strong believer in open source, and I’m currently one of the maintainers of the Cargo project. In the past, I was also a member of the Rustup and crates.io teams.
 
@@ -632,7 +633,7 @@ opt-level = 1
 [^1]: [cmake-rs#79](https://github.com/rust-lang/cmake-rs/issues/79#issuecomment-494676960)
 
 <!--
-Another interesting story—and a very practical trick—we used to improve TiKV’s build time is related to debug information.
+Another    story—and a very practical trick—we used to improve TiKV’s build time is related to debug information.
 
 As I mentioned earlier, TiKV uses RocksDB as its storage engine, which means we compile a large amount of C++ code through the cmake-rs crate.
 
@@ -1171,7 +1172,7 @@ layout: center
 ## Do you have any questions?
 
 <!--
-All right, that wraps up my tips for shipping TiKV with Cargo.
+All right, that wraps up my tips from shipping TiKV with Cargo.
 
 I hope you found these ideas useful and that you can apply some of them in your own projects.
 
